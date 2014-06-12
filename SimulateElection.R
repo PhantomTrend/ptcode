@@ -1,4 +1,10 @@
 
+library(dplyr)
+library(gstat)
+library(rgdal)
+
+
+source('BarryFilter.R')
 
 getPreviousState2pp = function(dataDir, previousElectionYear){
   tppByState = tbl_df(read.csv(paste(dataDir,'tpp_by_state_at_elections.csv',sep='/')))
@@ -18,6 +24,7 @@ getPreviousState2pp = function(dataDir, previousElectionYear){
   
   return(previousResultVector)
 }
+
 
 
 loadHistoricalErrors = function(dataDir, maxYear=2013){
@@ -43,7 +50,7 @@ loadHistoricalErrors = function(dataDir, maxYear=2013){
     
     modelData = mutate(modelData, alpIncumbent = 0)
     modelData[modelData$alp2ppLastTime > 50, "alpIncumbent"] = 1
-
+    
     modelData = mutate(modelData, StateSwing = NA )
     modelData[modelData$State=='NSW','StateSwing'] = (tppByState$Labor2ppNSW[election_t] - tppByState$Labor2ppNSW[election_t+1])
     modelData[modelData$State=='VIC','StateSwing'] =  (tppByState$Labor2ppVIC[election_t] - tppByState$Labor2ppVIC[election_t+1])
@@ -76,61 +83,209 @@ loadHistoricalErrors = function(dataDir, maxYear=2013){
 }
 
 
+getKrigedGrid = function( spatials, booths, longitudeLimits, latitudeLimits ){
+  
+  gridStepSizeX = diff(longitudeLimits)/100
+  gridStepSizeY = diff(latitudeLimits)/100
+  
+  gridCoordsX = seq(from = longitudeLimits[1], to = longitudeLimits[2], by = gridStepSizeX)
+  gridCoordsY = seq(from = latitudeLimits[1], to = latitudeLimits[2], by=gridStepSizeY) 
+  cityGrid = expand.grid(Long = gridCoordsX, Lat = gridCoordsY)
+  coordinates(cityGrid) = ~Long+Lat
+  gridded(cityGrid) = TRUE
+  proj4string(cityGrid) = CRS('+proj=longlat +ellps=GRS80 +no_defs')
+  
+  # Plots for various years in Melbourne and Sydney suggest that this 
+  # variogram model is fairly ok.
+  alpvg = variogram(ALP_2PP ~ 1, spatials, cressie=TRUE)
+  modelVg = fit.variogram(alpvg, vgm(300, 'Sph', 19, 5))
+  if(attr(modelVg, 'singular')){
+    return(list(singularVariogram=TRUE))
+  }
+  # Use kriging to estimate the ambient 2PP vote across the electorate and its
+  # surrounding area.
+  voteModel = krige(ALP_2PP ~ 1, locations = spatials, newdata = cityGrid, model = modelVg, nmax=6)
+  
+  # Now use a kernel density estimate for the population density.
+  # I resample the population in order to use the built-in kde routine, which
+  # expects a vector of samples.
+  # TODO: code up a kde function that accepts weights instead.
+  boothPopulationWeights = booths$Formal_votes / sum(booths$Formal_votes)
+  nBooths = nrow(booths)
+  nPopulationSamples = 7500
+  populationSamples = base::sample.int(nBooths, nPopulationSamples, replace=TRUE, prob=boothPopulationWeights)
+  xDraws = booths$Long[populationSamples]
+  yDraws = booths$Lat[populationSamples]
+  populationDensity = kde2d(xDraws, yDraws, n=c(length(gridCoordsX),length(gridCoordsY)),
+                            lims=c(longitudeLimits, latitudeLimits))
+  
+  populationModel = expand.grid(Long = gridCoordsX, Lat = gridCoordsY)
+  populationModel$population = as.vector(populationDensity$z)
+  coordinates(populationModel) = ~Long+Lat
+  gridded(populationModel) = TRUE
+  proj4string(populationModel) = CRS('+proj=longlat +ellps=GRS80 +no_defs')
+  
+  return(list(singularVariogram=FALSE, voteModel=voteModel, populationModel=populationModel, grid=cityGrid))
+}
 
 
-
-getSeatOutcomes = function(divisions,assumptions,stateSwingVector,historicalSeatErrors){
-  nSeats = nrow(divisions)
+getSeatOutcomesWithoutRedistributions = function(stateSwings,seatName, stateName, assumptions, alp2ppLastTime,
+                                                 historicalSeatErrors, seatReps){
   
-  # Start with the 2pp from last time
-  seat2pp = divisions$alp2pp
+  stateReps = ncol(stateSwings)
+  nOutcomes = stateReps*seatReps
   
-  # Add the statewide swings
-  seat2pp[which(divisions$State=='NSW')] = seat2pp[which(divisions$State=='NSW')] + stateSwingVector[1]
-  seat2pp[which(divisions$State=='VIC')] = seat2pp[which(divisions$State=='VIC')] + stateSwingVector[2]
-  seat2pp[which(divisions$State=='QLD')] = seat2pp[which(divisions$State=='QLD')] + stateSwingVector[3]
-  seat2pp[which(divisions$State=='SA')] = seat2pp[which(divisions$State=='SA')] + stateSwingVector[4]
-  seat2pp[which(divisions$State=='WA')] = seat2pp[which(divisions$State=='WA')] + stateSwingVector[5]
-  seat2pp[which(divisions$State=='TAS')] = seat2pp[which(divisions$State=='TAS')] + stateSwingVector[6]
-  seat2pp[which(divisions$State=='NT')] = seat2pp[which(divisions$State=='NT')] + stateSwingVector[7]
-  seat2pp[which(divisions$State=='ACT')] = seat2pp[which(divisions$State=='ACT')] + stateSwingVector[8]
-  
-  # Add a bootstrapped error
-  seat2pp = seat2pp + sample(historicalSeatErrors, nSeats)
-  
-  outcome = rep(NA,nSeats)
-  outcome[which(seat2pp > 50)] = 'ALP'
-  outcome[which(seat2pp < 50)] = 'LNP'
-  
-  # Overwrite certain special seats
-  for(i in 1:length(assumptions)){
-    outcome[which(divisions$DivisionName == names(assumptions)[i])] = as.character(assumptions[i])
+  if(seatName %in% names(assumptions)){
+    return(list(winner=rep(assumptions[[seatName]], nOutcomes),
+                alp2pp=rep(0,nOutcomes)))
   }
   
-  return(outcome)
+  # NSW, VIC, QLD, SA, WA, TAS, NT, ACT
+  stateRow = switch(stateName,
+                    'NSW'=1,'VIC'=2,'QLD'=3,'SA'=4,'WA'=5,'TAS'=6,'NT'=7,'ACT'=8)
+  thisStateSwings = rep(as.numeric(stateSwings[stateRow,]),seatReps)
+  
+  seatErrors = sample(historicalSeatErrors, nOutcomes, replace=TRUE)
+  
+  simulatedVotes = rep(alp2ppLastTime, nOutcomes) + thisStateSwings + seatErrors
+  
+  outcomes = rep('ALP', nOutcomes)
+  outcomes[which(simulatedVotes < 50)] = 'LNP'
+  return(list(winner=outcomes,alp2pp=simulatedVotes))
+}
+
+
+getSeatOutcomesWithRedistributions = function(stateSwings,seatName, stateName, assumptions,
+                           boothsData, boundariesData, boundariesDivisionNameCol,
+                           alp2ppLastTime, historicalSeatErrors, seatReps){
+  
+  print(seatName)
+  
+  stateReps = ncol(stateSwings)
+  nOutcomes = stateReps * seatReps
+  
+  if(seatName %in% names(assumptions)){
+    print(paste0('Assumption: ', assumptions[[seatName]]))
+    return(getSeatOutcomesWithoutRedistributions(stateSwings,seatName, stateName, assumptions, alp2ppLastTime,
+                                                 historicalSeatErrors, seatReps))
+  }
+
+  # NSW, VIC, QLD, SA, WA, TAS, NT, ACT
+  stateRow = switch(stateName,
+                    'NSW'=1,'VIC'=2,'QLD'=3,'SA'=4,'WA'=5,'TAS'=6,'NT'=7,'ACT'=8)
+  thisStateSwings = as.numeric(stateSwings[stateRow,])
+  
+  # Match the booths data with the seat polygons using the seat name. The toupper() handles
+  # cases like "McEwen"[booths]/"Mcewen"[boundaries].
+  seatBoundariesRow = which(toupper(as.character(as.data.frame(boundariesData)[,boundariesDivisionNameCol]))
+                                  == toupper(seatName))
+  if(length(seatBoundariesRow)==0){
+    print('Seat name not in boundaries data. Using last election 2pp.')
+    return(getSeatOutcomesWithoutRedistributions(stateSwings,seatName, stateName, assumptions, alp2ppLastTime,
+                                                 historicalSeatErrors, seatReps))
+  }
+  thisSeatPolygons = as(boundariesData[seatBoundariesRow ,,drop=FALSE],'SpatialPolygons')
+  
+  numberOfPolygons = length(slot(slot(thisSeatPolygons,'polygons')[[1]],'Polygons'))
+  if(numberOfPolygons > 1){
+    # This seat has multiple land areas (islands, etc.)
+    # Choose the largest polygon and throw the rest away.
+    print('Using largest polygon only...')
+    polygonList = lapply( thisSeatPolygons@polygons , slot , "Polygons" )[[1]]
+    polygonAreas = unlist(lapply( polygonList , slot , "area" ))
+    largestPolygon = which(polygonAreas==max(polygonAreas))
+    thisSeatPolygons = SpatialPolygons(list(Polygons(list(polygonList[[largestPolygon]]), ID="1")),
+                                       proj4string = CRS(proj4string(thisSeatPolygons)))
+  }
+  
+  
+  
+  # Get the outer limits of the seat
+  longitudeLimits = as.numeric(bbox(thisSeatPolygons)['x',])
+  latitudeLimits = as.numeric(bbox(thisSeatPolygons)['y',])
+  # Expand them a bit, to make sure we capture effects near the border
+  longitudeLimits = longitudeLimits + c(-0.1,0.1)
+  latitudeLimits = latitudeLimits + c(-0.1,0.1)
+  
+  nearbyBoothsLastElection = filter(boothsData, Lat > latitudeLimits[1] & Lat < latitudeLimits[2] &
+                                      Long > longitudeLimits[1] & Long < longitudeLimits[2] )
+
+  nearbyBoothsSpatials = remove.duplicates( SpatialPointsDataFrame( as.data.frame(select(nearbyBoothsLastElection, Long, Lat)),
+                                                                    as.data.frame(select(nearbyBoothsLastElection, -(Long:Lat))),
+                                                                    proj4string = CRS('+proj=longlat +ellps=GRS80 +no_defs')) )
+  
+  k1 = getKrigedGrid(nearbyBoothsSpatials, nearbyBoothsLastElection, longitudeLimits, latitudeLimits)
+  if(k1$singularVariogram){
+    print('Can\'t fit a variogram. Using last election 2pp.')
+    return(getSeatOutcomesWithoutRedistributions(stateSwings,seatName, stateName, assumptions, alp2ppLastTime,
+                                                 historicalSeatErrors, seatReps))
+  }
+  squaresInSeat = k1$voteModel %over% as(thisSeatPolygons, 'SpatialPolygons')
+  
+  votesPerSquare = as.data.frame(k1$voteModel)[which(squaresInSeat==1),'var1.pred']
+  peoplePerSquare = as.data.frame(k1$populationModel)[which(squaresInSeat==1),'population']
+  estimatedVote = weighted.mean(x = votesPerSquare, w = peoplePerSquare)
+  
+  seatErrors = sample(historicalSeatErrors, nOutcomes, replace=TRUE)
+  
+  simulatedVotes = rep(estimatedVote, nOutcomes) + rep(thisStateSwings, seatReps)
+  outcomes = rep('ALP', nOutcomes)
+  outcomes[which(simulatedVotes < 50)] = 'LNP'
+  return(list(winner=outcomes,alp2pp=simulatedVotes))
 }
 
 
 simulateElection = function( state2pp, state2ppCovariance, divisions, assumptions, stateReps,
-                             seatReps, dataDir, previousElection ){
+                             seatReps, dataDir, previousElection, useRedistributions ){
   outcomeMatrix = matrix(NA, nrow = nrow(divisions), ncol=(stateReps*seatReps))
+  voteMatrix = matrix(NA, nrow = nrow(divisions), ncol=(stateReps*seatReps))
   
   historicalSeatErrors = loadHistoricalErrors(dataDir, previousElection)
   currentState2pp = getPreviousState2pp(dataDir, previousElection)
   
   cholCov = t(state2ppCovariance)
   
+  stateSwings = matrix(NA, nrow=8, ncol=stateReps)
   for(stateRepI in 1:stateReps){
-    stateSwingVector = (state2pp + (cholCov %*% rnorm(8))) - currentState2pp
-    
-    for(seatRepI in 1:seatReps){
-      outcomeMatrix[,(stateRepI-1)*seatReps + seatRepI] = getSeatOutcomes(divisions,assumptions,
-                                                      stateSwingVector,historicalSeatErrors) 
+    stateSwings[,stateRepI] = (state2pp + (cholCov %*% rnorm(8))) - currentState2pp
     }
-    
-  }
-  
-  return(outcomeMatrix)
+
+  if(useRedistributions){
+      boothsData = switch(as.character(previousElection),
+                    '2004' = tbl_df(read.csv('electionmaps/booths_data/2004.csv')),
+                    '2007' = tbl_df(read.csv('electionmaps/booths_data/2007.csv')),
+                    '2010' = tbl_df(read.csv('electionmaps/booths_data/2010.csv')),
+                    '2013' = tbl_df(read.csv('electionmaps/booths_data/2013.csv')))  %>% barryFilter()
+
+      boundariesData = switch(as.character(previousElection),
+                        '2004' = readOGR(dsn='electionmaps/newshapes', layer='CED07aAUST_region'),
+                        # Note (DW Barry): the ABS's filename for the 2010 election says 2011, but the boundaries are from 2010
+                        '2007' = readOGR(dsn='electionmaps/newshapes', layer='CED_2011_AUST'),
+                        '2010' = readOGR(dsn='electionmaps/newshapes', layer='COM20111216_ELB_region'),
+                        '2013' = readOGR(dsn='electionmaps/newshapes', layer='COM20111216_ELB_region'))
+      boundariesDivisionNameCol = switch(as.character(previousElection),
+                      '2004' = 3, '2007'=2, '2010'=2, '2013'=1)
+
+      for(seatI in 1:nrow(divisions)){
+          seatOutcomes = getSeatOutcomesWithRedistributions(stateSwings,
+                                            as.character(divisions[seatI,'DivisionName']),
+                                  as.character(divisions[seatI,'State']), assumptions, boothsData,
+                                            boundariesData, boundariesDivisionNameCol,
+                                            divisions[seatI,'alp2pp'], historicalSeatErrors, seatReps)
+          outcomeMatrix[seatI,] = seatOutcomes$winner
+          voteMatrix[seatI,] = seatOutcomes$alp2pp
+           }
+      }else{
+        for(seatI in 1:nrow(divisions)){
+          seatOutcomes = getSeatOutcomesWithoutRedistributions(stateSwings,
+                                                  as.character(divisions[seatI,'DivisionName']),
+                                                  as.character(divisions[seatI,'State']), assumptions,
+                                                  divisions[seatI,'alp2pp'], historicalSeatErrors, seatReps)
+          outcomeMatrix[seatI,] = seatOutcomes$winner
+          voteMatrix[seatI,] = seatOutcomes$alp2pp
+        }
+       }
+  return(list(winner=outcomeMatrix,alp2pp=voteMatrix))
 }
 
 

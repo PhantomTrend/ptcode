@@ -29,7 +29,7 @@ plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
                   outputFileName='historical2pp.png', showPollsters=TRUE, alpPovPlot=FALSE)
 currentPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
                   plotStartDate=as.Date('2013-01-01'), plotEndDate=as.Date('2014-06-01'),
-                  outputFileName='national2pp.png', showPollsters=FALSE, alpPovPlot=TRUE)
+                  outputFileName='national2pp.png', showPollsters=FALSE, alpPovPlot=FALSE)
 print(currentPlot)
 
 
@@ -56,18 +56,20 @@ assumptions['Denison'] = 'Indep'
 
 source('SimulateElection.R')
 
+stateReps = 500
+seatReps = 10
 set.seed(31337)
 state2pp = estimatedModel$a[nrow(estimatedModel$a),]
 state2ppCovariance = estimatedModel$P[,,nrow(estimatedModel$a)]
-electionOutcomes = simulateElection(state2pp, state2ppCovariance, currentPendulum, assumptions, stateReps=500,
-                        seatReps=10, dataDir, previousElection=2013)
+electionOutcomes = simulateElection(state2pp, state2ppCovariance, currentPendulum, assumptions, stateReps,
+                        seatReps, dataDir, previousElection=2013, useRedistributions=FALSE)
 
-alpTotals = apply(electionOutcomes, 2, function(x){sum(x=='ALP')})
-lnpTotals = apply(electionOutcomes, 2, function(x){sum(x=='LNP')})
-indepTotals = apply(electionOutcomes, 2, function(x){sum(x=='Indep')})
-greensTotals = apply(electionOutcomes, 2, function(x){sum(x=='Greens')})
-pupTotals = apply(electionOutcomes, 2, function(x){sum(x=='PUP')})
-kapTotals = apply(electionOutcomes, 2, function(x){sum(x=='KAP')})
+alpTotals = apply(electionOutcomes$winner, 2, function(x){sum(x=='ALP')})
+lnpTotals = apply(electionOutcomes$winner, 2, function(x){sum(x=='LNP')})
+indepTotals = apply(electionOutcomes$winner, 2, function(x){sum(x=='Indep')})
+greensTotals = apply(electionOutcomes$winner, 2, function(x){sum(x=='Greens')})
+pupTotals = apply(electionOutcomes$winner, 2, function(x){sum(x=='PUP')})
+kapTotals = apply(electionOutcomes$winner, 2, function(x){sum(x=='KAP')})
 
 otherTotals = indepTotals + greensTotals + pupTotals + kapTotals
 
@@ -81,7 +83,7 @@ resultData$outcome = 'Hung'
 resultData[which(resultData$govtTotals > 76),'outcome'] = 'LNP'
 resultData[which(resultData$govtTotals < 71),'outcome'] = 'ALP'
 print(summarise(resultData %>% group_by(outcome), sum(prob)))
-xMin = 60
+xMin = 50
 xMax = 90
 histogramData = filter(resultData, govtTotals >= xMin ) %>% filter(govtTotals < xMax)
 histogramData$outcomeColour = 'grey'
@@ -92,15 +94,18 @@ electionSummaryPlot = ggplot(histogramData) +
   geom_bar(aes(x=govtTotals,y=prob),fill=histogramData$outcomeColour,stat='Identity') +
   labs(x='Government Seats', y='Probability (%)') +
   ggtitle('Simulated Election Outcomes')
+print(electionSummaryPlot)
 
 ggsave('electionSummary.png')
 
 
 
+alpProb = apply(electionOutcomes$winner, 1, function(x){sum(x=='ALP')/(stateReps*seatReps)*100})
+meanAlpVote = apply(electionOutcomes$alp2pp, 1, mean)
+newPendulum = cbind(currentPendulum, alpProb, meanAlpVote)
 
-
-
-
+alpLosses = filter(newPendulum, CurrentHolder=='ALP') %>% filter(alpProb < 50)
+alpGains = filter(newPendulum, CurrentHolder!='ALP') %>% filter(alpProb > 50) %>% arrange(alpProb)
 
 
 

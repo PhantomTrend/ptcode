@@ -59,7 +59,6 @@ defaultParams = c(
   1,        # Newspoll national bias
   1,        # Newspoll weekly national log-vol
   rep(1,5),  # Newspoll quarterly  state log-vols
-  rep(0,5),   # Newspoll state biases
   0,        # Essential bias
   1,         # Essential log-vol
   0,        # Galaxy bias
@@ -71,14 +70,12 @@ defaultParams = c(
 )
 
 # One I prepared earlier
-fullSampleMode = c(0.43637814987537, -1.13884776589949, -0.732067237712118, -0.567772165406739, 
-                   -0.68783283148523, -1.10547683642448, 0.273865496455392, -1.06977348301779, 
-                   -1.06854154530233, 1.14793018797779, 1.95652237508623, 1.54195493775625, 
-                   1.6097541086685, 2.40392251223289, 2.78274895384712, 2.97869095473911, 
-                   1.50410534512696, 1.51713823670745, 2.36905322415489, 1.85860857734908, 
-                   2.12970438442771, 1.89564299957772, 0.911037812051302, 1.12527522821254, 
-                   0.625586768379675, 0.655360338992245, 2.325427047668, 2.86281232423217, 
-                   2.84647021817987)
+fullSampleMode = c(0.447135091273355, -1.18932666931997, -0.743271413198109, -0.602404840074456, 
+                   -0.700372264885641, -0.585907354937972, 0.321890809013179, -0.951614053245056, 
+                   -0.894401756186261, 1.37791208287335, 2.01889613577442, 1.5583777492386, 
+                   1.64017228248424, 2.77926075447892, 2.80470669941256, 2.77513095619234, 
+                   1.81435418059188, 0.948906886757349, 0.997898426623023, 0.629084821770763, 
+                   0.599086711126461, 2.25833508413846, 2.83849882749308, 2.86536444280255
 
 # A convenience function to convert between a numeric vector
 # (needed for calling optim()) and a list
@@ -89,15 +86,14 @@ unpackParams = function(pars){
     newspollNationalBias = pars[10],
     newspollWVol = pars[11],
     newspollQVol = pars[12:16],
-    newspollStateBias = pars[17:21],
-    essentialBias = pars[22],
-    essentialVol = pars[23],
-    galaxyBias = pars[24],
-    galaxyVol = pars[25],
-    nielsenBias = pars[26],
-    nielsenVol = pars[27],
-    morganBias = pars[28],
-    morganVol = pars[29])
+    essentialBias = pars[17],
+    essentialVol = pars[18],
+    galaxyBias = pars[19],
+    galaxyVol = pars[20],
+    nielsenBias = pars[21],
+    nielsenVol = pars[22],
+    morganBias = pars[23],
+    morganVol = pars[24])
 }
 
 # Likelihood function, given parameter vector "pars"
@@ -118,7 +114,7 @@ likfn = function(pars,model,estimate=TRUE){
   model$H[,,which(pollsterTs=='NewspollW')] = diag(exp(0.5*parlist$newspollWVol), nrow=p, ncol=p)
   model$H[,,which(pollsterTs=='NewspollQ')] = diag(c(0,exp(0.5*parlist$newspollQVol)), nrow=p, ncol=p)
   model$y[which(pollsterTs=='NewspollW'),] = Y[which(pollsterTs=='NewspollW'),] - parlist$newspollNationalBias
-  model$y[which(pollsterTs=='NewspollQ'),] = sweep(Y[which(pollsterTs=='NewspollQ'),],MARGIN=2,c(parlist$newspollNationalBias,parlist$newspollStateBias,NA,NA,NA),FUN="-")
+  model$y[which(pollsterTs=='NewspollQ'),] = sweep(Y[which(pollsterTs=='NewspollQ'),],MARGIN=2,c(rep(parlist$newspollNationalBias,6),NA,NA,NA),FUN="-")
   model$H[,,which(pollsterTs=='Essential')] = diag(exp(0.5*parlist$essentialVol), nrow=p, ncol=p)
   model$y[which(pollsterTs=='Essential'),] = Y[which(pollsterTs=='Essential'),] - parlist$essentialBias
   model$H[,,which(pollsterTs=='Galaxy')] = diag(exp(0.5*parlist$galaxyVol), nrow=p, ncol=p)
