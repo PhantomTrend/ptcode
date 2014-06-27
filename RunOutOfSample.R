@@ -27,8 +27,11 @@ Y[which(!is.na(Y[,2])),1] = NA
 
 electionRows = which(as.ts(dataList$pollster)=='Election')
 
-electionYearToTest = 2010
-electionRowToTest = electionRows[2] -1
+electionYearToTest = 2013
+electionRowToTest = electionRows[switch(as.character(electionYearToTest),
+                                        '2007'=2,
+                                        '2010'=3,
+                                        '2013'=4)] -1
 
 previousElectionToTest = (electionYearToTest-3)
 

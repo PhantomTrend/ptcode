@@ -24,12 +24,13 @@ printCurrentEstimates(estimatedModel)
 
 
 source('GeneratePlots.R')
-plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
+longTermPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
                   plotStartDate=as.Date('2003-01-01'), plotEndDate=as.Date('2014-12-31'),
-                  outputFileName='historical2pp.png', showPollsters=TRUE, alpPovPlot=FALSE)
+                  outputFileName='historical2pp.png', showPollsters=TRUE, alpPovPlot=(runif(1) < 0.5))
 currentPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
-                  plotStartDate=as.Date('2013-01-01'), plotEndDate=as.Date('2014-06-01'),
-                  outputFileName='national2pp.png', showPollsters=FALSE, alpPovPlot=FALSE)
+                  plotStartDate=as.Date('2013-01-01'), plotEndDate=as.Date('2014-08-01'),
+                  outputFileName='national2pp.png', showPollsters=FALSE, alpPovPlot=(runif(1) < 0.5))
+print(longTermPlot)
 print(currentPlot)
 
 
@@ -56,8 +57,8 @@ assumptions['Denison'] = 'Indep'
 
 source('SimulateElection.R')
 
-stateReps = 500
-seatReps = 10
+stateReps = 800
+seatReps = 100
 set.seed(31337)
 state2pp = estimatedModel$a[nrow(estimatedModel$a),]
 state2ppCovariance = estimatedModel$P[,,nrow(estimatedModel$a)]
@@ -83,7 +84,7 @@ resultData$outcome = 'Hung'
 resultData[which(resultData$govtTotals > 76),'outcome'] = 'LNP'
 resultData[which(resultData$govtTotals < 71),'outcome'] = 'ALP'
 print(summarise(resultData %>% group_by(outcome), sum(prob)))
-xMin = 50
+xMin = 40
 xMax = 90
 histogramData = filter(resultData, govtTotals >= xMin ) %>% filter(govtTotals < xMax)
 histogramData$outcomeColour = 'grey'

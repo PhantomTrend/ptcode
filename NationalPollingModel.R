@@ -66,16 +66,19 @@ defaultParams = c(
   0,       # Nielsen bias
   1,         # Nielsen log-vol
   0,        # Morgan bias
-  1        # Morgan log-vol
+  1  ,        # Morgan log-vol
+  0,        # ReachTEL bias
+  1         # ReachTEL log-vol
 )
 
 # One I prepared earlier
-fullSampleMode = c(0.447135091273355, -1.18932666931997, -0.743271413198109, -0.602404840074456, 
-                   -0.700372264885641, -0.585907354937972, 0.321890809013179, -0.951614053245056, 
-                   -0.894401756186261, 1.37791208287335, 2.01889613577442, 1.5583777492386, 
-                   1.64017228248424, 2.77926075447892, 2.80470669941256, 2.77513095619234, 
-                   1.81435418059188, 0.948906886757349, 0.997898426623023, 0.629084821770763, 
-                   0.599086711126461, 2.25833508413846, 2.83849882749308, 2.86536444280255
+fullSampleMode = c(0.512868048641162, -1.39270481618368, -0.788346667079114, -0.934739557235095, 
+                   -0.685387411525208, -0.556106585027339, 0.458079826101725, -1.0388556716079, 
+                   -0.806678188006597, 1.22098683606754, 2.06011603597785, 1.6447378767746, 
+                   1.8452431486495, 2.73746311668076, 2.75163951634763, 2.82751862194859, 
+                   1.74345729048188, 0.874185121945488, 0.897065148884839, 1.2471544309294, 
+                   0.593764712014795, 2.21970361274182, 2.69411070684992, 2.48813021530258, 
+                   1.44541142766305, 0.850131853198895)
 
 # A convenience function to convert between a numeric vector
 # (needed for calling optim()) and a list
@@ -93,7 +96,9 @@ unpackParams = function(pars){
     nielsenBias = pars[21],
     nielsenVol = pars[22],
     morganBias = pars[23],
-    morganVol = pars[24])
+    morganVol = pars[24],
+    reachTelBias = pars[25],
+    reachTelVol = pars[26])
 }
 
 # Likelihood function, given parameter vector "pars"
@@ -108,8 +113,8 @@ likfn = function(pars,model,estimate=TRUE){
   model$H = array( diag( 0, nrow=p, ncol=p  ), 
                    c(p, p, n) )
   
-#   model$H[,,which(pollsterTs=='Election')] = diag(1e-4, nrow=p, ncol=p)
-  model$H[,,which(pollsterTs=='Election')] = diag(0, nrow=p, ncol=p)
+  model$H[,,which(pollsterTs=='Election')] = diag(1e-1, nrow=p, ncol=p)
+#   model$H[,,which(pollsterTs=='Election')] = diag(0, nrow=p, ncol=p)
   
   model$H[,,which(pollsterTs=='NewspollW')] = diag(exp(0.5*parlist$newspollWVol), nrow=p, ncol=p)
   model$H[,,which(pollsterTs=='NewspollQ')] = diag(c(0,exp(0.5*parlist$newspollQVol)), nrow=p, ncol=p)
@@ -123,7 +128,9 @@ likfn = function(pars,model,estimate=TRUE){
   model$y[which(pollsterTs=='ACNielsen'),] = Y[which(pollsterTs=='ACNielsen'),] - parlist$nielsenBias
   model$H[,,which(pollsterTs=='RoyMorgan')] = diag(exp(0.5*parlist$morganVol), nrow=p, ncol=p)
   model$y[which(pollsterTs=='RoyMorgan'),] = Y[which(pollsterTs=='RoyMorgan'),] - parlist$morganBias
-  
+  model$H[,,which(pollsterTs=='ReachTEL')] = diag(exp(0.5*parlist$reachTelVol), nrow=p, ncol=p)
+  model$y[which(pollsterTs=='ReachTEL'),] = Y[which(pollsterTs=='ReachTEL'),] - parlist$reachTelBias
+
   if(estimate){
     return(-logLik(model))
        }else{  
@@ -144,6 +151,9 @@ likfn = function(pars,model,estimate=TRUE){
  }
 fit = optim(f=likfn, p=startingValues, method='BFGS', model=mod1,
             control=optimControl)
+
+dput(fit$p)
+
 
 mod1 = likfn(fit$p, mod1, estimate=FALSE)
 

@@ -107,20 +107,21 @@ getKrigedGrid = function( spatials, booths, longitudeLimits, latitudeLimits ){
   voteModel = krige(ALP_2PP ~ 1, locations = spatials, newdata = cityGrid, model = modelVg, nmax=6)
   
   # Now use a kernel density estimate for the population density.
-  # I resample the population in order to use the built-in kde routine, which
-  # expects a vector of samples.
-  # TODO: code up a kde function that accepts weights instead.
-  boothPopulationWeights = booths$Formal_votes / sum(booths$Formal_votes)
   nBooths = nrow(booths)
-  nPopulationSamples = 7500
-  populationSamples = base::sample.int(nBooths, nPopulationSamples, replace=TRUE, prob=boothPopulationWeights)
-  xDraws = booths$Long[populationSamples]
-  yDraws = booths$Lat[populationSamples]
-  populationDensity = kde2d(xDraws, yDraws, n=c(length(gridCoordsX),length(gridCoordsY)),
-                            lims=c(longitudeLimits, latitudeLimits))
+  # Kernel bandwidth: a couple of grid squares
+  hX = gridStepSizeX
+  hY = gridStepSizeY
+  # Calculate scaled distance between each grid point and each booth
+  ax = outer(gridCoordsX, booths$Long, "-")/hX
+  ay = outer(gridCoordsY, booths$Lat, "-")/hY
+  # Scale the horizontal normal distributions by the booth sizes
+  # (Horizontal only to avoid double-counting)
+  xContribs = sweep( matrix(dnorm(ax), , nBooths), MARGIN=2, booths$Formal_votes, `*` )
+  yContribs = matrix(dnorm(ay), , nBooths)
+  populationKernelDensity = tcrossprod(xContribs, yContribs)/(nBooths * hX * hY)
   
   populationModel = expand.grid(Long = gridCoordsX, Lat = gridCoordsY)
-  populationModel$population = as.vector(populationDensity$z)
+  populationModel$population = as.vector(populationKernelDensity)
   coordinates(populationModel) = ~Long+Lat
   gridded(populationModel) = TRUE
   proj4string(populationModel) = CRS('+proj=longlat +ellps=GRS80 +no_defs')
@@ -264,7 +265,7 @@ simulateElection = function( state2pp, state2ppCovariance, divisions, assumption
                         '2010' = readOGR(dsn='electionmaps/newshapes', layer='COM20111216_ELB_region'),
                         '2013' = readOGR(dsn='electionmaps/newshapes', layer='COM20111216_ELB_region'))
       boundariesDivisionNameCol = switch(as.character(previousElection),
-                      '2004' = 3, '2007'=2, '2010'=2, '2013'=1)
+                      '2004' = 3, '2007'=2, '2010'=1, '2013'=1)
 
       for(seatI in 1:nrow(divisions)){
           seatOutcomes = getSeatOutcomesWithRedistributions(stateSwings,

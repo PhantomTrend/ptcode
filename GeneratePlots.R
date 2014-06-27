@@ -56,11 +56,12 @@ plotNationalTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotSt
   }
   
   outputPlot = ggplot(plotData) + aes(x=date) +
+    (if(showPollsters){
+      geom_point(aes(y=polled2ppAUS, colour=pollster), size=1)
+    }else{geom_point(aes(y=polled2ppAUS), colour='black', alpha=0.7, size=1) }) +
           geom_line(aes(y=fittedNational2pp), size=lineSize, colour=lineColour) +
           geom_ribbon(aes(ymax=topOfConfidenceInterval, ymin=bottomOfConfidenceInterval),
                       fill=lineColour, alpha=0.2) +
-           (if(showPollsters){geom_point(aes(y=polled2ppAUS, colour=pollster)  )
-                 }else{geom_point(aes(y=polled2ppAUS), colour='black', alpha=0.7) }) +
           labs(x='',y='') + ggtitle(plotTitle) 
   if(!is.null(outputFileName)){ggsave(outputFileName)}
   return(outputPlot)

@@ -26,6 +26,8 @@ loadPollsAndElections = function(dataDir,startDate){
   morgan = tbl_df(read.csv(paste(dataDir,'morgan.csv',sep='/'), na.strings='#N/A'))
   morgan$date = as.Date(morgan$date, format='%d/%m/%Y')
   
+  reachtel = tbl_df(read.csv(paste(dataDir,'reachtel.csv',sep='/'), na.strings='#N/A'))
+  reachtel$date = as.Date(reachtel$date, format='%d/%m/%Y')
   
   elections = tbl_df(read.csv(paste(dataDir,'tpp_by_state_at_elections.csv',sep='/')))
   elections$date = as.Date(elections$date, format="%d/%m/%Y")
@@ -36,7 +38,7 @@ loadPollsAndElections = function(dataDir,startDate){
   # in a single time period (as happens occasionally with polls) so these helper
   # functions will take any clashing dates and move them around a little bit.
   adjustDate = function(origDate,dateIsBad ){
-    deltad = c(+1,-1,+2,-2,+3,-3)
+    deltad = c(+1,-1,+2,-2,+3,-3,-4)
     for(dd in deltad){
       if( !dateIsBad(origDate + dd) ) { return(origDate + dd) }
     }
@@ -57,11 +59,20 @@ loadPollsAndElections = function(dataDir,startDate){
                     Labor2ppTAS=NA, Labor2ppACT=NA, Labor2ppNT=NA) %>%
     select(-(Labor2ppW:Labor2ppQ))
   
+  
+  morgan = mutate(morgan,   
+                  pollster='RoyMorgan',
+                  Labor2ppNSW=NA, Labor2ppVIC=NA, Labor2ppQLD=NA, Labor2ppSA=NA,
+                  Labor2ppWA=NA, Labor2ppTAS=NA, Labor2ppNT=NA, Labor2ppACT=NA)
+  morgan = adjustAllDates(morgan, function(d){
+     (d %in% newspoll$date) || (d %in% elections$date) } )
+  
   essential = mutate(essential,   
                      pollster='Essential',
                      Labor2ppNSW=NA, Labor2ppVIC=NA, Labor2ppQLD=NA, Labor2ppSA=NA,
                      Labor2ppWA=NA, Labor2ppTAS=NA, Labor2ppNT=NA, Labor2ppACT=NA)
-  essential = adjustAllDates(essential, function(d){ (d %in% newspoll$date) || (d %in% elections$date) } )
+  essential = adjustAllDates(essential, function(d){ ((d %in% newspoll$date) || (d %in% elections$date)
+                                                     || (d %in% morgan$date)) } )
   
   
   galaxy = mutate(galaxy,   
@@ -69,7 +80,7 @@ loadPollsAndElections = function(dataDir,startDate){
                   Labor2ppNSW=NA, Labor2ppVIC=NA,  Labor2ppSA=NA,
                   Labor2ppWA=NA, Labor2ppTAS=NA, Labor2ppNT=NA, Labor2ppACT=NA)
   galaxy = adjustAllDates(galaxy, function(d){
-    (d %in% newspoll$date) || (d %in% elections$date) || (d %in% essential$date) } )
+    (d %in% newspoll$date) || (d %in% elections$date) || (d %in% essential$date) || (d %in% morgan$date) } )
   
   nielsen = mutate(nielsen,   
                    pollster='ACNielsen',
@@ -77,15 +88,17 @@ loadPollsAndElections = function(dataDir,startDate){
                    Labor2ppWA=NA, Labor2ppTAS=NA, Labor2ppNT=NA, Labor2ppACT=NA)
   nielsen = adjustAllDates(nielsen, function(d){
     ((d %in% newspoll$date) || (d %in% elections$date) || (d %in% galaxy$date)
-     || (d %in% essential$date)) } )
+     || (d %in% essential$date) || (d %in% morgan$date) ) } )
   
-  morgan = mutate(morgan,   
-                  pollster='RoyMorgan',
-                  Labor2ppNSW=NA, Labor2ppVIC=NA, Labor2ppQLD=NA, Labor2ppSA=NA,
-                  Labor2ppWA=NA, Labor2ppTAS=NA, Labor2ppNT=NA, Labor2ppACT=NA)
-  morgan = adjustAllDates(morgan, function(d){
+  
+  reachtel = mutate(reachtel,   
+                   pollster='ReachTEL',
+                   Labor2ppNSW=NA, Labor2ppVIC=NA, Labor2ppQLD=NA, Labor2ppSA=NA,
+                   Labor2ppWA=NA, Labor2ppTAS=NA, Labor2ppNT=NA, Labor2ppACT=NA)
+  reachtel = adjustAllDates(reachtel, function(d){
     ((d %in% newspoll$date) || (d %in% elections$date) || (d %in% galaxy$date)
-     || (d %in% nielsen$date) || (d %in% essential$date)) } )
+     || (d %in% essential$date) || (d %in% morgan$date) || (d %in% nielsen$date) ) } )
+  
   
   elections = mutate(elections, pollster='Election')
   
@@ -94,6 +107,7 @@ loadPollsAndElections = function(dataDir,startDate){
                   galaxy,
                   nielsen,
                   morgan,
+                  reachtel,
                   elections
                   )  %>%
               mutate(pollster=factor(pollster)) %>%
