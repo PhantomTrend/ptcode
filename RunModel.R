@@ -97,7 +97,7 @@ electionSummaryPlot = ggplot(histogramData) +
   ggtitle('Simulated Election Outcomes')
 print(electionSummaryPlot)
 
-ggsave('electionSummary.png')
+ggsave(plot=electionSummaryPlot, filename='electionSummary.png', width=10, height=6)
 
 
 
