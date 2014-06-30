@@ -2,6 +2,104 @@
 library(KFAS)
 
 
+# A convenience function to convert between a numeric vector
+# (needed for calling optim()) and a list
+unpackParams = function(pars,model){
+  list(
+    qfactorvol=pars[1],
+    diagq=pars[2:9],
+    newspollNationalBias = pars[10],
+    newspollWVol = pars[11],
+    newspollQVol = pars[12:16],
+    essentialBias = pars[17],
+    essentialVol = pars[18],
+    galaxyBias = pars[19],
+    galaxyVol = pars[20],
+    nielsenBias = pars[21],
+    nielsenVol = pars[22],
+    morganBias = pars[23],
+    morganVol = pars[24],
+    reachTelBias = pars[25],
+    reachTelVol = pars[26])
+}
+
+# Log-prior function, given parameter vector "pars"
+reciprocalLogPrior = function(pars,model){
+  parlist = unpackParams(pars)
+  logprior = 0
+  # I use half-t priors on the variances because they're weakly informative.
+  #  See Gelman, "Prior distributions for variance parameters in hierarchical
+  #    models", Bayesian Analysis 1:3(2006):515--33.
+  # The scale is ideally set to values that are high but not off the scale.
+  # The State-specific idiosyncratic variances are on the tight side for
+  # unobserved series, because otherwise the model is tempted to use Tassie
+  # as a swing variable rather than attribute rapid movements to pollster idiosyncracies.
+  # The state-variable innovations are scaled to units of percentage change per week.
+  qfactorVariance = (52/365 * exp(parlist$qfactorvol))^2
+  largeQfactorVariance = 0.5^2       
+  stateQvariances = (52/365 * exp(parlist$diagq))^2
+  largeStateVariance = 0.5^2
+  largeStateVarianceForUnobservedSeries = 0.1^2
+  logprior = logprior + log(dt(qfactorVariance/largeQfactorVariance, df=3)) +
+    sum(log(dt(c(stateQvariances[1:5]/largeStateVariance,
+                 stateQvariances[6:8]/largeStateVarianceForUnobservedSeries), df=3)))
+  
+  # Pollster mean error terms are N(0,1) because a persistent plus or minus
+  # of more than 3 doesn't seem plausible.
+  # Error variances are set to half-t, scaled as above to a large but not impossible
+  # value (4ppt std.dev.).
+  pollsterMeans = as.numeric(parlist[c('newspollNationalBias',
+                                       'essentialBias','galaxyBias', 'nielsenBias',
+                                       'morganBias', 'reachTelBias' )])
+  logprior = logprior + sum(log(dnorm(pollsterMeans, sd=1)))
+  pollsterVariances = exp( c(as.numeric(parlist[c('newspollWVol',
+                                             'essentialVol', 'galaxyVol',
+                                             'nielsenVol', 'morganVol', 'reachTelVol' )]),
+                        as.numeric(parlist$newspollQVol) ) )
+  logprior = logprior + sum(log(dt(pollsterVariances/(4^2), df=3)))
+  return(-logprior)
+  
+}
+
+
+# Likelihood function, given parameter vector "pars"
+reciprocalLogLikelihood = function(pars,model,pollsterTs,estimate=TRUE){
+  m = attr(model, 'm')
+  p = attr(model, 'p')
+  n = attr(model, 'n')
+  parlist = unpackParams(pars)
+  R1 = cbind(rep(52/365 * exp(parlist$qfactorvol),m), diag( 52/365 * exp(parlist$diagq), nrow=m, ncol=m ))
+  Q = R1 %*% t(R1)
+  model$Q = array( Q, c(m, m, 1) )
+  model$H = array( diag( 0, nrow=p, ncol=p  ), 
+                   c(p, p, n) )
+  
+  model$H[,,which(pollsterTs=='Election')] = diag(0.01^2, nrow=p, ncol=p)
+  
+  model$H[,,which(pollsterTs=='NewspollW')] = diag(exp(parlist$newspollWVol), nrow=p, ncol=p)
+  model$H[,,which(pollsterTs=='NewspollQ')] = diag(c(0,exp(parlist$newspollQVol)), nrow=p, ncol=p)
+  model$y[which(pollsterTs=='NewspollW'),] = Y[which(pollsterTs=='NewspollW'),] - parlist$newspollNationalBias
+  model$y[which(pollsterTs=='NewspollQ'),] = sweep(Y[which(pollsterTs=='NewspollQ'),],MARGIN=2,c(rep(parlist$newspollNationalBias,6),NA,NA,NA),FUN="-")
+  model$H[,,which(pollsterTs=='Essential')] = diag(exp(parlist$essentialVol), nrow=p, ncol=p)
+  model$y[which(pollsterTs=='Essential'),] = Y[which(pollsterTs=='Essential'),] - parlist$essentialBias
+  model$H[,,which(pollsterTs=='Galaxy')] = diag(exp(parlist$galaxyVol), nrow=p, ncol=p)
+  model$y[which(pollsterTs=='Galaxy'),] = Y[which(pollsterTs=='Galaxy'),] - parlist$galaxyBias
+  model$H[,,which(pollsterTs=='ACNielsen')] = diag(exp(parlist$nielsenVol), nrow=p, ncol=p)
+  model$y[which(pollsterTs=='ACNielsen'),] = Y[which(pollsterTs=='ACNielsen'),] - parlist$nielsenBias
+  model$H[,,which(pollsterTs=='RoyMorgan')] = diag(exp(parlist$morganVol), nrow=p, ncol=p)
+  model$y[which(pollsterTs=='RoyMorgan'),] = Y[which(pollsterTs=='RoyMorgan'),] - parlist$morganBias
+  model$H[,,which(pollsterTs=='ReachTEL')] = diag(exp(parlist$reachTelVol), nrow=p, ncol=p)
+  model$y[which(pollsterTs=='ReachTEL'),] = Y[which(pollsterTs=='ReachTEL'),] - parlist$reachTelBias
+  
+  if(estimate){
+    return(-logLik(model))
+  }else{  
+    return(model)
+  }
+}
+
+
+
 # Inputs: - Y: a time-series numeric matrix of polls and elections
 #            Column order: National, NSW, VIC, QLD, SA, WA, TAS, NT, ACT
 #         - pollsterTs: a time-series of factors naming which pollster
@@ -72,75 +170,19 @@ defaultParams = c(
 )
 
 # One I prepared earlier
-fullSampleMode = c(0.512868048641162, -1.39270481618368, -0.788346667079114, -0.934739557235095, 
-                   -0.685387411525208, -0.556106585027339, 0.458079826101725, -1.0388556716079, 
-                   -0.806678188006597, 1.22098683606754, 2.06011603597785, 1.6447378767746, 
-                   1.8452431486495, 2.73746311668076, 2.75163951634763, 2.82751862194859, 
-                   1.74345729048188, 0.874185121945488, 0.897065148884839, 1.2471544309294, 
-                   0.593764712014795, 2.21970361274182, 2.69411070684992, 2.48813021530258, 
-                   1.44541142766305, 0.850131853198895)
+fullSampleMode = c(0.540743429946292, -1.12368585592426, -0.814963209038421, -0.645581373122914, 
+                   -0.735078596015896, -0.553913544060354, -0.158024667886482, -0.903275038828192, 
+                   -0.954179628983895, 0.72279109590657, 1.02336383660612, 0.805155341292586, 
+                   0.95114975745642, 1.39821038386874, 1.36913949267506, 1.39683313115636, 
+                   1.23152439808026, 0.432387125079346, 0.415912837174267, 0.608871348047356, 
+                   0.0996937486712683, 1.11229536982779, 2.17947553128786, 1.23633530229475, 
+                   0.821689898612955, 0.400621472046613)
 
-# A convenience function to convert between a numeric vector
-# (needed for calling optim()) and a list
-unpackParams = function(pars){
-  list(
-    qfactorvol=pars[1],
-    diagq=pars[2:9],
-    newspollNationalBias = pars[10],
-    newspollWVol = pars[11],
-    newspollQVol = pars[12:16],
-    essentialBias = pars[17],
-    essentialVol = pars[18],
-    galaxyBias = pars[19],
-    galaxyVol = pars[20],
-    nielsenBias = pars[21],
-    nielsenVol = pars[22],
-    morganBias = pars[23],
-    morganVol = pars[24],
-    reachTelBias = pars[25],
-    reachTelVol = pars[26])
-}
 
-# Likelihood function, given parameter vector "pars"
-likfn = function(pars,model,estimate=TRUE){
-  m = attr(model, 'm')
-  p = attr(model, 'p')
-  n = attr(model, 'n')
-  parlist = unpackParams(pars)
-  R1 = cbind(rep(52/365 * exp(parlist$qfactorvol),m), diag( 52/365 * exp(parlist$diagq), nrow=m, ncol=m ))
-  Q = R1 %*% t(R1)
-  model$Q = array( Q, c(m, m, 1) )
-  model$H = array( diag( 0, nrow=p, ncol=p  ), 
-                   c(p, p, n) )
-  
-  model$H[,,which(pollsterTs=='Election')] = diag(1e-1, nrow=p, ncol=p)
-#   model$H[,,which(pollsterTs=='Election')] = diag(0, nrow=p, ncol=p)
-  
-  model$H[,,which(pollsterTs=='NewspollW')] = diag(exp(0.5*parlist$newspollWVol), nrow=p, ncol=p)
-  model$H[,,which(pollsterTs=='NewspollQ')] = diag(c(0,exp(0.5*parlist$newspollQVol)), nrow=p, ncol=p)
-  model$y[which(pollsterTs=='NewspollW'),] = Y[which(pollsterTs=='NewspollW'),] - parlist$newspollNationalBias
-  model$y[which(pollsterTs=='NewspollQ'),] = sweep(Y[which(pollsterTs=='NewspollQ'),],MARGIN=2,c(rep(parlist$newspollNationalBias,6),NA,NA,NA),FUN="-")
-  model$H[,,which(pollsterTs=='Essential')] = diag(exp(0.5*parlist$essentialVol), nrow=p, ncol=p)
-  model$y[which(pollsterTs=='Essential'),] = Y[which(pollsterTs=='Essential'),] - parlist$essentialBias
-  model$H[,,which(pollsterTs=='Galaxy')] = diag(exp(0.5*parlist$galaxyVol), nrow=p, ncol=p)
-  model$y[which(pollsterTs=='Galaxy'),] = Y[which(pollsterTs=='Galaxy'),] - parlist$galaxyBias
-  model$H[,,which(pollsterTs=='ACNielsen')] = diag(exp(0.5*parlist$nielsenVol), nrow=p, ncol=p)
-  model$y[which(pollsterTs=='ACNielsen'),] = Y[which(pollsterTs=='ACNielsen'),] - parlist$nielsenBias
-  model$H[,,which(pollsterTs=='RoyMorgan')] = diag(exp(0.5*parlist$morganVol), nrow=p, ncol=p)
-  model$y[which(pollsterTs=='RoyMorgan'),] = Y[which(pollsterTs=='RoyMorgan'),] - parlist$morganBias
-  model$H[,,which(pollsterTs=='ReachTEL')] = diag(exp(0.5*parlist$reachTelVol), nrow=p, ncol=p)
-  model$y[which(pollsterTs=='ReachTEL'),] = Y[which(pollsterTs=='ReachTEL'),] - parlist$reachTelBias
-
-  if(estimate){
-    return(-logLik(model))
-       }else{  
-    return(model)
-  }
-}
 
 
  if(verbose){
-  optimControl = list(trace=5,REPORT=1)
+  optimControl = list(trace=1,REPORT=1)
   }else{
   optimControl= list(trace=0)
   }
@@ -149,19 +191,22 @@ likfn = function(pars,model,estimate=TRUE){
  }else{
    startingValues = fullSampleMode
  }
-fit = optim(f=likfn, p=startingValues, method='BFGS', model=mod1,
+
+posteriorfn = function(x,model,pollster){ return(reciprocalLogLikelihood(x,model,pollster) + reciprocalLogPrior(x)) }
+
+fit = optim(fn=posteriorfn, par=startingValues, method='BFGS', model=mod1,pollster=pollsterTs,
             control=optimControl)
+dput(fit$par)
 
-dput(fit$p)
 
+mod1a = reciprocalLogLikelihood(fit$par, mod1, pollsterTs, estimate=FALSE)
 
-mod1 = likfn(fit$p, mod1, estimate=FALSE)
-
-out = KFS(mod1, filtering='state',smoothing='state')
+out = KFS(mod1a, filtering='state',smoothing='state')
 
 out$paramVector = fit$p
 out$paramList = unpackParams(fit$p)
 out$popweights = popweights
+out$origModel = mod1
 
 return(out)
 }
