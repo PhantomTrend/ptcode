@@ -253,10 +253,14 @@ simulateElection = function( state2pp, state2ppCovariance, divisions, assumption
 
   if(useRedistributions){
       boothsData = switch(as.character(previousElection),
-                    '2004' = tbl_df(read.csv('electionmaps/booths_data/2004.csv')),
-                    '2007' = tbl_df(read.csv('electionmaps/booths_data/2007.csv')),
-                    '2010' = tbl_df(read.csv('electionmaps/booths_data/2010.csv')),
-                    '2013' = tbl_df(read.csv('electionmaps/booths_data/2013.csv')))  %>% barryFilter()
+                    '2004' = tbl_df(read.csv('electionmaps/booths_data/2004.csv',
+                                             colClasses=list(Seat='factor'))),
+                    '2007' = tbl_df(read.csv('electionmaps/booths_data/2007.csv',
+                                             colClasses=list(Seat='factor'))),
+                    '2010' = tbl_df(read.csv('electionmaps/booths_data/2010.csv',
+                                             colClasses=list(Seat='factor'))),
+                    '2013' = tbl_df(read.csv('electionmaps/booths_data/2013.csv',
+                                             colClasses=list(Seat='factor'))))  %>% barryFilter()
 
       boundariesData = switch(as.character(previousElection),
                         '2004' = readOGR(dsn='electionmaps/newshapes', layer='CED07aAUST_region'),

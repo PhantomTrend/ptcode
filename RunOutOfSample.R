@@ -12,8 +12,8 @@ endDate = as.Date(end(dataList$data))
 
 source('SimulateElection.R')
 
-stateReps = 500
-seatReps = 10
+stateReps = 800
+seatReps = 100
 set.seed(31337)
 
 
@@ -27,7 +27,7 @@ Y[which(!is.na(Y[,2])),1] = NA
 
 electionRows = which(as.ts(dataList$pollster)=='Election')
 
-electionYearToTest = 2013
+electionYearToTest = 2007
 electionRowToTest = electionRows[switch(as.character(electionYearToTest),
                                         '2007'=2,
                                         '2010'=3,
@@ -100,6 +100,7 @@ print(  ggplot(plotData) +
   scale_y_continuous(limits=c(25,75)) + scale_x_continuous(limits=c(25,75)) +
   labs(x='Predicted', y='Actual') + ggtitle(paste0('ALP Two-party Preferred, ', electionYearToTest))  )
 
+print(summary(lm(alp2pp.x ~ mean2pp, data=plotData)))
 
 surpriseAlpWins = plotData %>% filter(CurrentHolder.x == 'ALP') %>% filter(mean2pp < 50) %>% arrange(max2pp)
 surpriseCoalitionWins = plotData %>% filter(CurrentHolder.x != 'ALP') %>% filter(mean2pp > 50) %>% arrange(min2pp)

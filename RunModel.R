@@ -21,7 +21,7 @@ estimatedModel = fitNationalPollingModel(Y, as.ts(dataList$pollster), verbose=TR
 
 source('PrintedOutput.R')
 printCurrentEstimates(estimatedModel)
-
+logCurrentEstimates(estimatedModel, 'ModelEstimatesLog.csv')
 
 source('GeneratePlots.R')
 longTermPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
@@ -83,7 +83,23 @@ resultData$prob = resultData[,2]/sum(resultData[,2]) *100
 resultData$outcome = 'Hung'
 resultData[which(resultData$govtTotals > 76),'outcome'] = 'LNP'
 resultData[which(resultData$govtTotals < 71),'outcome'] = 'ALP'
-print(summarise(resultData %>% group_by(outcome), sum(prob)))
+
+electionProbs = summarise(resultData %>% group_by(outcome), sum(prob))
+electionSummary = data.frame(
+                      ALPprob = (electionProbs %>% filter(outcome=='ALP'))[,2],
+                      LNPprob = (electionProbs %>% filter(outcome=='LNP'))[,2],
+                      Hungprob = (electionProbs %>% filter(outcome=='Hung'))[,2],
+                      medianALPseats = median(alpTotals))
+print(round(electionSummary,1))
+electionSummary = cbind(data.frame(Timestamp = Sys.time()), electionSummary)
+electionSummaryLogFileName = 'ElectionSummaryLog.csv'
+if(file.exists(electionSummaryLogFileName)){
+  write.table(electionSummary, file = electionSummaryLogFileName, sep = ",", row.names=FALSE, col.names = FALSE, append=TRUE)
+}else{
+  write.table(electionSummary, file = electionSummaryLogFileName, sep = ",", row.names=FALSE, col.names = TRUE, append=FALSE)
+}
+
+
 xMin = 40
 xMax = 90
 histogramData = filter(resultData, govtTotals >= xMin ) %>% filter(govtTotals < xMax)
