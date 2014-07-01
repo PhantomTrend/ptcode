@@ -110,7 +110,10 @@ histogramData[which(histogramData$outcome=='ALP'),'outcomeColour'] = 'red'
 electionSummaryPlot = ggplot(histogramData) +
   geom_bar(aes(x=govtTotals,y=prob),fill=histogramData$outcomeColour,stat='Identity') +
   labs(x='Government Seats', y='Probability (%)') +
-  ggtitle('Simulated Election Outcomes')
+  ggtitle('Simulated Election Outcomes')  +
+  theme(plot.title=element_text(size=24),
+        axis.text.x=element_text(colour='black', size=16),
+        axis.title.x=element_text(size=18))
 print(electionSummaryPlot)
 
 ggsave(plot=electionSummaryPlot, filename='electionSummary.png', width=10, height=6)

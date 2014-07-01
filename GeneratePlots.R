@@ -13,8 +13,8 @@ plotNationalTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotSt
     as.vector(estimatedModel$popweights %*% t(estimatedModel$alphahat)),
        seq(dataStartDate, dataEndDate, by='day') )
   
-  # Calculate a confidence interval as p'*V(t)*p, where V is the covariance
-  # matrix of the smoothed estimate from KFAS
+  # Calculate a confidence interval using var(x) = p'*V(t)*p, where V is the covariance
+  # matrix of the smoothed estimate from KFAS and p is the vector of population weights
   oneSdWidth = sqrt(apply(estimatedModel$V, 3, function(V){t(estimatedModel$popweights) %*% V %*% estimatedModel$popweights}))
   oneSdWidth = zoo(oneSdWidth, seq(dataStartDate, dataEndDate, by='day'))
   topOfConfidenceInterval = fittedNational2pp + 2*oneSdWidth
@@ -62,7 +62,9 @@ plotNationalTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotSt
           geom_line(aes(y=fittedNational2pp), size=lineSize, colour=lineColour) +
           geom_ribbon(aes(ymax=topOfConfidenceInterval, ymin=bottomOfConfidenceInterval),
                       fill=lineColour, alpha=0.2) +
-          labs(x='',y='') + ggtitle(plotTitle) 
+          labs(x='',y='') + ggtitle(plotTitle) +
+            theme(title=element_text(size=28, vjust=2),
+                  axis.text=element_text(colour='black', size=18))
   if(!is.null(outputFileName)){ggsave(outputFileName, width=13, height=8)}
   return(outputPlot)
 }
