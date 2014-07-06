@@ -140,8 +140,10 @@ plotStateTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotStart
                 fill=lineColour, alpha=0.2) +
     (if(showPollsters){geom_point(aes(y=polled2ppState, colour=pollster)  )
     }else{geom_point(aes(y=polled2ppState), colour='black', alpha=0.7) }) +
-    labs(x='',y='') + ggtitle(plotTitle) 
-  if(!is.null(outputFileName)){ggsave(outputFileName)}
+    labs(x='',y='') + ggtitle(plotTitle)  +
+    theme(title=element_text(size=28, vjust=2),
+          axis.text=element_text(colour='black', size=18))
+  if(!is.null(outputFileName)){ggsave(outputFileName, width=13, height=8)}
   return(outputPlot)
 }
 
