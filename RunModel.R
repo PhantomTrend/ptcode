@@ -1,9 +1,15 @@
 
 
+
+narrativeForLog = "Longer history for Newspoll,Nielsen,Morgan; extend start date to 2000; plus latest Morgan point"     # Comment to add to the logs of the model output
+if(is.null(narrativeForLog)){
+  warning('**** No log of this session will be saved. ****')
+}
+
 source('LoadPollsAndElections.R')
 
 dataDir = 'Data'
-startDate = as.Date('2003-01-01')
+startDate = as.Date('2000-01-01')
 
 dataList = loadPollsAndElections(dataDir, startDate)
 endDate = as.Date(end(dataList$data))
@@ -21,11 +27,12 @@ estimatedModel = fitNationalPollingModel(Y, as.ts(dataList$pollster), verbose=TR
 
 source('PrintedOutput.R')
 printCurrentEstimates(estimatedModel)
-logCurrentEstimates(estimatedModel, 'ModelEstimatesLog.csv')
-
+if(!is.null(narrativeForLog)){
+  logCurrentEstimates(estimatedModel, 'ModelEstimatesLog.csv', narrativeForLog)
+}
 source('GeneratePlots.R')
 longTermPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
-                  plotStartDate=as.Date('2003-01-01'), plotEndDate=as.Date('2014-12-31'),
+                  plotStartDate=as.Date('2000-01-01'), plotEndDate=as.Date('2014-12-31'),
                   outputFileName='historical2pp.png', showPollsters=TRUE, alpPovPlot=(runif(1) < 0.5))
 currentPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
                   plotStartDate=as.Date('2013-01-01'), plotEndDate=as.Date('2014-08-01'),
@@ -91,14 +98,16 @@ electionSummary = data.frame(
                       Hungprob = (electionProbs %>% filter(outcome=='Hung'))[,2],
                       medianALPseats = median(alpTotals))
 print(round(electionSummary,1))
-electionSummary = cbind(data.frame(Timestamp = Sys.time()), electionSummary)
 electionSummaryLogFileName = 'ElectionSummaryLog.csv'
-if(file.exists(electionSummaryLogFileName)){
-  write.table(electionSummary, file = electionSummaryLogFileName, sep = ",", row.names=FALSE, col.names = FALSE, append=TRUE)
-}else{
-  write.table(electionSummary, file = electionSummaryLogFileName, sep = ",", row.names=FALSE, col.names = TRUE, append=FALSE)
+if(!is.null(narrativeForLog)){
+  electionSummary = cbind(data.frame(Timestamp = Sys.time()), electionSummary,
+                          data.frame(Narrative = narrativeForLog))
+  if(file.exists(electionSummaryLogFileName)){
+    write.table(electionSummary, file = electionSummaryLogFileName, sep = ",", row.names=FALSE, col.names = FALSE, append=TRUE)
+  }else{
+    write.table(electionSummary, file = electionSummaryLogFileName, sep = ",", row.names=FALSE, col.names = TRUE, append=FALSE)
+  }
 }
-
 
 xMin = 40
 xMax = 90

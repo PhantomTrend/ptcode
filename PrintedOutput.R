@@ -17,7 +17,7 @@ printCurrentEstimates = function(estimatedModel){
   cat('\n')
 }
 
-logCurrentEstimates = function(estimatedModel, logFileName){
+logCurrentEstimates = function(estimatedModel, logFileName, narrative){
   end_t = dim(estimatedModel$a)[1]
   national2pp = estimatedModel$popweights %*% estimatedModel$a[end_t,]
   result = data.frame(Timestamp = Sys.time(),
@@ -29,7 +29,8 @@ logCurrentEstimates = function(estimatedModel, logFileName){
                       WA = estimatedModel$a[end_t,5],
                       TAS = estimatedModel$a[end_t,6],
                       NT = estimatedModel$a[end_t,7],
-                      ACT = estimatedModel$a[end_t,8])
+                      ACT = estimatedModel$a[end_t,8],
+                      Narrative = narrative)
   if(file.exists(logFileName)){
     write.table(result, file = logFileName, sep = ",", row.names=FALSE, col.names = FALSE, append=TRUE)
   }else{
