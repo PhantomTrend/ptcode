@@ -31,6 +31,8 @@ if(!is.null(narrativeForLog)){
   logCurrentEstimates(estimatedModel, 'ModelEstimatesLog.csv', narrativeForLog)
 }
 source('GeneratePlots.R')
+
+set.seed(NULL)    # Make sure the ALP/LNP plot POV decision is really random
 longTermPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
                   plotStartDate=as.Date('2000-01-01'), plotEndDate=as.Date('2014-12-31'),
                   outputFileName='historical2pp.png', showPollsters=TRUE, alpPovPlot=(runif(1) < 0.5))
