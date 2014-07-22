@@ -1,7 +1,7 @@
 
 
 
-narrativeForLog = "Longer history for Newspoll,Nielsen,Morgan; extend start date to 2000; plus latest Morgan point"     # Comment to add to the logs of the model output
+narrativeForLog = "Essential+ReachTEL 23/7/14"     # Comment to add to the logs of the model output
 if(is.null(narrativeForLog)){
   warning('**** No log of this session will be saved. ****')
 }
@@ -35,7 +35,7 @@ longTermPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollste
                   plotStartDate=as.Date('2000-01-01'), plotEndDate=as.Date('2014-12-31'),
                   outputFileName='historical2pp.png', showPollsters=TRUE, alpPovPlot=(runif(1) < 0.5))
 currentPlot = plotNationalTrend(estimatedModel, dataList$data, dataList$pollster,
-                  plotStartDate=as.Date('2013-01-01'), plotEndDate=as.Date('2014-08-01'),
+                  plotStartDate=as.Date('2013-01-01'), plotEndDate=as.Date('2014-09-01'),
                   outputFileName='national2pp.png', showPollsters=FALSE, alpPovPlot=(runif(1) < 0.5))
 print(longTermPlot)
 print(currentPlot)
