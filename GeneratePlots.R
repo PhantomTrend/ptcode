@@ -1,6 +1,7 @@
 
 
 library(ggplot2)
+library(scales)
 
 plotNationalTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotStartDate,
                              plotEndDate, outputFileName, showPollsters, alpPovPlot){
@@ -51,8 +52,12 @@ plotNationalTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotSt
   # on long-run plots.
   if(plotEndDate - plotStartDate > 900){
     lineSize = 1
+    xscale = scale_x_date(breaks=date_breaks('3 years'),
+                          minor_breaks=date_breaks('years'), labels=date_format("%Y"))
   }else{
     lineSize = 2
+    xscale = scale_x_date(breaks=date_breaks('3 months'),
+                          minor_breaks=date_breaks('months'), labels=date_format("%b %Y"))
   }
   
   outputPlot = ggplot(plotData) + aes(x=date) +
@@ -62,7 +67,7 @@ plotNationalTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotSt
           geom_line(aes(y=fittedNational2pp), size=lineSize, colour=lineColour) +
           geom_ribbon(aes(ymax=topOfConfidenceInterval, ymin=bottomOfConfidenceInterval),
                       fill=lineColour, alpha=0.2) +
-          labs(x='',y='') + ggtitle(plotTitle) +
+          labs(x='',y='') + ggtitle(plotTitle) +  xscale + 
             theme(title=element_text(size=28, vjust=2),
                   axis.text=element_text(colour='black', size=18))
   if(!is.null(outputFileName)){ggsave(outputFileName, width=13, height=8)}
@@ -130,8 +135,12 @@ plotStateTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotStart
   # on long-run plots.
   if(plotEndDate - plotStartDate > 900){
     lineSize = 1
+    xscale = scale_x_date(breaks=date_breaks('3 years'),
+                          minor_breaks=date_breaks('years'), labels=date_format("%Y"))
   }else{
     lineSize = 2
+    xscale = scale_x_date(breaks=date_breaks('3 months'),
+                          minor_breaks=date_breaks('months'), labels=date_format("%b %Y"))
   }
   
   outputPlot = ggplot(plotData) + aes(x=date) +
@@ -140,7 +149,7 @@ plotStateTrend = function(estimatedModel, pollingDataZoo, pollsterZoo, plotStart
                 fill=lineColour, alpha=0.2) +
     (if(showPollsters){geom_point(aes(y=polled2ppState, colour=pollster)  )
     }else{geom_point(aes(y=polled2ppState), colour='black', alpha=0.7) }) +
-    labs(x='',y='') + ggtitle(plotTitle)  +
+    labs(x='',y='') + ggtitle(plotTitle)  + xscale + 
     theme(title=element_text(size=28, vjust=2),
           axis.text=element_text(colour='black', size=18))
   if(!is.null(outputFileName)){ggsave(outputFileName, width=13, height=8)}
