@@ -21,8 +21,7 @@ barryFilter = function(df){
   # option filter() as well as in select()
   df = filter(df, !((1:nrow(df)) %in% grep('PPVC', Booth)))
   
-  # Seat naming issues
-  levels(df$Seat) = c(levels(df$Seat), 'McMahon', 'Kingsford Smith')
+  ### Seat naming issues
   # Remove hyphens from "Kingsford-Smith":
   df[which(df$Seat == "Kingsford-Smith"),'Seat'] = "Kingsford Smith"
   # Rename Prospect to McMahon:
