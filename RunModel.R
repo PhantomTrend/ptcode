@@ -1,7 +1,7 @@
 
 
 
-narrativeForLog = "Essential+ReachTEL 23/7/14"     # Comment to add to the logs of the model output
+narrativeForLog = "Essential 5/8/14; Morgan 11/8/14; Newspoll 12/8/14 "     # Comment to add to the logs of the model output
 if(is.null(narrativeForLog)){
   warning('**** No log of this session will be saved. ****')
 }
