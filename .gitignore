@@ -1,0 +1,6 @@
+
+# Output graphics files
+*.png
+
+# Input Excel files
+*.xlsx
