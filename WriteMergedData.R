@@ -1,6 +1,7 @@
 
 library(tidyr)
 library(dplyr)
+library(assertthat)
 
 if(interactive()){
   args <- c('PollingData/MergedData.csv', 'PollingData/NationalDataLong.csv', 'PollingData/StateDataLong.csv')
@@ -17,16 +18,21 @@ stateData$Vote[which(stateData$Vote == '<0.5')] <- "0.2"
 stateData$Vote <- as.numeric(stateData$Vote)
 
 fixMinorParties <- function(x){
-  if(any(x$Party == 'FFP')){
-    # We don't track Family First; merge it with Other
-    x[which(x$Party=='OTH'),'Vote'] = x[which(x$Party=='FFP'),'Vote'] + x[which(x$Party=='OTH'),'Vote']
-    x <- x[-which(x$Party == 'FFP'),]
+  # Take minor parties that we don't track, and add them to Other
+  collateWithOther <- function(df, partyCode){
+    if(any(df$Party == partyCode)){
+      if(!is.na(df[which(x$Party==partyCode),'Vote'])){
+        df[which(x$Party=='OTH'),'Vote'] = df[which(x$Party==partyCode),'Vote'] + df[which(x$Party=='OTH'),'Vote']
+      }
+      df <- df[-which(x$Party == partyCode),]
+    }
+    return(df)
   }
-  if(any(x$Party == 'IND')){
-    # We don't track Independent; merge it with Other
-    x[which(x$Party=='OTH'),'Vote'] = x[which(x$Party=='IND'),'Vote'] + x[which(x$Party=='OTH'),'Vote']
-    x <- x[-which(x$Party == 'IND'),]
-  }
+  x <- collateWithOther(x, 'FFP')  # Family First
+  x <- collateWithOther(x, 'IND')    # Misc. independents
+  x <- collateWithOther(x, 'DEM')    # Democrats
+  x <- collateWithOther(x, 'PHON')   # One Nation
+  
   if(!any(x$Party == 'PUP')){
     if(x$PollEndDate[1] >= as.Date('2013-05-01')){
       # This poll is after PUP's foundation, but doesn't report it separately
@@ -42,6 +48,10 @@ fixMinorParties <- function(x){
                                Vote = 0))
     }
   }
+  return(x)
+}
+
+validateData <- function(x){
   voteTotal <- sum(na.omit(x$Vote))
   if(abs(voteTotal-100) > 2){
     badness <- data.frame(VoteTotal = voteTotal,
@@ -57,4 +67,15 @@ fixMinorParties <- function(x){
 }
 
 stateDataNew <- stateData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(fixMinorParties(.)) %>% ungroup()
-stateDataNew %>% arrange(desc(PollEndDate))
+badStateData <- stateData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(validateData(.))
+assert_that(nrow(badStateData)==1)     # One missing set of WA numbers
+
+nationalDataNew <- nationalData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(fixMinorParties(.)) %>% ungroup()
+badNationalData <- nationalDataNew %>% group_by(PollEndDate, Electorate, Pollster) %>% do(validateData(.))
+print(badNationalData %>% arrange(VoteTotal))
+
+
+
+
+
+
