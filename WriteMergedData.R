@@ -42,7 +42,7 @@ fixMinorParties <- function(x){
                                Vote = 0))
     }
   }
-  voteTotal <- sum(x$Vote)
+  voteTotal <- sum(na.omit(x$Vote))
   if(abs(voteTotal-100) > 2){
     badness <- data.frame(VoteTotal = voteTotal,
                           Pollster = x$Pollster[1],
