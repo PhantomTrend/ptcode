@@ -89,8 +89,12 @@ nationalData <- filter(nationalData, !(Pollster == 'Morgan' & PollEndDate < as.D
 
 nationalDataNew <- nationalData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(fixMinorParties(.)) %>% ungroup()
 badNationalData <- nationalDataNew %>% group_by(PollEndDate, Electorate, Pollster) %>% do(validateData(.))
-print(badNationalData %>% arrange(PollEndDate))
-
+assert_that(nrow(badNationalData)==5)
+# TODO: check/replace these five polls intead of dropping them
+for(badI in 1:nrow(badNationalData)){
+  nationalDataNew <- filter(nationalDataNew, !(Pollster == badNationalData[badI,'Pollster'] & 
+                                                 PollEndDate == badNationalData[badI, 'PollEndDate']))
+}
 
 
 
