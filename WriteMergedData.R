@@ -44,9 +44,17 @@ fixMinorParties <- function(x){
   }
   voteTotal <- sum(x$Vote)
   if(abs(voteTotal-100) > 2){
-    print(paste('Warning - vote total', voteTotal, 'for', x$Pollster[1], x$Electorate[1], x$PollEndDate[1]))
+    badness <- data.frame(VoteTotal = voteTotal,
+                          Pollster = x$Pollster[1],
+                          Electorate = x$Electorate[1],
+                          PollEndDate = x$PollEndDate[1])
+  }else{
+    badness <- data.frame(VoteTotal = 0, Pollster="x", Electorate="x",
+                          PollEndDate = as.Date("1900-01-01"))
+    badness <- badness[-1,]
   }
-  return(x)
+  return(badness)
 }
 
 stateDataNew <- stateData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(fixMinorParties(.)) %>% ungroup()
+stateDataNew %>% arrange(desc(PollEndDate))
