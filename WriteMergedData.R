@@ -33,7 +33,17 @@ fixMinorParties <- function(x){
   x <- collateWithOther(x, 'DEM')    # Democrats
   x <- collateWithOther(x, 'PHON')   # Pauline Hanson
   
+  # Allow PUP numbers to be either missing altogether or NA.
   if(!any(x$Party == 'PUP')){
+    rewritePup <- TRUE
+  }else{
+    if(is.na(x[x$Party=='PUP','Vote'])){
+      rewritePup <- TRUE
+    }else{
+      rewritePup <- FALSE
+    }
+  }
+  if(rewritePup){
     if(x$PollEndDate[1] >= as.Date('2013-05-01')){
       # This poll is after PUP's foundation, but doesn't report it separately
       x$Vote[which(x$Party=='PUPOTH')] = x$Vote[which(x$Party=='OTH')]
