@@ -118,6 +118,12 @@ completeData <- (rbind(nationalDataNew, stateDataNew) %>%
                           Electorate = factor(Electorate)))
 print(summary(completeData))
 
+# Keep note of Newspoll Quarterly reports, so we can model their averaging properly when fitting the model
+newspollQuarterlyDates <- unique((stateDataNew %>% filter(Pollster == 'Newspoll'))$PollEndDate)
+levels(completeData$Pollster) <- c(levels(completeData$Pollster), 'Newspoll Quarterly')
+completeData[which(completeData$PollEndDate %in% newspollQuarterlyDates &
+                     completeData$Pollster == 'Newspoll'), 'Pollster'] <- 'Newspoll Quarterly'
+
 # Now some health checks on the finalised data
 assert_all_are_in_past(as.POSIXct(completeData$PollEndDate))
 assert_is_numeric(completeData$Vote)
@@ -127,7 +133,7 @@ nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 1, 60)
 assert_that(is_in_closed_range(mean(nonZeroVotes), 20, 30))
 pollstersWeKnowAbout <- c("Essential", "Essential Online", "Galaxy", "Morgan", "Morgan Multi", 
-                          "Morgan SMS", "Newspoll", "Nielsen", "ReachTEL")
+                          "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL")
 assert_that(all(levels(completeData$Pollster) %in% pollstersWeKnowAbout))
 assert_all_are_not_na(completeData$Pollster)
 partiesWeKnowAbout <- c("ALP", "GRN", "LNP", "OTH", "PUP", "PUPOTH")
