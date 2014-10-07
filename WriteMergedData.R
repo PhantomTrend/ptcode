@@ -50,6 +50,7 @@ fixMinorParties <- function(x){
   if(rewritePup){
     if(x$PollEndDate[1] >= as.Date('2013-05-01')){
       # This poll is after PUP's foundation, but doesn't report it separately
+      assert_is_non_empty(which(x$Party == 'OTH'))
       pupOtherRow <- data.frame(PollEndDate = x$PollEndDate[1],
                                 Pollster = x$Pollster[1],
                                 Party = 'PUPOTH',
@@ -57,7 +58,9 @@ fixMinorParties <- function(x){
                                 Vote = x$Vote[which(x$Party=='OTH')])
       x <- rbind(x, pupOtherRow)
       x <- x[-which(x$Party=='OTH'),]
-      x <- x[-which(x$Party=='PUP'),]
+      if(any(x$Party=='PUP')){
+        x <- x[-which(x$Party=='PUP'),]
+      }
     }else{
       # PUP didn't exist; mark it zero to ensure the model doesn't try to
       # infer a vote for it
