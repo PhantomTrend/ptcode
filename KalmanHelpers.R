@@ -32,6 +32,8 @@ makeQmatrix <- function(params){
   # An alternative would be to rewrite the statespace model without the
   # the redundant OTH component.
   Q <- Q + diag(rep(1e-12, nLatentComponents))
+  # KFAS needs a 3d array
+  Q <- array(Q, c(nLatentComponents, nLatentComponents, 1))
   return(Q)
 }
 

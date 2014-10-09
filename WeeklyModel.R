@@ -124,7 +124,7 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
   
   model$Q <- makeQmatrix(paramList)
   yAndH <- makeDataMatrix(modelData, paramList)
-  model$Y <- yAndH$Y
+  model$y <- yAndH$Y
   model$H <- yAndH$H
   
   weeklyLogLikelihood <- logLik(model, check.model=TRUE)
