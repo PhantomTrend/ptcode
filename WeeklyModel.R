@@ -93,8 +93,8 @@ for(zi in 1:nrow(observationTypes)){
 
 modelData$ObservationColumn <- NA
 for(zi in 1:nrow(observationTypes)){
-  modelData[which(modelData$Party == observationTypes[zi,'Party'] &
-                    modelData$Electorate == observationTypes[zi,'Electorate']), 'ObservationColumn'] <- zi
+  modelData$ObservationColumn[which(modelData$Party == observationTypes$Party[zi] &
+                    modelData$Electorate == observationTypes$Electorate[zi])] <- zi
 }
 
 
@@ -129,26 +129,26 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
   
   weeklyLogLikelihood <- logLik(model, check.model=TRUE)
   
-#   # Add likelihood for election weeks
-#   electionWeeks <- (filter(modelData, Pollster=='Election'))$RowNumber
-#   electionEvePolls <- filter(modelData, Pollster != 'Election', RowNumber %in% electionWeeks)
-#   electionEveLogLikelihood <- 0
-#   for(electionRowNumber in unique(electionEvePolls$RowNumber)){
-#     thisSetOfPolls <- filter(modelData, RowNumber %in% electionRowNumber)
-#     actualResult <- filter(thisSetOfPolls, Pollster == 'Election')
-#     pollResults <- filter(thisSetOfPolls, Pollster != 'Election')
-#     for(rowI in 1:nrow(pollResults)){
-#       thisParty <- pollResults[rowI, 'Party']
-#       thisNumber <- pollResults[rowI,'Vote'] - paramList[[thisPollster]][[thisParty]]
-#       thisPollster <- pollResults[rowI, 'Pollster']
-#       thisElectorate <- pollResults[rowI, 'Electorate']
-# 
-#       actualNumber <- (actualResult %>% filter(Party == thisParty, Electorate==thisElectorate))$Vote
-#       thisLogLikelihood <- dnorm( actualNumber, mean=thisNumber, 
-#                                   sd = sqrt(paramList[[thisPollster]][['NoiseVariance']]), log=TRUE)
-#       electionEveLogLikelihood <- electionEveLogLikelihood + thisLogLikelihood
-#     }
-#   }
+  # Add likelihood for election weeks
+  electionWeeks <- (filter(modelData, Pollster=='Election'))$RowNumber
+  electionEvePolls <- filter(modelData, Pollster != 'Election', RowNumber %in% electionWeeks)
+  electionEveLogLikelihood <- 0
+  for(electionRowNumber in unique(electionEvePolls$RowNumber)){
+    thisSetOfPolls <- filter(modelData, RowNumber %in% electionRowNumber)
+    actualResult <- filter(thisSetOfPolls, Pollster == 'Election')
+    pollResults <- filter(thisSetOfPolls, Pollster != 'Election')
+    for(rowI in 1:nrow(pollResults)){
+      thisParty <- pollResults[rowI, 'Party']
+      thisNumber <- pollResults[rowI,'Vote'] - paramList[[thisPollster]][[thisParty]]
+      thisPollster <- pollResults[rowI, 'Pollster']
+      thisElectorate <- pollResults[rowI, 'Electorate']
+
+      actualNumber <- (actualResult %>% filter(Party == thisParty, Electorate==thisElectorate))$Vote
+      thisLogLikelihood <- dnorm( actualNumber, mean=thisNumber, 
+                                  sd = sqrt(paramList[[thisPollster]][['NoiseVariance']]), log=TRUE)
+      electionEveLogLikelihood <- electionEveLogLikelihood + thisLogLikelihood
+    }
+  }
   
   totalLogLikelihood <- weeklyLogLikelihood + electionEveLogLikelihood
   
@@ -160,7 +160,7 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
 }
 
 theta0 <- getDefaultParamList()
-# print(reciprocalLogLikelihood(paramListToVector(theta0), mod1))
+print(reciprocalLogLikelihood(paramListToVector(theta0), mod1))
 
 
 
