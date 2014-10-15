@@ -4,3 +4,17 @@
 
 # Input Excel files
 *.xlsx
+
+# Intermediate files
+ElectionData/FirstPrefs.csv
+ElectionData/HouseTcpFlowByStateByParty2013.csv
+PollingData/MergedData.csv
+PollingData/NationalDataLong.csv
+PollingData/StateDataLong.csv
+
+# OS X crap
+.DS_Store
+
+# R crap
+.Rhistory
+
