@@ -6,7 +6,8 @@ library(assertive)
 
 
 if(interactive()){
-  args <- c('PollingData/MergedData.csv', 'PollingData/NationalDataLong.csv', 'PollingData/StateDataLong.csv')
+  args <- c('PollingData/MergedData.csv', 'PollingData/NationalDataLong.csv',
+            'PollingData/StateDataLong.csv', 'ElectionData/FirstPrefs.csv')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
@@ -106,12 +107,17 @@ nationalData <- filter(nationalData, !(Pollster == 'Morgan' & PollEndDate < as.D
 
 nationalDataNew <- nationalData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(fixMinorParties(.)) %>% ungroup()
 badNationalData <- nationalDataNew %>% group_by(PollEndDate, Electorate, Pollster) %>% do(validateData(.))
-assert_that(nrow(badNationalData)==5)
+invisible(assert_that(nrow(badNationalData)==5))
 # TODO: check/replace these five polls intead of dropping them
 for(badI in 1:nrow(badNationalData)){
-  nationalDataNew <- filter(nationalDataNew, !(Pollster == badNationalData[badI,'Pollster'] & 
-                                                 PollEndDate == badNationalData[badI, 'PollEndDate']))
+  nationalDataNew <- filter(nationalDataNew, !(Pollster == badNationalData$Pollster[badI] & 
+                                                 PollEndDate == badNationalData$PollEndDate[badI]))
 }
+
+
+electoralData <- tbl_df(read.csv(args[4]))
+badElectoralData <- electoralData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(validateData(.))
+invisible(assert_that(nrow(badElectoralData)==0))
 
 
 completeData <- (rbind(nationalDataNew, stateDataNew) %>%
@@ -130,20 +136,20 @@ completeData[which(completeData$PollEndDate %in% newspollQuarterlyDates &
 # Now some health checks on the finalised data
 assert_all_are_in_past(as.POSIXct(completeData$PollEndDate))
 assert_is_numeric(completeData$Vote)
-assert_that(length(which(is.na(completeData$Vote))) == 4)   # One Nielsen WA state poll
+invisible(assert_that(length(which(is.na(completeData$Vote))) == 4))   # One Nielsen WA state poll
 assert_all_are_non_negative(na.omit(completeData$Vote))
 nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 1, 60)
-assert_that(is_in_closed_range(mean(nonZeroVotes), 20, 30))
-pollstersWeKnowAbout <- c("Essential", "Essential Online", "Galaxy", "Morgan", "Morgan Multi", 
+invisible(assert_that(is_in_closed_range(mean(nonZeroVotes), 20, 30)))
+pollstersWeKnowAbout <- c('Election', "Essential", "Essential Online", "Galaxy", "Morgan", "Morgan Multi", 
                           "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL")
-assert_that(all(levels(completeData$Pollster) %in% pollstersWeKnowAbout))
+invisible(assert_that(all(levels(completeData$Pollster) %in% pollstersWeKnowAbout)))
 assert_all_are_not_na(completeData$Pollster)
 partiesWeKnowAbout <- c("ALP", "GRN", "LNP", "OTH", "PUP", "PUPOTH")
-assert_that(all(levels(completeData$Party) %in% partiesWeKnowAbout))
+invisible(assert_that(all(levels(completeData$Party) %in% partiesWeKnowAbout)))
 assert_all_are_not_na(completeData$Party)
 electoratesWeKnowAbout <- c("AUS", "NSW", "QLD", "SA", "VIC", "WA")
-assert_that(all(levels(completeData$Electorate) %in% electoratesWeKnowAbout))
+invisible(assert_that(all(levels(completeData$Electorate) %in% electoratesWeKnowAbout)))
 assert_all_are_not_na(completeData$Electorate)
 
 write.csv(completeData, outputFileName, row.names=FALSE)
