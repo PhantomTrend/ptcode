@@ -7,8 +7,8 @@
 # function circumvents that a bit by calculating R*R'.
 
 makeQmatrix <- function(params){
-  R1 <- matrix(0, nrow= nLatentComponents, ncol= nLatentComponents + nParties -1 )
-  for(componentI in seq_along(latentComponentNames)){
+  R1 <- matrix(0, nrow= nLatentComponentsBase, ncol= nLatentComponentsBase + nParties -1 )
+  for(componentI in seq_along(latentComponentNamesBase)){
     thisParty <- latentPartyNames[componentI]
     thisElectorate <- latentStateNames[componentI]
     if(thisParty == 'OTH'){
@@ -16,7 +16,7 @@ makeQmatrix <- function(params){
       for(otherParty in setdiff(partyNames, c('OTH'))){
         otherLocalColumn <- which(latentPartyNames == otherParty & latentStateNames == thisElectorate)
         R1[componentI, otherLocalColumn] <- -params[[otherParty]][[thisElectorate]]
-        otherNationwideColumn <- nLatentComponents + which(partyNames == otherParty)
+        otherNationwideColumn <- nLatentComponentsBase + which(partyNames == otherParty)
         R1[componentI, otherNationwideColumn] <- -params[[otherParty]][['AUS']]
       }
     }else{
@@ -24,14 +24,14 @@ makeQmatrix <- function(params){
       R1[componentI, componentI] <- params[[thisParty]][[thisElectorate]]
       # Nationwide party shock
       partyIndex <- which(partyNames == thisParty)
-      R1[componentI, nLatentComponents + partyIndex] <- params[[thisParty]][['AUS']]
+      R1[componentI, nLatentComponentsBase + partyIndex] <- params[[thisParty]][['AUS']]
     }
   }
   Q <- R1 %*% t(R1)
   # A sort of hacky way to ensure that Q is p.d.
   # An alternative would be to rewrite the statespace model without the
   # the redundant OTH component.
-  Q <- Q + diag(rep(1e-12, nLatentComponents))
+  Q <- diag(rep(1e-12, nLatentComponents)) + c(Q)
   # KFAS needs a 3d array
   Q <- array(Q, c(nLatentComponents, nLatentComponents, 1))
   return(Q)

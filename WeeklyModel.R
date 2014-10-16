@@ -15,9 +15,8 @@ for(pollster in pollsters){
   # Every poll assumed to take 1 week, by default
   pollDurations[[pollster]] <- 1
 }
-pollDurations[['Newspoll Quarterly']] <- 13
+# pollDurations[['Newspoll Quarterly']] <- 13
 pollDurations[['Essential']] <- 2
-
 lagLength <- max(as.numeric(pollDurations))
 
 
@@ -38,11 +37,20 @@ observedPartyNames <- setdiff(partyNames, 'OTH')    # One observation is redunda
 nParties <- length(partyNames)
 
 
-latentComponentNames <- as.vector(outer(stateNames, partyNames, FUN = 'paste'))
-nLatentComponents <- length(latentComponentNames)
+latentComponentNamesBase <- as.vector(outer(stateNames, partyNames, FUN = 'paste'))
 latentPartyNames <- rep(partyNames, each=length(stateNames))
 latentStateNames <- rep(stateNames, nParties)
-assert_that(all(as.vector(mapply(paste, latentStateNames, latentPartyNames)) == latentComponentNames))
+latentComponentNames <- latentComponentNamesBase
+for(thisLag in 2:lagLength){
+  componentNamesWithLag <- unlist(lapply(latentComponentNamesBase, function(x){paste0(x,' Lag', thisLag)}))
+  latentComponentNames <- c( latentComponentNames, componentNamesWithLag )
+}
+latentLags <- rep(1:lagLength, each=length(latentComponentNamesBase))
+
+nLatentComponents <- length(latentComponentNames)
+nLatentComponentsBase <- length(latentComponentNamesBase)
+
+invisible(assert_that(all(as.vector(mapply(paste, latentStateNames, latentPartyNames)) == latentComponentNamesBase)))
 
 
 getYear <- function(d){ return(as.integer(format(d, '%Y'))) }
@@ -64,7 +72,22 @@ modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   select(RowNumber, Pollster, Party, Vote, Electorate, Year, Week, PollEndDate)
 
 
-observationTypes <- unique(modelData %>% arrange(Electorate) %>% select(Party, Electorate) )
+pollstersReportingWeeklyData <- names(pollDurations)[which(pollDurations == 1)]
+observationTypes <- unique(modelData  %>% filter(Pollster %in% pollstersReportingWeeklyData)
+                           %>% arrange(Electorate) %>% select(Party, Electorate) )
+observationTypes$Lag <- 1
+lagLengthsInDataset <- unlist(unique(pollDurations))
+for(lagLength in lagLengthsInDataset){
+  if(lagLength == 1){
+    next
+  }
+  pollstersWithThisLagLength <- names(pollDurations)[which(pollDurations == lagLength)]
+  obsTypesFromThesePollsters <- unique(modelData %>% filter(Pollster %in% pollstersWithThisLagLength)
+                                       %>% arrange(Electorate) %>% select(Party, Electorate) )
+  obsTypesFromThesePollsters$Lag <- lagLength
+  observationTypes <- rbind(observationTypes, obsTypesFromThesePollsters)
+}
+
 
 Z <- matrix(0, nrow=nrow(observationTypes), ncol = nLatentComponents)
 for(zi in 1:nrow(observationTypes)){
@@ -73,7 +96,7 @@ for(zi in 1:nrow(observationTypes)){
     if(obsType$Party == 'PUPOTH'){
       for(state in stateNames){
         Z[zi,which(latentStateNames == state &
-                       (latentPartyNames == 'PUP' | latentPartyNames == 'OTH'))] <- popweights[[state]]
+                     (latentPartyNames == 'PUP' | latentPartyNames == 'OTH'))] <- popweights[[state]]
       }
     }else{
       for(state in stateNames){
@@ -83,10 +106,15 @@ for(zi in 1:nrow(observationTypes)){
   }else{
     if(obsType$Party == 'PUPOTH'){
       Z[zi,which(latentStateNames == obsType$Electorate &
-                     (latentPartyNames == 'PUP' | latentPartyNames == 'OTH'))] <- 1
+                   (latentPartyNames == 'PUP' | latentPartyNames == 'OTH'))] <- 1
     }else{
       Z[zi,which(latentStateNames == obsType$Electorate & latentPartyNames == obsType$Party)] <- 1
     }
+  }
+  if(obsType$Lag > 1){
+    zComponentsToBeRepeated <- Z[zi,1:length(latentComponentNamesBase)]
+    zRowWithLags <- rep(zComponentsToBeRepeated, obsType$Lag) / obsType$Lag
+    Z[zi,1:length(zRowWithLags)] <- zRowWithLags
   }
 }
 
@@ -94,7 +122,7 @@ for(zi in 1:nrow(observationTypes)){
 modelData$ObservationColumn <- NA
 for(zi in 1:nrow(observationTypes)){
   modelData$ObservationColumn[which(modelData$Party == observationTypes$Party[zi] &
-                    modelData$Electorate == observationTypes$Electorate[zi])] <- zi
+                                      modelData$Electorate == observationTypes$Electorate[zi])] <- zi
 }
 
 
@@ -142,7 +170,7 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
       thisNumber <- pollResults[rowI,'Vote'] - paramList[[thisPollster]][[thisParty]]
       thisPollster <- pollResults[rowI, 'Pollster']
       thisElectorate <- pollResults[rowI, 'Electorate']
-
+      
       actualNumber <- (actualResult %>% filter(Party == thisParty, Electorate==thisElectorate))$Vote
       thisLogLikelihood <- dnorm( actualNumber, mean=thisNumber, 
                                   sd = sqrt(paramList[[thisPollster]][['NoiseVariance']]), log=TRUE)
