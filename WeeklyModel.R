@@ -14,7 +14,8 @@ nPollsters <- length(pollsters)
 # Prepare for some pollsters reporting quarterly averages etc.
 pollDurations <- list()
 for(pollster in pollsters){
-  # Every poll assumed to take 1 week, by default
+  # Every poll assumed to take 1 week, by default.
+  # (In the model, 1 week = the smallest unit of time.)
   pollDurations[[pollster]] <- 1
 }
 # pollDurations[['Newspoll Quarterly']] <- 13
@@ -36,7 +37,7 @@ names(popweights) <- stateNames
 
 
 partyNames <- c("ALP", "LNP", "GRN", "PUP", "OTH")
-observedPartyNames <- partyNames
+observedPartyNames <- c(partyNames, "PUPOTH")
 nParties <- length(partyNames)
 
 
