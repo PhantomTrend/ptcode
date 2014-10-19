@@ -173,7 +173,7 @@ mod1 = SSModel( Y ~ 0+ SSMcustom(Z, bigT, R, Q=diag(NA, nrow=nLatentComponentsBa
 source('ParameterHelpers.R')
 source('KalmanHelpers.R')
 source('DataHelpers.R')
-
+source('PriorDistributions.R')
 
 reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
   paramList = paramVectorToList(paramVector)
@@ -216,9 +216,11 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
 }
 
 theta0 <- getDefaultParamList()
-startTime <- proc.time()
-print(reciprocalLogLikelihood(paramListToVector(theta0), mod1))
-print(proc.time() - startTime)
+
+posteriorfn = function(x,model){ return(reciprocalLogLikelihood(x,model) + reciprocalLogPrior(x)) }
+
+
+print(posteriorfn(paramListToVector(theta0), mod1))
 
 # fittedMod <- reciprocalLogLikelihood(paramListToVector(theta0), mod1, estimate=FALSE)
 # soothed <- KFS(fittedMod, filtering='state', smoothing='state')
