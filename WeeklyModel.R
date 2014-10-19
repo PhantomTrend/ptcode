@@ -16,13 +16,12 @@ pollDurations <- list()
 for(pollster in pollsters){
   # Every poll assumed to take 1 week, by default.
   # (In the model, 1 week = the smallest unit of time.)
-  pollDurations[[pollster]] <- 1
+  pollDurations[[pollster]] <- "Week"
 }
-# pollDurations[['Newspoll Quarterly']] <- 13
-pollDurations[['Newspoll Quarterly']] <- 4
-pollDurations[['Essential']] <- 2
-lagLength <- max(as.numeric(pollDurations))
-
+pollDurations[['Newspoll Quarterly']] <- "Quarter"
+pollDurations[['Essential']] <- "Fortnight"
+lagLength <- 2   # We'll keep track of x(t-1), x(t-2), and approximate the quarterlies with an ARIMA.
+quarterlyPDLcoefficient <- 1/8
 
 # Load data on state populations
 #  Source: http://www.aec.gov.au/Enrolling_to_vote/Enrolment_stats/
@@ -45,17 +44,12 @@ latentComponentNamesBase <- as.vector(outer(stateNames, partyNames, FUN = 'paste
 latentPartyNames <- rep(partyNames, each=length(stateNames))
 latentStateNames <- rep(stateNames, nParties)
 latentComponentNames <- latentComponentNamesBase
-if(lagLength > 1){
-  for(thisLag in 2:lagLength){
-    componentNamesWithLag <- unlist(lapply(latentComponentNamesBase, function(x){paste0(x,' Lag', thisLag)}))
-    latentComponentNames <- c( latentComponentNames, componentNamesWithLag )
-  }
-}
-latentLags <- rep(1:lagLength, each=length(latentComponentNamesBase))
+componentNamesWithLag <- unlist(lapply(latentComponentNamesBase, function(x){paste0(x,' Lag 1')}))
+componentNamesMA <- unlist(lapply(latentComponentNamesBase, function(x){paste0(x,' MovingAvg')}))
+latentComponentNames <- c( latentComponentNames, componentNamesWithLag, componentNamesMA )
 
 nLatentComponents <- length(latentComponentNames)
 nLatentComponentsBase <- length(latentComponentNamesBase)
-nLaggedComponents <- nLatentComponents - nLatentComponentsBase
 
 invisible(assert_that(all(as.vector(mapply(paste, latentStateNames, latentPartyNames)) == latentComponentNamesBase)))
 
@@ -78,18 +72,18 @@ modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   filter(Party %in% observedPartyNames)   %>%  
   select(RowNumber, Pollster, Party, Vote, Electorate, Year, Week, PollEndDate)
 
-modelData$Lag <- 1
+modelData$Lag <- NA
 for(thisPollster in pollsters){
   modelData$Lag[which(modelData$Pollster == thisPollster)] <- pollDurations[[thisPollster]]
 }
 
-pollstersReportingWeeklyData <- names(pollDurations)[which(pollDurations == 1)]
+pollstersReportingWeeklyData <- names(pollDurations)[which(pollDurations == "Week")]
 observationTypes <- unique(modelData  %>% filter(Pollster %in% pollstersReportingWeeklyData)
                            %>% arrange(Electorate) %>% select(Party, Electorate) )
-observationTypes$Lag <- 1
+observationTypes$Lag <- "Week"
 lagLengthsInDataset <- unlist(unique(pollDurations))
 for(lagLength in lagLengthsInDataset){
-  if(lagLength == 1){
+  if(lagLength == "Week"){
     next
   }
   pollstersWithThisLagLength <- names(pollDurations)[which(pollDurations == lagLength)]
@@ -99,8 +93,7 @@ for(lagLength in lagLengthsInDataset){
   observationTypes <- rbind(observationTypes, obsTypesFromThesePollsters)
 }
 
-
-Z <- matrix(0, nrow=nrow(observationTypes), ncol = nLatentComponents)
+Z <- matrix(0, nrow=nrow(observationTypes), ncol = nLatentComponentsBase*3)
 for(zi in 1:nrow(observationTypes)){
   obsType <- observationTypes[zi,]
   if(obsType$Electorate == 'AUS'){
@@ -122,10 +115,21 @@ for(zi in 1:nrow(observationTypes)){
       Z[zi,which(latentStateNames == obsType$Electorate & latentPartyNames == obsType$Party)] <- 1
     }
   }
-  if(obsType$Lag > 1){
-    zComponentsToBeRepeated <- Z[zi,1:length(latentComponentNamesBase)]
-    zRowWithLags <- rep(zComponentsToBeRepeated, obsType$Lag) / obsType$Lag
+  if(obsType$Lag == 'Week'){
+    next
+  }
+  if(obsType$Lag == 'Fortnight'){
+    zComponentsToBeRepeated <- Z[zi,1:nLatentComponentsBase]
+    zRowWithLags <- rep(zComponentsToBeRepeated, 2) / 2
     Z[zi,1:length(zRowWithLags)] <- zRowWithLags
+  }else{
+    if(obsType$Lag == 'Quarter'){
+      zComponentsToBeReused <- Z[zi,1:nLatentComponentsBase]
+      zRow <- c(rep(0, nLatentComponentsBase *2), zComponentsToBeReused)
+      Z[zi,] <- zRow
+    }else{
+      stop(sprintf('Unknown lag type %s', obsType$Lag))
+    }
   }
 }
 
@@ -142,24 +146,27 @@ nObservations <- max(modelData$RowNumber)
 nObservationTypes <- nrow(observationTypes)
 Y <- matrix(NA, nrow=nObservations, ncol=nObservationTypes)
 
-# Transition matrix = identity, plus identity matrices to retain the lagged values
-# T  =  [ I, 0 ....   0 
-#         I, 0, 0, .. 0
-#         0, I, 0, .. 0  etc ]
-
+# Transition matrix
+# T  =  [ I, 0, 0       (random walk for weekly components)
+#         I, 0, 0       (keeping track of lagged weekly components for fortnightly avg)
+#         0, 0, (1-c)*I ]   (Approximation to quarterly average)
 
 smallIdentityMatrix <- diag(nLatentComponentsBase)
-largeIdentityMatrix <- diag(nLaggedComponents)
-bigT <- rbind(  cbind(smallIdentityMatrix, matrix(0, nrow=nLatentComponentsBase, ncol=nLaggedComponents)),
-                cbind(largeIdentityMatrix, matrix(0, nrow=nLaggedComponents, ncol=nLatentComponentsBase))  )
+smallZeroMatrix <- matrix(0, nrow=nLatentComponentsBase, ncol=nLatentComponentsBase)
+bigT <- rbind( cbind(smallIdentityMatrix, smallZeroMatrix, smallZeroMatrix),
+               cbind(smallIdentityMatrix, smallZeroMatrix, smallZeroMatrix),
+               cbind(smallZeroMatrix, smallZeroMatrix, (1-quarterlyPDLcoefficient) * smallIdentityMatrix)  )
+
 # Impact matrix
-R <- diag(nrow=nLatentComponents,ncol=nLatentComponents)
+R <- rbind(smallIdentityMatrix,
+           smallZeroMatrix,
+           quarterlyPDLcoefficient * smallIdentityMatrix)
 
 # Set up state space model; covariance matrices Q and H to be filled
 # during estimation.
 # Initialise the latent values at 50% plus or minus 20.
-mod1 = SSModel( Y ~ 0+ SSMcustom(Z, bigT, R, Q=diag(NA, nrow=nLatentComponents, ncol=nLatentComponents),
-                                 a1=rep(50,nLatentComponents), P1=diag(100,nrow=nLatentComponents,ncol=nLatentComponents),
+mod1 = SSModel( Y ~ 0+ SSMcustom(Z, bigT, R, Q=diag(NA, nrow=nLatentComponentsBase, ncol=nLatentComponentsBase),
+                                 a1=rep(50,nLatentComponents), P1=diag(400,nrow=nLatentComponents,ncol=nLatentComponents),
                                  index=NULL, n=nObservations)  )
 
 
@@ -213,11 +220,9 @@ startTime <- proc.time()
 print(reciprocalLogLikelihood(paramListToVector(theta0), mod1))
 print(proc.time() - startTime)
 
-fittedMod <- reciprocalLogLikelihood(paramListToVector(theta0), mod1, estimate=FALSE)
-soothed <- KFS(fittedMod, filtering='state', smoothing='state')
-# print(soothed$alphahat[,1])
+# fittedMod <- reciprocalLogLikelihood(paramListToVector(theta0), mod1, estimate=FALSE)
+# soothed <- KFS(fittedMod, filtering='state', smoothing='state')
 
-plot(soothed$alphahat[,1])
 
 
 
