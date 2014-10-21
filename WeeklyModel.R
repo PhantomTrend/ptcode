@@ -18,8 +18,9 @@ for(pollster in pollsters){
   # (In the model, 1 week = the smallest unit of time.)
   pollDurations[[pollster]] <- "Week"
 }
-pollDurations[['Newspoll Quarterly']] <- "Quarter"
+# pollDurations[['Newspoll Quarterly']] <- "Quarter"
 pollDurations[['Essential']] <- "Fortnight"
+pollDurations[['Morgan Multi']] <- "Fortnight"
 lagLength <- 2   # We'll keep track of x(t-1), x(t-2), and approximate the quarterlies with an ARIMA.
 quarterlyPDLcoefficient <- 1/8
 
@@ -35,9 +36,16 @@ names(popweights) <- stateNames
 
 
 
-partyNames <- c("ALP", "LNP", "GRN", "PUP", "OTH")
-observedPartyNames <- c(partyNames, "PUPOTH")
-nParties <- length(partyNames)
+# partyNames <- c("ALP", "LNP", "GRN", "PUP", "OTH")
+# observedPartyNames <- c(partyNames, "PUPOTH")
+# nParties <- length(partyNames)
+
+
+partyNames <- 'ALP'
+observedPartyNames <- 'ALP'
+nParties <- 1
+longData <- filter(longData, Party=='ALP')
+
 
 
 latentComponentNamesBase <- as.vector(outer(stateNames, partyNames, FUN = 'paste'))
@@ -194,11 +202,13 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
     actualResult <- filter(thisSetOfPolls, Pollster == 'Election')
     pollResults <- filter(thisSetOfPolls, Pollster != 'Election')
     for(rowI in 1:nrow(pollResults)){
-      thisParty <- pollResults[rowI, 'Party']
-      thisNumber <- pollResults[rowI,'Vote'] - paramList[[thisPollster]][[thisParty]]
-      thisPollster <- pollResults[rowI, 'Pollster']
-      thisElectorate <- pollResults[rowI, 'Electorate']
-      
+      thisParty <- pollResults$Party[rowI]
+      thisNumber <- pollResults$Vote[rowI] - paramList[[thisPollster]][[thisParty]]
+      thisPollster <- pollResults$Pollster[rowI]
+      thisElectorate <- pollResults$Electorate[rowI]
+      if(thisElectorate == 'AUS'){
+        next
+      }
       actualNumber <- (actualResult %>% filter(Party == thisParty, Electorate==thisElectorate))$Vote
       thisLogLikelihood <- dnorm( actualNumber, mean=thisNumber, 
                                   sd = sqrt(paramList[[thisPollster]][['NoiseVariance']]), log=TRUE)
@@ -217,14 +227,44 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
 
 theta0 <- getDefaultParamList()
 
-posteriorfn = function(x,model){ return(reciprocalLogLikelihood(x,model) + reciprocalLogPrior(x)) }
+posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + reciprocalLogPrior(x)
+                                 return(result) }
 
 
-print(posteriorfn(paramListToVector(theta0), mod1))
+# print(posteriorfn(paramListToVector(theta0), mod1))
 
-# fittedMod <- reciprocalLogLikelihood(paramListToVector(theta0), mod1, estimate=FALSE)
-# soothed <- KFS(fittedMod, filtering='state', smoothing='state')
 
+optimControl = list(trace=6,REPORT=1)
+
+fit = optim(fn=posteriorfn, par=paramListToVector(theta0), method='BFGS',
+            model=mod1, control=optimControl)
+
+estimatedMode <- paramVectorToList(fit$par)
+fittedModel <- reciprocalLogLikelihood(fit$par, mod1, estimate=FALSE)
+smoothedModel <- KFS(fittedModel, filtering='state', smoothing='state')
+
+modelOutput <- modelData[0,]
+for(componentI in 1:nLatentComponentsBase){
+  modelOutput <- rbind(modelOutput,
+                       data.frame(RowNumber = 1:nObservations,
+                           Pollster = 'Smoothed',
+                           Party = latentPartyNames[componentI],
+                           Vote = as.numeric(smoothedModel$alphahat[,componentI]),
+                           Electorate = latentStateNames[componentI],
+                           Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA),
+                       data.frame(RowNumber = 1:nObservations,
+                                  Pollster = 'Filtered',
+                                  Party = latentPartyNames[componentI],
+                                  Vote = as.numeric(smoothedModel$a[1:nObservations,componentI]),
+                                  Electorate = latentStateNames[componentI],
+                                  Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA)
+  )
+}
+
+library(ggplot2)
+ggplot() + aes(x=RowNumber, y=Vote) +
+  geom_point(data = modelData %>% filter(Electorate=='VIC'), mapping=aes(colour=Pollster)) +
+  geom_line(data=modelOutput %>% filter(Electorate=='VIC', Pollster=='Smoothed'))
 
 
 
