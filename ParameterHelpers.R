@@ -11,7 +11,7 @@ getDefaultParamList <- function(v){
       out[[party]][[s]] <- 0.05
     }
   }
-  for(pollster in pollsters){
+  for(pollster in setdiff(pollsters, 'Election')){
     out[[pollster]][['NoiseVariance']] <- 4
     for(party in observedPartyNames){
       out[[pollster]][[party]] <- 0
@@ -37,7 +37,7 @@ paramVectorToList <- function(v){
       vIndex <- vIndex + 1
     }
   }
-  for(pollster in pollsters){
+  for(pollster in setdiff(pollsters, 'Election')){
     out[[pollster]][['NoiseVariance']] <- exp(v[vIndex])
     vIndex <- vIndex + 1
     for(party in observedPartyNames){
@@ -59,7 +59,7 @@ paramListToVector <- function(p){
       vIndex <- vIndex + 1
     }
   }
-  for(pollster in pollsters){
+  for(pollster in setdiff(pollsters, 'Election')){
     out[vIndex] <- log(out[vIndex])
     vIndex <- vIndex + 1
     for(party in observedPartyNames){
