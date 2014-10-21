@@ -24,7 +24,7 @@ reciprocalLogPrior = function(pars,model){
   # of more than 3 doesn't seem plausible.
   # Error variances are set to half-t, scaled as above to a large but not impossible
   # value (4ppt std.dev.).
-  for(pollster in pollsters){
+  for(pollster in setdiff(pollsters, 'Election')){
     relativeVariance <- paramList[[pollster]][['NoiseVariance']] / (4**2)
     logprior <- logprior + log(dt(relativeVariance, df=3))
     for(party in observedPartyNames){
