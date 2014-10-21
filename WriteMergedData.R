@@ -120,7 +120,7 @@ badElectoralData <- electoralData %>% group_by(PollEndDate, Electorate, Pollster
 invisible(assert_that(nrow(badElectoralData)==0))
 
 
-completeData <- (rbind(nationalDataNew, stateDataNew) %>%
+completeData <- (rbind(nationalDataNew, stateDataNew, electoralData) %>%
                    arrange(PollEndDate,Electorate,Party) %>%
                    mutate(Pollster = factor(Pollster),      # Making these guys into factors will mean
                           Party = factor(Party),            # that summary() works better
@@ -139,7 +139,7 @@ assert_is_numeric(completeData$Vote)
 invisible(assert_that(length(which(is.na(completeData$Vote))) == 4))   # One Nielsen WA state poll
 assert_all_are_non_negative(na.omit(completeData$Vote))
 nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
-assert_all_are_in_closed_range(nonZeroVotes, 1, 60)
+assert_all_are_in_closed_range(nonZeroVotes, 0.9, 60)
 invisible(assert_that(is_in_closed_range(mean(nonZeroVotes), 20, 30)))
 pollstersWeKnowAbout <- c('Election', "Essential", "Essential Online", "Galaxy", "Morgan", "Morgan Multi", 
                           "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL")
@@ -148,7 +148,7 @@ assert_all_are_not_na(completeData$Pollster)
 partiesWeKnowAbout <- c("ALP", "GRN", "LNP", "OTH", "PUP", "PUPOTH")
 invisible(assert_that(all(levels(completeData$Party) %in% partiesWeKnowAbout)))
 assert_all_are_not_na(completeData$Party)
-electoratesWeKnowAbout <- c("AUS", "NSW", "QLD", "SA", "VIC", "WA")
+electoratesWeKnowAbout <- c("AUS", "NSW", "QLD", "SA", "VIC", "WA", "ACT", "NT", "TAS")
 invisible(assert_that(all(levels(completeData$Electorate) %in% electoratesWeKnowAbout)))
 assert_all_are_not_na(completeData$Electorate)
 
