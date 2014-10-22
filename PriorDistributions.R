@@ -22,11 +22,10 @@ reciprocalLogPrior = function(pars,model){
   
   # Pollster mean error terms are N(0,1) because a persistent plus or minus
   # of more than 3 doesn't seem plausible.
-  # Error variances are set to half-t, scaled as above to a large but not impossible
-  # value (4ppt std.dev.).
+  # Error variances are set using a loose gamma around a plus or minus of
+  # about 1.7.
   for(pollster in setdiff(pollsters, 'Election')){
-    relativeVariance <- paramList[[pollster]][['NoiseVariance']] / (4**2)
-    logprior <- logprior + log(dt(relativeVariance, df=3))
+    logprior <- logprior + log(dgamma(paramList[[pollster]][['NoiseVariance']], shape=4, scale=3/4))
     for(party in observedPartyNames){
       logprior <- logprior + log(dnorm(paramList[[pollster]][[party]], sd=1))
     }
