@@ -17,7 +17,7 @@ inputFileName  <- args[2]
 nationalData <- tbl_df(read.csv(inputFileName, header=TRUE, stringsAsFactors=TRUE,
                          na.strings='#N/A'))
 
-nationalData$PollEndDate <- as.Date(nationalData$PollEndDate, format='%d/%m/%Y')
+nationalData$PollEndDate <- as.Date(nationalData$PollEndDate, format='%d/%m/%y')
 
 nationalData <- nationalData %>% gather(PollEndDate, Vote, -(PollEndDate:Pollster))
 colnames(nationalData)[3] <- 'Party'

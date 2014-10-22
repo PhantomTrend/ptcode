@@ -16,7 +16,7 @@ inputFileName  <- args[2]
 
 stateData <- tbl_df(read.csv(inputFileName, header=TRUE, stringsAsFactors=TRUE,
                                 na.strings='#N/A'))
-stateData$PollEndDate <- as.Date(stateData$PollEndDate, format='%d/%m/%Y')
+stateData$PollEndDate <- as.Date(stateData$PollEndDate, format='%d/%m/%y')
 
 stateData <- stateData %>% gather(PollEndDate, Vote, NSW:WA)
 colnames(stateData)[4] <- 'Electorate'
