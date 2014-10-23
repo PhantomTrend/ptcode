@@ -10,7 +10,7 @@ reciprocalLogPrior = function(pars,model){
   #    models", Bayesian Analysis 1:3(2006):515--33.
   # The scale is ideally set to values that are high but not off the scale.
   largeWeeklyMovementInNationalPrimaryVote <- 4
-  largeWeeklyMovementInOneStatesPrimaryVote <- 1
+  largeWeeklyMovementInOneStatesPrimaryVote <- 0.3
   for(party in partyNames){
     relativeVariance <- paramList[[party]][['AUS']] / (largeWeeklyMovementInNationalPrimaryVote**2)
     logprior <- logprior + log(dt(relativeVariance, df=3))

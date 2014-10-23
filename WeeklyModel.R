@@ -41,10 +41,10 @@ names(popweights) <- stateNames
 # nParties <- length(partyNames)
 
 
-partyNames <- 'ALP'
-observedPartyNames <- 'ALP'
+partyNames <- 'GRN'
+observedPartyNames <- 'GRN'
 nParties <- 1
-longData <- filter(longData, Party=='ALP')
+longData <- filter(longData, Party=='GRN')
 
 
 
@@ -173,12 +173,20 @@ R <- rbind(smallIdentityMatrix,
            smallZeroMatrix,
            quarterlyPDLcoefficient * smallIdentityMatrix)
 
-# Set up state space model; covariance matrices Q and H to be filled
-# during estimation.
-# Initialise the latent values at 50% plus or minus 20.
+# Initialise distribution of primary votes at t = 0
+startingValues <- list(ALP = 50, LNP = 50, GRN = 2, PUP = 0, OTH = 10)
+startingPlusOrMinus <- list(ALP = 25, LNP = 25, GRN = 2, PUP = 1, OTH = 5)
+a1 <- rep(NA, nLatentComponentsBase)
+diagP1 <- rep(NA, nLatentComponentsBase)
+for(party in partyNames){
+  a1[which(latentPartyNames == party)] <- startingValues[[party]]
+  diagP1[which(latentPartyNames == party)] <- (startingPlusOrMinus[[party]]/2)**2
+}
+a1 <- rep(a1, (nLatentComponents/nLatentComponentsBase))
+P1 <- diag(rep(diagP1, (nLatentComponents/nLatentComponentsBase)))
+
 mod1 = SSModel( Y ~ 0+ SSMcustom(Z, bigT, R, Q=diag(NA, nrow=nLatentComponentsBase, ncol=nLatentComponentsBase),
-                                 a1=rep(50,nLatentComponents), P1=diag(400,nrow=nLatentComponents,ncol=nLatentComponents),
-                                 index=NULL, n=nObservations)  )
+                                 a1=a1, P1=P1, index=NULL, n=nObservations)  )
 
 
 source('ParameterHelpers.R')
@@ -237,7 +245,10 @@ posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + re
 source('EstimatedMode.R')
 
 theta0 <- estimatedALPMode
-theta0[['Essential Online']][['NoiseVariance']] <- 1
+theta0[["GRN"]] <- theta0[["ALP"]]
+for(pollster in setdiff(pollsters,'Election')){
+  names(theta0[[pollster]]) <- c('NoiseVariance','GRN')
+}
 
 optimControl = list(trace=6,REPORT=1)
 
