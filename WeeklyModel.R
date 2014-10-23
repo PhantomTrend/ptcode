@@ -18,7 +18,7 @@ for(pollster in pollsters){
   # (In the model, 1 week = the smallest unit of time.)
   pollDurations[[pollster]] <- "Week"
 }
-# pollDurations[['Newspoll Quarterly']] <- "Quarter"
+pollDurations[['Newspoll Quarterly']] <- "Quarter"
 pollDurations[['Essential']] <- "Fortnight"
 pollDurations[['Morgan Multi']] <- "Fortnight"
 lagLength <- 2   # We'll keep track of x(t-1), x(t-2), and approximate the quarterlies with an ARIMA.
@@ -157,15 +157,18 @@ Y <- matrix(NA, nrow=nObservations, ncol=nObservationTypes)
 # Transition matrix
 # T  =  [ I, 0, 0       (random walk for weekly components)
 #         I, 0, 0       (keeping track of lagged weekly components for fortnightly avg)
-#         0, 0, (1-c)*I ]   (Approximation to quarterly average)
+#       c*I, 0, (1-c)*I ]   (Approximation to quarterly average)
+# Impact matrix
+# R  =  [ I,
+#         0,
+#         c*I ]
 
 smallIdentityMatrix <- diag(nLatentComponentsBase)
 smallZeroMatrix <- matrix(0, nrow=nLatentComponentsBase, ncol=nLatentComponentsBase)
 bigT <- rbind( cbind(smallIdentityMatrix, smallZeroMatrix, smallZeroMatrix),
                cbind(smallIdentityMatrix, smallZeroMatrix, smallZeroMatrix),
-               cbind(smallZeroMatrix, smallZeroMatrix, (1-quarterlyPDLcoefficient) * smallIdentityMatrix)  )
+               cbind( quarterlyPDLcoefficient*smallIdentityMatrix, smallZeroMatrix, (1-quarterlyPDLcoefficient) * smallIdentityMatrix)  )
 
-# Impact matrix
 R <- rbind(smallIdentityMatrix,
            smallZeroMatrix,
            quarterlyPDLcoefficient * smallIdentityMatrix)
