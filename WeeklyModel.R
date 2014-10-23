@@ -225,14 +225,16 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
   }
 }
 
-theta0 <- getDefaultParamList()
-
 posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + reciprocalLogPrior(x)
                                  return(result) }
 
 
 # print(posteriorfn(paramListToVector(theta0), mod1))
 
+source('EstimatedMode.R')
+
+theta0 <- estimatedALPMode
+theta0[['Essential Online']][['NoiseVariance']] <- 1
 
 optimControl = list(trace=6,REPORT=1)
 
@@ -260,13 +262,40 @@ for(componentI in 1:nLatentComponentsBase){
                                   Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA)
   )
 }
+for(party in partyNames){
+  componentCols <- which(latentPartyNames == party)
+  ausVectorSmoothed <- as.vector(popweights %*% t(smoothedModel$alphahat[,componentCols]))
+  ausVectorFiltered <- as.vector(popweights %*% t(smoothedModel$a[1:nObservations,componentCols]))
+  modelOutput <- rbind(modelOutput,
+                       data.frame(RowNumber = 1:nObservations,
+                                  Pollster = 'Smoothed',
+                                  Party = party,
+                                  Vote = ausVectorSmoothed,
+                                  Electorate = 'AUS',
+                                  Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA),
+                       data.frame(RowNumber = 1:nObservations,
+                                  Pollster = 'Filtered',
+                                  Party = party,
+                                  Vote = ausVectorFiltered,
+                                  Electorate = 'AUS',
+                                  Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA)
+                       
+  )
+}
+
 
 library(ggplot2)
-ggplot() + aes(x=RowNumber, y=Vote) +
-  geom_point(data = modelData %>% filter(Electorate=='VIC'), mapping=aes(colour=Pollster)) +
-  geom_line(data=modelOutput %>% filter(Electorate=='VIC', Pollster=='Smoothed'))
 
-
+for(thisState in stateNames){
+print(ggplot() + aes(x=RowNumber, y=Vote) +
+  geom_point(data = modelData %>% filter(Electorate==thisState), mapping=aes(colour=Pollster)) +
+  geom_line(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed')) +
+  ggtitle(thisState))
+}
+print( ggplot() + aes(x=RowNumber, y=Vote) +
+         geom_point(data = modelData %>% filter(Electorate=='AUS'), mapping=aes(colour=Pollster)) +
+         geom_line(data=modelOutput %>% filter(Electorate=='AUS', Pollster=='Smoothed')) +
+         ggtitle('AUS')  )
 
 
 
