@@ -10,12 +10,19 @@ reciprocalLogPrior = function(pars,model){
   #    models", Bayesian Analysis 1:3(2006):515--33.
   # The scale is ideally set to values that are high but not off the scale.
   largeWeeklyMovementInNationalPrimaryVote <- 4
-  largeWeeklyMovementInOneStatesPrimaryVote <- 0.3
+  # Tighten the prior on unobserved electorates to ensure they don't do anything crazy
+  largeWeeklyMovementInUnobservedStatesPrimaryVote <- 0.05
+  # The idiosyncratic movement in observed states can be looser
+  largeWeeklyMovementInObservedStatesPrimaryVote <- 1
   for(party in partyNames){
     relativeVariance <- paramList[[party]][['AUS']] / (largeWeeklyMovementInNationalPrimaryVote**2)
     logprior <- logprior + log(dt(relativeVariance, df=3))
     for(s in stateNames){
-      relativeVariance <- paramList[[party]][[s]] / (largeWeeklyMovementInOneStatesPrimaryVote**2)
+      if(s %in% unobservedElectorates){
+        relativeVariance <- paramList[[party]][[s]] / (largeWeeklyMovementInUnobservedStatesPrimaryVote**2)
+      }else{
+        relativeVariance <- paramList[[party]][[s]] / (largeWeeklyMovementInObservedStatesPrimaryVote**2)
+      }
       logprior <- logprior + log(dt(relativeVariance, df=3))
     }
   }
@@ -30,7 +37,7 @@ reciprocalLogPrior = function(pars,model){
       logprior <- logprior + log(dnorm(paramList[[pollster]][[party]], sd=1))
     }
   }
-
+  
   return(-logprior)  
 }
 

@@ -41,10 +41,10 @@ names(popweights) <- stateNames
 # nParties <- length(partyNames)
 
 
-partyNames <- 'PUP'
-observedPartyNames <- 'PUP'
+partyNames <- 'OTH'
+observedPartyNames <- 'OTH'
 nParties <- 1
-longData <- filter(longData, Party=='PUP')
+longData <- filter(longData, Party=='OTH')
 
 
 
@@ -81,9 +81,7 @@ modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   select(RowNumber, Pollster, Party, Vote, Electorate, Year, Week, PollEndDate)
 
 
-
-modelData <- modelData %>% filter(RowNumber > 700)
-
+unobservedElectorates <- setdiff(stateNames, unique( (modelData %>% filter(Pollster != 'Election'))$Electorate ))
 
 
 
@@ -185,7 +183,7 @@ R <- rbind(smallIdentityMatrix,
 
 # Initialise distribution of primary votes at t = 0
 startingValues <- list(ALP = 50, LNP = 50, GRN = 2, PUP = 0, OTH = 10)
-startingPlusOrMinus <- list(ALP = 25, LNP = 25, GRN = 2, PUP = 1, OTH = 5)
+startingPlusOrMinus <- list(ALP = 25, LNP = 25, GRN = 2, PUP = 1, OTH = 8)
 a1 <- rep(NA, nLatentComponentsBase)
 diagP1 <- rep(NA, nLatentComponentsBase)
 for(party in partyNames){
@@ -255,9 +253,9 @@ posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + re
 source('EstimatedMode.R')
 
 theta0 <- estimatedGRNMode
-theta0[["PUP"]] <- theta0[["GRN"]]
+theta0[["OTH"]] <- theta0[["GRN"]]
 for(pollster in setdiff(pollsters,'Election')){
-  names(theta0[[pollster]]) <- c('NoiseVariance','PUP')
+  names(theta0[[pollster]]) <- c('NoiseVariance','OTH')
 }
 
 optimControl = list(trace=6,REPORT=1)
