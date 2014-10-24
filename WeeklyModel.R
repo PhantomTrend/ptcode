@@ -41,10 +41,10 @@ names(popweights) <- stateNames
 # nParties <- length(partyNames)
 
 
-partyNames <- 'GRN'
-observedPartyNames <- 'GRN'
+partyNames <- 'PUP'
+observedPartyNames <- 'PUP'
 nParties <- 1
-longData <- filter(longData, Party=='GRN')
+longData <- filter(longData, Party=='PUP')
 
 
 
@@ -80,6 +80,13 @@ modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   filter(Party %in% observedPartyNames)   %>%  
   select(RowNumber, Pollster, Party, Vote, Electorate, Year, Week, PollEndDate)
 
+
+
+modelData <- modelData %>% filter(RowNumber > 700)
+
+
+
+
 modelData$Lag <- NA
 for(thisPollster in pollsters){
   modelData$Lag[which(modelData$Pollster == thisPollster)] <- pollDurations[[thisPollster]]
@@ -97,6 +104,9 @@ for(lagLength in lagLengthsInDataset){
   pollstersWithThisLagLength <- names(pollDurations)[which(pollDurations == lagLength)]
   obsTypesFromThesePollsters <- unique(modelData %>% filter(Pollster %in% pollstersWithThisLagLength)
                                        %>% arrange(Electorate) %>% select(Party, Electorate) )
+  if(nrow(obsTypesFromThesePollsters) == 0){
+    next
+  }
   obsTypesFromThesePollsters$Lag <- lagLength
   observationTypes <- rbind(observationTypes, obsTypesFromThesePollsters)
 }
@@ -244,10 +254,10 @@ posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + re
 
 source('EstimatedMode.R')
 
-theta0 <- estimatedALPMode
-theta0[["GRN"]] <- theta0[["ALP"]]
+theta0 <- estimatedGRNMode
+theta0[["PUP"]] <- theta0[["GRN"]]
 for(pollster in setdiff(pollsters,'Election')){
-  names(theta0[[pollster]]) <- c('NoiseVariance','GRN')
+  names(theta0[[pollster]]) <- c('NoiseVariance','PUP')
 }
 
 optimControl = list(trace=6,REPORT=1)

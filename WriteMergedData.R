@@ -22,6 +22,8 @@ stateData$PollEndDate <- as.Date(stateData$PollEndDate)
 stateData$Vote[which(stateData$Vote == '<0.5')] <- "0.2"
 stateData$Vote <- as.numeric(stateData$Vote)
 
+pupFoundationDate <- as.Date('2013-05-01')
+
 fixMinorParties <- function(x){
   # Take minor parties that we don't track, and add them to Other
   collateWithOther <- function(df, partyCode){
@@ -38,7 +40,7 @@ fixMinorParties <- function(x){
   x <- collateWithOther(x, 'DEM')    # Democrats
   x <- collateWithOther(x, 'PHON')   # Pauline Hanson
   
-  # Allow PUP numbers to be either missing altogether or NA.
+  # Allow PUP numbers to be either missing altogether or NA or 0.
   if(!any(x$Party == 'PUP')){
     rewritePup <- TRUE
   }else{
@@ -49,7 +51,7 @@ fixMinorParties <- function(x){
     }
   }
   if(rewritePup){
-    if(x$PollEndDate[1] >= as.Date('2013-05-01')){
+    if(x$PollEndDate[1] >= pupFoundationDate){
       # This poll is after PUP's foundation, but doesn't report it separately
       assert_is_non_empty(which(x$Party == 'OTH'))
       pupOtherRow <- data.frame(PollEndDate = x$PollEndDate[1],
@@ -63,16 +65,15 @@ fixMinorParties <- function(x){
         x <- x[-which(x$Party=='PUP'),]
       }
     }else{
-      # PUP didn't exist; mark it zero to ensure the model doesn't try to
-      # infer a vote for it
+      # PUP didn't exist
       if(any(x$Party=='PUP')){
-        x[which(x$Party=='PUP'),'Vote'] <- 0
+        x[which(x$Party=='PUP'),'Vote'] <- NA
       }else{
         x <- rbind(x, data.frame(PollEndDate = x$PollEndDate[1],
                                  Pollster = x$Pollster[1],
                                  Party = 'PUP',
                                  Electorate = unique(x$Electorate),
-                                 Vote = 0))
+                                 Vote = NA))
       }
     }
   }
@@ -125,6 +126,11 @@ completeData <- (rbind(nationalDataNew, stateDataNew, electoralData) %>%
                    mutate(Pollster = factor(Pollster),      # Making these guys into factors will mean
                           Party = factor(Party),            # that summary() works better
                           Electorate = factor(Electorate)))
+
+completeData$Vote[which(completeData$Party == 'PUP' &
+                          completeData$PollEndDate < pupFoundationDate)] <- NA
+
+
 print(summary(completeData))
 
 # Keep note of Newspoll Quarterly reports, so we can model their averaging properly when fitting the model
@@ -136,7 +142,8 @@ completeData[which(completeData$PollEndDate %in% newspollQuarterlyDates &
 # Now some health checks on the finalised data
 assert_all_are_in_past(as.POSIXct(completeData$PollEndDate))
 assert_is_numeric(completeData$Vote)
-invisible(assert_that(length(which(is.na(completeData$Vote))) == 20))   # One Nielsen WA state poll + Galaxy QLD May14
+# One Nielsen WA state poll + Galaxy QLD May14 + the pre-2013 PUP votes should be NA
+invisible(assert_that(length(which(is.na(completeData$Vote))) == 1623))   
 assert_all_are_non_negative(na.omit(completeData$Vote))
 nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 0.9, 60)
