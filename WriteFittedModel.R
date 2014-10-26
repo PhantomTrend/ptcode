@@ -284,7 +284,11 @@ if(nMHiterations > 0){
     randomStep <- rep(0, length(thetaNow))
     randomStep[blockIndices] <- proposalScale * rnorm(blockSize)
     thetaProposed <- thetaNow + momentum + randomStep
-    fProposed <- posteriorfn(thetaProposed, mod1)
+    tryCatch({fProposed <- posteriorfn(thetaProposed, mod1)},
+             interrupt = function(cond){ estimatedMode <- paramVectorToList(thetaNow)
+                                         dput(estimatedMode, file='EstimatedMode.R')
+                                         stop('Cancelling estimation.') }
+    )
     print(c('Current ', -fNow, ' Proposed ', -fProposed))
     if(runif(1) < ((-fProposed) - (-fNow))){
       print('Accepted.')
