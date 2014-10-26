@@ -35,25 +35,34 @@ fixMinorParties <- function(x){
     }
     return(df)
   }
-  x <- collateWithOther(x, 'FFP')  # Family First
+  x <- collateWithOther(x, 'FFP')    # Family First
   x <- collateWithOther(x, 'IND')    # Misc. independents
   x <- collateWithOther(x, 'DEM')    # Democrats
   x <- collateWithOther(x, 'PHON')   # Pauline Hanson
   
-  # Allow PUP numbers to be either missing altogether or NA or 0.
-  if(!any(x$Party == 'PUP')){
-    rewritePup <- TRUE
-  }else{
-    if(is.na(x[x$Party=='PUP','Vote'])){
-      rewritePup <- TRUE
+  # Allow PUP and GRN numbers to be either missing altogether or NA.
+  missingOrNA <- function(partyName){
+    if(!any(x[["Party"]] == partyName)){
+      dorewrite <- TRUE
     }else{
-      rewritePup <- FALSE
+      if(is.na(x[x[["Party"]]==partyName,'Vote']) & !is.na(x[x[["Party"]]=='OTH','Vote'])){
+        dorewrite <- TRUE
+      }else{
+        dorewrite <- FALSE
+      }
     }
+    return(dorewrite)
   }
+  rewritePup <- missingOrNA('PUP')
+  rewriteGrn <- missingOrNA('GRN')
+  
   if(rewritePup){
     if(x$PollEndDate[1] >= pupFoundationDate){
       # This poll is after PUP's foundation, but doesn't report it separately
       assert_is_non_empty(which(x$Party == 'OTH'))
+      if(rewriteGrn){
+        print(c(x$PollEndDate[1], x$Pollster[1]))
+      }
       pupOtherRow <- data.frame(PollEndDate = x$PollEndDate[1],
                                 Pollster = x$Pollster[1],
                                 Party = 'PUPOTH',
@@ -77,6 +86,21 @@ fixMinorParties <- function(x){
       }
     }
   }
+  if(rewriteGrn){
+    # Some early polls in the sample include GRN with OTH
+    assert_is_non_empty(which(x$Party == 'OTH'))
+    grnOtherRow <- data.frame(PollEndDate = x$PollEndDate[1],
+                              Pollster = x$Pollster[1],
+                              Party = 'GRNOTH',
+                              Electorate = x$Electorate[1],
+                              Vote = x$Vote[which(x$Party=='OTH')])
+    x <- rbind(x, grnOtherRow)
+    x <- x[-which(x$Party=='OTH'),]
+    if(any(x$Party=='GRN')){
+      x <- x[-which(x$Party=='GRN'),]
+    }
+  }
+  
   return(x)
 }
 
@@ -143,7 +167,7 @@ completeData[which(completeData$PollEndDate %in% newspollQuarterlyDates &
 assert_all_are_in_past(as.POSIXct(completeData$PollEndDate))
 assert_is_numeric(completeData$Vote)
 # One Nielsen WA state poll + Galaxy QLD May14 + the pre-2013 PUP votes should be NA
-invisible(assert_that(length(which(is.na(completeData$Vote))) == 1623))   
+invisible(assert_that(length(which(is.na(completeData$Vote))) == 1627))   
 assert_all_are_non_negative(na.omit(completeData$Vote))
 nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 0.9, 60)
@@ -152,7 +176,7 @@ pollstersWeKnowAbout <- c('Election', "Essential", "Essential Online", "Galaxy",
                           "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL")
 invisible(assert_that(all(levels(completeData$Pollster) %in% pollstersWeKnowAbout)))
 assert_all_are_not_na(completeData$Pollster)
-partiesWeKnowAbout <- c("ALP", "GRN", "LNP", "OTH", "PUP", "PUPOTH")
+partiesWeKnowAbout <- c("ALP", "GRN", "LNP", "OTH", "PUP", "PUPOTH", "GRNOTH")
 invisible(assert_that(all(levels(completeData$Party) %in% partiesWeKnowAbout)))
 assert_all_are_not_na(completeData$Party)
 electoratesWeKnowAbout <- c("AUS", "NSW", "QLD", "SA", "VIC", "WA", "ACT", "NT", "TAS")
