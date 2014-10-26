@@ -8,13 +8,22 @@ makeQmatrix <- function(params){
   for(componentI in seq_along(latentComponentNamesBase)){
     thisParty <- latentPartyNames[componentI]
     thisElectorate <- latentStateNames[componentI]
-      # Individual state-party shock
-      R1[componentI, componentI] <- params[[thisParty]][[thisElectorate]]
-      # Nationwide party shock
-      partyIndex <- which(partyNames == thisParty)
-      R1[componentI, nLatentComponentsBase + partyIndex] <- params[[thisParty]][['AUS']]
+    
+    # Individual state-party shock
+    R1[componentI, componentI] <- params[[thisParty]][[thisElectorate]]
+    
+    # Nationwide party shock
+    partyIndex <- which(partyNames == thisParty)
+    R1[componentI, nLatentComponentsBase + partyIndex] <- params[[thisParty]][['AUS']]
+    
+    # Covariance between nationwide shocks
+    thisPartyParams <- params[['Covariance']][[thisParty]]
+    for(otherParty in names(thisPartyParams)){
+      partyIndex <- which(partyNames == otherParty)
+      R1[componentI, nLatentComponentsBase + partyIndex] <- thisPartyParams[[otherParty]]
+    }
   }
-  Q <- R1 %*% t(R1)
+  Q <- R1 %*% t(R1)  + 1e-9*diag(nLatentComponentsBase)
   
   # KFAS needs a 3d array
   Q <- array(Q, c(nLatentComponentsBase, nLatentComponentsBase, 1))

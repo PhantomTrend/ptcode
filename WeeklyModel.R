@@ -36,15 +36,9 @@ names(popweights) <- stateNames
 
 
 
-# partyNames <- c("ALP", "LNP", "GRN", "PUP", "OTH")
-# observedPartyNames <- c(partyNames, "PUPOTH")
-# nParties <- length(partyNames)
-
-
-partyNames <- 'OTH'
-observedPartyNames <- 'OTH'
-nParties <- 1
-longData <- filter(longData, Party=='OTH')
+partyNames <- c("ALP", "LNP", "GRN", "PUP", "OTH")
+observedPartyNames <- c(partyNames, "PUPOTH", "GRNOTH")
+nParties <- length(partyNames)
 
 
 
@@ -118,6 +112,11 @@ for(zi in 1:nrow(observationTypes)){
         Z[zi,which(latentStateNames == state &
                      (latentPartyNames == 'PUP' | latentPartyNames == 'OTH'))] <- popweights[[state]]
       }
+    }else if(obsType$Party == 'GRNOTH'){
+      for(state in stateNames){
+        Z[zi,which(latentStateNames == state &
+                     (latentPartyNames == 'GRN' | latentPartyNames == 'OTH'))] <- popweights[[state]]
+      }
     }else{
       for(state in stateNames){
         Z[zi,which(latentStateNames == state & latentPartyNames == obsType$Party)] <- popweights[[state]]
@@ -127,6 +126,9 @@ for(zi in 1:nrow(observationTypes)){
     if(obsType$Party == 'PUPOTH'){
       Z[zi,which(latentStateNames == obsType$Electorate &
                    (latentPartyNames == 'PUP' | latentPartyNames == 'OTH'))] <- 1
+    }else if(obsType$Party == 'GRNOTH'){
+      Z[zi,which(latentStateNames == obsType$Electorate &
+                   (latentPartyNames == 'GRN' | latentPartyNames == 'OTH'))] <- 1
     }else{
       Z[zi,which(latentStateNames == obsType$Electorate & latentPartyNames == obsType$Party)] <- 1
     }
@@ -225,10 +227,13 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
       thisNumber <- pollResults$Vote[rowI] - paramList[[thisPollster]][[thisParty]]
       thisPollster <- pollResults$Pollster[rowI]
       thisElectorate <- pollResults$Electorate[rowI]
-      if(thisElectorate == 'AUS'){
+      if(thisElectorate == 'AUS' | !(thisParty %in% partyNames)){
         next
       }
       actualNumber <- (actualResult %>% filter(Party == thisParty, Electorate==thisElectorate))$Vote
+      if(is.na(actualNumber)){
+        next
+      }
       thisLogLikelihood <- dnorm( actualNumber, mean=thisNumber, 
                                   sd = sqrt(paramList[[thisPollster]][['NoiseVariance']]), log=TRUE)
       electionEveLogLikelihood <- electionEveLogLikelihood + thisLogLikelihood
@@ -248,23 +253,41 @@ posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + re
                                  return(result) }
 
 
-# print(posteriorfn(paramListToVector(theta0), mod1))
+theta0 <- dget('EstimatedMode.R')
 
-source('EstimatedMode.R')
+# optimControl = list(trace=6,REPORT=1, maxit=10)
+# fit = optim(fn=posteriorfn, par=paramListToVector(theta0), method='CG',
+#             model=mod1, control=optimControl)
 
-theta0 <- estimatedGRNMode
-theta0[["OTH"]] <- theta0[["GRN"]]
-for(pollster in setdiff(pollsters,'Election')){
-  names(theta0[[pollster]]) <- c('NoiseVariance','OTH')
+
+thetaNow <- paramListToVector(theta0)
+momentum <- rep(0, length(thetaNow))
+fNow <- posteriorfn(thetaNow, mod1)
+proposalScale <- 0.01
+nMHiterations <- 10000
+for(iterI in 1:nMHiterations){
+  thetaOld <- thetaNow
+  blockSize <- 50
+  blockIndices <- sample.int(n=length(thetaNow), size=blockSize, replace=FALSE)
+  randomStep <- rep(0, length(thetaNow))
+  randomStep[blockIndices] <- proposalScale * rnorm(blockSize)
+  thetaProposed <- thetaNow + momentum + randomStep
+  fProposed <- posteriorfn(thetaProposed, mod1)
+  print(c('Current ', -fNow, ' Proposed ', -fProposed))
+  if(runif(1) < ((-fProposed) - (-fNow))){
+    print('Accepted.')
+    thetaNow <- thetaProposed
+    fNow <- fProposed
+  }
+  momentum <- 0.7*momentum + (thetaNow - thetaOld)
 }
 
-optimControl = list(trace=6,REPORT=1)
 
-fit = optim(fn=posteriorfn, par=paramListToVector(theta0), method='BFGS',
-            model=mod1, control=optimControl)
+estimatedMode <- paramVectorToList(thetaNow)
 
-estimatedMode <- paramVectorToList(fit$par)
-fittedModel <- reciprocalLogLikelihood(fit$par, mod1, estimate=FALSE)
+dput(estimatedMode, file='EstimatedMode.R')     # Save to file, in sorta-human-readable form
+
+fittedModel <- reciprocalLogLikelihood(thetaNow, mod1, estimate=FALSE)
 smoothedModel <- KFS(fittedModel, filtering='state', smoothing='state')
 
 modelOutput <- modelData[0,]
@@ -310,13 +333,13 @@ library(ggplot2)
 
 for(thisState in stateNames){
 print(ggplot() + aes(x=RowNumber, y=Vote) +
-  geom_point(data = modelData %>% filter(Electorate==thisState), mapping=aes(colour=Pollster)) +
-  geom_line(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed')) +
+  geom_point(data = modelData %>% filter(Electorate==thisState), mapping=aes(shape=Pollster, colour=Party)) +
+  geom_line(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed'), mapping=aes(colour=Party)) +
   ggtitle(thisState))
 }
 print( ggplot() + aes(x=RowNumber, y=Vote) +
-         geom_point(data = modelData %>% filter(Electorate=='AUS'), mapping=aes(colour=Pollster)) +
-         geom_line(data=modelOutput %>% filter(Electorate=='AUS', Pollster=='Smoothed')) +
+         geom_point(data = modelData %>% filter(Electorate=='AUS'), mapping=aes(shape=Pollster, colour=Party)) +
+         geom_line(data=modelOutput %>% filter(Electorate=='AUS', Pollster=='Smoothed'), mapping=aes(colour=Party)) +
          ggtitle('AUS')  )
 
 

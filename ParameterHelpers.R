@@ -1,7 +1,18 @@
+library('assertthat')
 
 # Helper functions to convert between numeric vectors (used in optimisation)
 # and labelled lists
 
+
+covarianceTerms <- list()
+covarianceTerms[['LNP']] <- list('ALP')
+covarianceTerms[['GRN']] <- list('ALP','LNP')
+covarianceTerms[['PUP']] <- list('ALP','LNP')
+covarianceTerms[['OTH']] <- list('ALP','LNP')
+invisible(assert_that(all(names(covarianceTerms) %in% partyNames)))
+for(party in names(covarianceTerms)){
+  invisible(assert_that(all(names(covarianceTerms[[party]]) %in% partyNames)))
+}
 
 getDefaultParamList <- function(v){
   out <- list()
@@ -11,6 +22,15 @@ getDefaultParamList <- function(v){
       out[[party]][[s]] <- 0.05
     }
   }
+  
+  for(party in names(covarianceTerms)){
+    thisCovarianceList <- list()
+    for(otherParty in covarianceTerms[[party]]){
+      thisCovarianceList[[otherParty]] <- 0
+    }
+    out[['Covariance']][[party]] <- thisCovarianceList
+  }
+  
   for(pollster in setdiff(pollsters, 'Election')){
     out[[pollster]][['NoiseVariance']] <- 4
     for(party in observedPartyNames){
@@ -37,6 +57,16 @@ paramVectorToList <- function(v){
       vIndex <- vIndex + 1
     }
   }
+  
+  for(party in names(covarianceTerms)){
+    thisCovarianceList <- list()
+    for(otherParty in covarianceTerms[[party]]){
+      thisCovarianceList[[otherParty]] <- v[vIndex]
+      vIndex <- vIndex + 1
+    }
+    out[['Covariance']][[party]] <- thisCovarianceList
+  }
+  
   for(pollster in setdiff(pollsters, 'Election')){
     out[[pollster]][['NoiseVariance']] <- exp(v[vIndex])
     vIndex <- vIndex + 1
@@ -59,6 +89,13 @@ paramListToVector <- function(p){
       vIndex <- vIndex + 1
     }
   }
+  
+  for(party in names(covarianceTerms)){
+    for(otherParty in covarianceTerms[[party]]){
+      vIndex <- vIndex + 1
+    }
+  }
+  
   for(pollster in setdiff(pollsters, 'Election')){
     out[vIndex] <- log(out[vIndex])
     vIndex <- vIndex + 1

@@ -11,17 +11,17 @@ reciprocalLogPrior = function(pars,model){
   # The scale is ideally set to values that are high but not off the scale.
   largeWeeklyMovementInNationalPrimaryVote <- 4
   # Tighten the prior on unobserved electorates to ensure they don't do anything crazy
-  largeWeeklyMovementInUnobservedStatesPrimaryVote <- 0.05
+  largeWeeklyMovementInUnobservedStatesPrimaryVote <- 1
   # The idiosyncratic movement in observed states can be looser
   largeWeeklyMovementInObservedStatesPrimaryVote <- 1
   for(party in partyNames){
-    relativeVariance <- paramList[[party]][['AUS']] / (largeWeeklyMovementInNationalPrimaryVote**2)
+    relativeVariance <- paramList[[party]][['AUS']]**2 / (largeWeeklyMovementInNationalPrimaryVote**2)
     logprior <- logprior + log(dt(relativeVariance, df=3))
     for(s in stateNames){
       if(s %in% unobservedElectorates){
-        relativeVariance <- paramList[[party]][[s]] / (largeWeeklyMovementInUnobservedStatesPrimaryVote**2)
+        relativeVariance <- paramList[[party]][[s]]**2 / (largeWeeklyMovementInUnobservedStatesPrimaryVote**2)
       }else{
-        relativeVariance <- paramList[[party]][[s]] / (largeWeeklyMovementInObservedStatesPrimaryVote**2)
+        relativeVariance <- paramList[[party]][[s]]**2 / (largeWeeklyMovementInObservedStatesPrimaryVote**2)
       }
       logprior <- logprior + log(dt(relativeVariance, df=3))
     }
