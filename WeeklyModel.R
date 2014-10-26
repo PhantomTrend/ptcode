@@ -290,6 +290,7 @@ dput(estimatedMode, file='EstimatedMode.R')     # Save to file, in sorta-human-r
 fittedModel <- reciprocalLogLikelihood(thetaNow, mod1, estimate=FALSE)
 smoothedModel <- KFS(fittedModel, filtering='state', smoothing='state')
 
+
 modelOutput <- modelData[0,]
 for(componentI in 1:nLatentComponentsBase){
   modelOutput <- rbind(modelOutput,
@@ -329,18 +330,23 @@ for(party in partyNames){
 }
 
 
+pupStartRow <- (modelData %>% filter(Party=='PUP', !is.na(Vote)) %>% arrange(RowNumber))$RowNumber[1]
+modelOutput <- mutate(modelOutput, Vote=ifelse(Party=='PUP' & RowNumber < pupStartRow, NA, Vote))
+
+
+
 library(ggplot2)
 
 for(thisState in stateNames){
 print(ggplot() + aes(x=RowNumber, y=Vote) +
   geom_point(data = modelData %>% filter(Electorate==thisState), mapping=aes(shape=Pollster, colour=Party)) +
   geom_line(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed'), mapping=aes(colour=Party)) +
-  ggtitle(thisState))
+  scale_shape_manual(values=1:nPollsters) + ggtitle(thisState))
 }
 print( ggplot() + aes(x=RowNumber, y=Vote) +
          geom_point(data = modelData %>% filter(Electorate=='AUS'), mapping=aes(shape=Pollster, colour=Party)) +
          geom_line(data=modelOutput %>% filter(Electorate=='AUS', Pollster=='Smoothed'), mapping=aes(colour=Party)) +
-         ggtitle('AUS')  )
+         scale_shape_manual(values=1:nPollsters) + ggtitle('AUS')  )
 
 
 
