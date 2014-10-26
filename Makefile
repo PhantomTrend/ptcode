@@ -33,8 +33,10 @@ PHONY += data-inputs
 MODEL_FILE := FittedModel.RData
 PARAMETER_MODE_FILE := EstimatedMode.R
 
+OPTIMISE_STEPS ?= 0
+
 $(MODEL_FILE): $(MERGED_DATA_FILE)
-	Rscript WriteFittedModel.R $@ $^ $(PARAMETER_MODE_FILE)  50
+	Rscript WriteFittedModel.R $@ $^ $(PARAMETER_MODE_FILE) $(OPTIMISE_STEPS)
 
 fitted-model: $(MODEL_FILE)
 PHONY += fitted-model
