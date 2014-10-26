@@ -3,9 +3,21 @@ library(dplyr)
 library(assertive)
 library(KFAS)
 
-longData <- tbl_df(read.csv('PollingData/MergedData.csv'))
-longData$PollEndDate <- as.Date(longData$PollEndDate)
+if(interactive()){
+  args <- c('FittedModel.RData',
+            'PollingData/MergedData.csv', 'EstimatedMode.R', '100')
+}else{
+  args <- commandArgs(trailingOnly = TRUE)
+}
 
+
+outputFileName <- args[1]
+mergedDataPath <- args[2]
+modeFilePath <- args[3]
+nMHiterations <- as.numeric(args[4])
+
+longData <- tbl_df(read.csv(mergedDataPath))
+longData$PollEndDate <- as.Date(longData$PollEndDate)
 
 
 pollsters <- unique(longData$Pollster)
@@ -253,7 +265,7 @@ posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + re
                                  return(result) }
 
 
-theta0 <- dget('EstimatedMode.R')
+theta0 <- dget(modeFilePath)
 
 # optimControl = list(trace=6,REPORT=1, maxit=10)
 # fit = optim(fn=posteriorfn, par=paramListToVector(theta0), method='CG',
@@ -261,27 +273,27 @@ theta0 <- dget('EstimatedMode.R')
 
 
 thetaNow <- paramListToVector(theta0)
-momentum <- rep(0, length(thetaNow))
-fNow <- posteriorfn(thetaNow, mod1)
-proposalScale <- 0.01
-nMHiterations <- 10000
-for(iterI in 1:nMHiterations){
-  thetaOld <- thetaNow
-  blockSize <- 50
-  blockIndices <- sample.int(n=length(thetaNow), size=blockSize, replace=FALSE)
-  randomStep <- rep(0, length(thetaNow))
-  randomStep[blockIndices] <- proposalScale * rnorm(blockSize)
-  thetaProposed <- thetaNow + momentum + randomStep
-  fProposed <- posteriorfn(thetaProposed, mod1)
-  print(c('Current ', -fNow, ' Proposed ', -fProposed))
-  if(runif(1) < ((-fProposed) - (-fNow))){
-    print('Accepted.')
-    thetaNow <- thetaProposed
-    fNow <- fProposed
+if(nMHiterations > 0){
+  momentum <- rep(0, length(thetaNow))
+  fNow <- posteriorfn(thetaNow, mod1)
+  proposalScale <- 0.01
+  for(iterI in 1:nMHiterations){
+    thetaOld <- thetaNow
+    blockSize <- 50
+    blockIndices <- sample.int(n=length(thetaNow), size=blockSize, replace=FALSE)
+    randomStep <- rep(0, length(thetaNow))
+    randomStep[blockIndices] <- proposalScale * rnorm(blockSize)
+    thetaProposed <- thetaNow + momentum + randomStep
+    fProposed <- posteriorfn(thetaProposed, mod1)
+    print(c('Current ', -fNow, ' Proposed ', -fProposed))
+    if(runif(1) < ((-fProposed) - (-fNow))){
+      print('Accepted.')
+      thetaNow <- thetaProposed
+      fNow <- fProposed
+    }
+    momentum <- 0.7*momentum + (thetaNow - thetaOld)
   }
-  momentum <- 0.7*momentum + (thetaNow - thetaOld)
 }
-
 
 estimatedMode <- paramVectorToList(thetaNow)
 
@@ -295,11 +307,11 @@ modelOutput <- modelData[0,]
 for(componentI in 1:nLatentComponentsBase){
   modelOutput <- rbind(modelOutput,
                        data.frame(RowNumber = 1:nObservations,
-                           Pollster = 'Smoothed',
-                           Party = latentPartyNames[componentI],
-                           Vote = as.numeric(smoothedModel$alphahat[,componentI]),
-                           Electorate = latentStateNames[componentI],
-                           Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA),
+                                  Pollster = 'Smoothed',
+                                  Party = latentPartyNames[componentI],
+                                  Vote = as.numeric(smoothedModel$alphahat[,componentI]),
+                                  Electorate = latentStateNames[componentI],
+                                  Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA),
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'Filtered',
                                   Party = latentPartyNames[componentI],
@@ -333,20 +345,7 @@ for(party in partyNames){
 pupStartRow <- (modelData %>% filter(Party=='PUP', !is.na(Vote)) %>% arrange(RowNumber))$RowNumber[1]
 modelOutput <- mutate(modelOutput, Vote=ifelse(Party=='PUP' & RowNumber < pupStartRow, NA, Vote))
 
-
-
-library(ggplot2)
-
-for(thisState in stateNames){
-print(ggplot() + aes(x=RowNumber, y=Vote) +
-  geom_point(data = modelData %>% filter(Electorate==thisState), mapping=aes(shape=Pollster, colour=Party)) +
-  geom_line(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed'), mapping=aes(colour=Party)) +
-  scale_shape_manual(values=1:nPollsters) + ggtitle(thisState))
-}
-print( ggplot() + aes(x=RowNumber, y=Vote) +
-         geom_point(data = modelData %>% filter(Electorate=='AUS'), mapping=aes(shape=Pollster, colour=Party)) +
-         geom_line(data=modelOutput %>% filter(Electorate=='AUS', Pollster=='Smoothed'), mapping=aes(colour=Party)) +
-         scale_shape_manual(values=1:nPollsters) + ggtitle('AUS')  )
+save(fittedModel, smoothedModel, modelOutput, file=outputFileName)
 
 
 
