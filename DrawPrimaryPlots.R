@@ -105,7 +105,7 @@ if(showPollsters){
   pointAes <- aes(colour=Party)
 }
 
-for(thisState in electorateNames){
+for(thisState in unlist(readableElectorateNames)){
   primaryPlot <- ggplot() + aes(x=PollEndDate, y=Vote) +
     geom_point(data = modelData %>% filter(Electorate==thisState),
                mapping=pointAes, size=pointSize) +
