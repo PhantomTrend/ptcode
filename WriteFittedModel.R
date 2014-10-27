@@ -86,7 +86,7 @@ fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2014-12-31'))
 modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   arrange(PollEndDate) %>% mutate(Year = getYear(PollEndDate),
                                   Week = getWeek(PollEndDate)) %>%
-  group_by(PollEndDate) %>% mutate(RowNumber = which(fullDateSequence >= PollEndDate[1])[1] -1) %>%
+  group_by(PollEndDate) %>% mutate(RowNumber = which(fullDateSequence >= PollEndDate[1])[1] -1) %>% ungroup() %>%
   filter(Party %in% observedPartyNames)   %>%  
   select(RowNumber, Pollster, Party, Vote, Electorate, Year, Week, PollEndDate)
 
@@ -274,12 +274,11 @@ theta0 <- dget(modeFilePath)
 # fit = optim(fn=posteriorfn, par=paramListToVector(theta0), method='CG',
 #             model=mod1, control=optimControl)
 
-
 thetaNow <- paramListToVector(theta0)
 if(nMHiterations > 0){
   momentum <- rep(0, length(thetaNow))
   fNow <- posteriorfn(thetaNow, mod1)
-  proposalScale <- 0.01
+  proposalScale <- 0.02
   for(iterI in 1:nMHiterations){
     thetaOld <- thetaNow
     blockSize <- 50
@@ -318,19 +317,19 @@ for(componentI in 1:nLatentComponentsBase){
                                   Party = latentPartyNames[componentI],
                                   Vote = as.numeric(smoothedModel$alphahat[,componentI]),
                                   Electorate = latentStateNames[componentI],
-                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA),
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA),
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'SmoothedOneStdDevWidth',
                                   Party = latentPartyNames[componentI],
                                   Vote = sqrt(as.vector(smoothedModel$V[componentI,componentI,])),
                                   Electorate = latentStateNames[componentI],
-                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA),
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA),
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'Filtered',
                                   Party = latentPartyNames[componentI],
                                   Vote = as.numeric(smoothedModel$a[1:nObservations,componentI]),
                                   Electorate = latentStateNames[componentI],
-                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA)
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA)
   )
 }
 for(party in partyNames){
@@ -345,19 +344,19 @@ for(party in partyNames){
                                   Party = party,
                                   Vote = ausVectorSmoothed,
                                   Electorate = 'AUS',
-                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA),
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA),
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'SmoothedOneStdDevWidth',
                                   Party = party,
                                   Vote = oneSdWidth,
                                   Electorate = 'AUS',
-                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA),
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA),
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'Filtered',
                                   Party = party,
                                   Vote = ausVectorFiltered,
                                   Electorate = 'AUS',
-                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA)
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA)
                        
   )
 }

@@ -4,7 +4,7 @@ library(scales)
 library(dplyr)
 
 if(interactive()){
-  args <- c('PlotOutputLongrun/.sentinel', 'FittedModel.RData', "2010-01-01", "2014-12-01",
+  args <- c('PlotOutputRecent/.sentinel', 'FittedModel.RData', "2013-01-01", "2014-12-01",
             "HidePollsters")
 }else{
   args <- commandArgs(trailingOnly = TRUE)
