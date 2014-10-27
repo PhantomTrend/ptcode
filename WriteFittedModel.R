@@ -5,7 +5,7 @@ library(KFAS)
 
 if(interactive()){
   args <- c('FittedModel.RData',
-            'PollingData/MergedData.csv', 'EstimatedMode.R', '100')
+            'PollingData/MergedData.csv', 'EstimatedMode.R', '0')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
@@ -290,7 +290,7 @@ if(nMHiterations > 0){
                                          stop('Cancelling estimation.') }
     )
     print(c('Current ', -fNow, ' Proposed ', -fProposed))
-    if(runif(1) < ((-fProposed) - (-fNow))){
+    if(runif(1) < exp((-fProposed) - (-fNow))){
       print('Accepted.')
       thetaNow <- thetaProposed
       fNow <- fProposed
@@ -307,6 +307,10 @@ fittedModel <- reciprocalLogLikelihood(thetaNow, mod1, estimate=FALSE)
 smoothedModel <- KFS(fittedModel, filtering='state', smoothing='state')
 
 
+invisible(assert_that(min(modelData$PollEndDate) == as.Date('2000-01-23')))
+firstDate <- firstMondayOfYear("2000")
+fullDateSequence <- seq(from=firstDate, by='1 week', length.out=nObservations)
+
 modelOutput <- modelData[0,]
 for(componentI in 1:nLatentComponentsBase){
   modelOutput <- rbind(modelOutput,
@@ -315,41 +319,56 @@ for(componentI in 1:nLatentComponentsBase){
                                   Party = latentPartyNames[componentI],
                                   Vote = as.numeric(smoothedModel$alphahat[,componentI]),
                                   Electorate = latentStateNames[componentI],
-                                  Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA),
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA),
+                       data.frame(RowNumber = 1:nObservations,
+                                  Pollster = 'SmoothedOneStdDevWidth',
+                                  Party = latentPartyNames[componentI],
+                                  Vote = sqrt(as.vector(smoothedModel$V[componentI,componentI,])),
+                                  Electorate = latentStateNames[componentI],
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA),
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'Filtered',
                                   Party = latentPartyNames[componentI],
                                   Vote = as.numeric(smoothedModel$a[1:nObservations,componentI]),
                                   Electorate = latentStateNames[componentI],
-                                  Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA)
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA)
   )
 }
 for(party in partyNames){
   componentCols <- which(latentPartyNames == party)
   ausVectorSmoothed <- as.vector(popweights %*% t(smoothedModel$alphahat[,componentCols]))
   ausVectorFiltered <- as.vector(popweights %*% t(smoothedModel$a[1:nObservations,componentCols]))
+  oneSdWidth <- sqrt(apply(smoothedModel$V[which(latentPartyNames == party),which(latentPartyNames == party),], 3,
+                           function(V){t(popweights) %*% V %*% popweights}))
   modelOutput <- rbind(modelOutput,
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'Smoothed',
                                   Party = party,
                                   Vote = ausVectorSmoothed,
                                   Electorate = 'AUS',
-                                  Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA),
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA),
+                       data.frame(RowNumber = 1:nObservations,
+                                  Pollster = 'SmoothedOneStdDevWidth',
+                                  Party = party,
+                                  Vote = oneSdWidth,
+                                  Electorate = 'AUS',
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA),
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'Filtered',
                                   Party = party,
                                   Vote = ausVectorFiltered,
                                   Electorate = 'AUS',
-                                  Year = NA, Week = NA, PollEndDate = NA, Lag = 0, ObservationColumn = NA)
+                                  Year = NA, Week = NA, PollEndDate = fullDateSequence, Lag = 0, ObservationColumn = NA)
                        
   )
 }
 
+finalPeriodCovariance <- smoothedModel$V[1:nLatentComponentsBase,1:nLatentComponentsBase,nObservations]
 
 pupStartRow <- (modelData %>% filter(Party=='PUP', !is.na(Vote)) %>% arrange(RowNumber))$RowNumber[1]
 modelOutput <- mutate(modelOutput, Vote=ifelse(Party=='PUP' & RowNumber < pupStartRow, NA, Vote))
 
-save(fittedModel, smoothedModel, modelOutput, file=outputFileName)
+save(fittedModel, smoothedModel, finalPeriodCovariance, modelOutput, modelData, file=outputFileName)
 
 
 
