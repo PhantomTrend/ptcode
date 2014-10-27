@@ -3,8 +3,8 @@
 ####### Data ######
 
 ELECTION_DATA_DIR := ElectionData
-
-$(ELECTION_DATA_DIR)/FirstPrefs.csv: $(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2013.csv \
+FIRST_PREFS_SUMMARY := $(ELECTION_DATA_DIR)/FirstPrefs.csv
+$(FIRST_PREFS_SUMMARY): $(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2013.csv \
 	$(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2010.csv \
 	$(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2007.csv \
 	$(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2004.csv
@@ -20,7 +20,7 @@ $(POLL_DATA_DIR)/StateDataLong.csv: $(POLL_DATA_DIR)/StateData.csv
 
 MERGED_DATA_FILE := $(POLL_DATA_DIR)/MergedData.csv
 
-$(MERGED_DATA_FILE): $(POLL_DATA_DIR)/NationalDataLong.csv $(POLL_DATA_DIR)/StateDataLong.csv $(ELECTION_DATA_DIR)/FirstPrefs.csv
+$(MERGED_DATA_FILE): $(POLL_DATA_DIR)/NationalDataLong.csv $(POLL_DATA_DIR)/StateDataLong.csv FIRST_PREFS_SUMMARY
 	Rscript WriteMergedData.R $@ $^
 
 data-inputs: $(MERGED_DATA_FILE)
@@ -58,7 +58,27 @@ plots: $(LONG_RUN_PLOTS_DIR)/.sentinel $(RECENT_PLOTS_DIR)/.sentinel
 PHONY += plots
 
 
+##### Election results #####
 
+ELECTION_RESULTS_DIR := ElectionResults
+
+STATE_SWINGS := $(ELECTION_RESULTS_DIR)\StateSwings.csv
+WRITE_STATE_SWINGS := Rscript WriteStateSwings.R
+N_STATE_SWING_REPS := 10
+LAST_ELECTION_DATE := 2013-09-07
+
+TCP_FLOWS := $(ELECTION_DATA_DIR)\HouseTcpFlowByStateByParty2013.csv
+FIRST_PREFS := $(ELECTION_DATA_DIR)\HouseFirstPrefsByCandidateByVoteType2013.csv
+
+ELECTION_OUTCOMES_SENTINEL := $(ELECTION_RESULTS_DIR)\.sentinel
+$(WRITE_ELECTION_OUTCOMES) := Rscript WriteElectionResults.R
+N_SEAT_REPS := 10
+
+$(STATE_SWINGS): $(MODEL_FILE) $(FIRST_PREFS_SUMMARY)
+	$(WRITE_STATE_SWINGS) $@ $^ $(N_STATE_SWING_REPS) $(LAST_ELECTION_DATE)
+
+$(ELECTION_OUTCOMES_SENTINEL): $(STATE_SWINGS) $(TCP_FLOWS) $(FIRST_PREFS)
+	$(WRITE_ELECTION_OUTCOMES) $@ $^ $(N_SEAT_REPS)
 
 
 

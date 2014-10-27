@@ -368,7 +368,9 @@ finalPeriodCovariance <- smoothedModel$V[1:nLatentComponentsBase,1:nLatentCompon
 pupStartRow <- (modelData %>% filter(Party=='PUP', !is.na(Vote)) %>% arrange(RowNumber))$RowNumber[1]
 modelOutput <- mutate(modelOutput, Vote=ifelse(Party=='PUP' & RowNumber < pupStartRow, NA, Vote))
 
-save(fittedModel, smoothedModel, finalPeriodCovariance, modelOutput, modelData, file=outputFileName)
+save(fittedModel, smoothedModel, finalPeriodCovariance, modelOutput, modelData,
+     latentComponentNamesBase, latentPartyNames, latentStateNames,
+     file=outputFileName)
 
 
 
