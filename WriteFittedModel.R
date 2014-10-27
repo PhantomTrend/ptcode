@@ -5,7 +5,7 @@ library(KFAS)
 
 if(interactive()){
   args <- c('FittedModel.RData',
-            'PollingData/MergedData.csv', 'EstimatedMode.R', '0')
+            'PollingData/MergedData.csv', 'EstimatedMode.R', '5')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
@@ -79,13 +79,16 @@ firstMondayOfYear <- function(y){
 getDateFromYearAndWeek <- function(y,w){ return( firstMondayOfYear(as.character(y)) + 7*w )}
 
 
+firstDate <- firstMondayOfYear("2000")
+invisible(assert_that(max(longData$PollEndDate) < as.Date('2014-12-31')))
+fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2014-12-31'))
+
 modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   arrange(PollEndDate) %>% mutate(Year = getYear(PollEndDate),
-                                  Week = getWeek(PollEndDate),
-                                  RowNumber = (Year-2000)*52 + Week ) %>%
+                                  Week = getWeek(PollEndDate)) %>%
+  group_by(PollEndDate) %>% mutate(RowNumber = which(fullDateSequence >= PollEndDate[1])[1] -1) %>%
   filter(Party %in% observedPartyNames)   %>%  
   select(RowNumber, Pollster, Party, Vote, Electorate, Year, Week, PollEndDate)
-
 
 unobservedElectorates <- setdiff(stateNames, unique( (modelData %>% filter(Pollster != 'Election'))$Electorate ))
 
@@ -306,10 +309,6 @@ dput(estimatedMode, file='EstimatedMode.R')     # Save to file, in sorta-human-r
 fittedModel <- reciprocalLogLikelihood(thetaNow, mod1, estimate=FALSE)
 smoothedModel <- KFS(fittedModel, filtering='state', smoothing='state')
 
-
-invisible(assert_that(min(modelData$PollEndDate) == as.Date('2000-01-23')))
-firstDate <- firstMondayOfYear("2000")
-fullDateSequence <- seq(from=firstDate, by='1 week', length.out=nObservations)
 
 modelOutput <- modelData[0,]
 for(componentI in 1:nLatentComponentsBase){
