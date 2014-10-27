@@ -42,6 +42,24 @@ fitted-model: $(MODEL_FILE)
 PHONY += fitted-model
 
 
+##### Plots #####
+
+DRAW_PRIMARY_PLOTS := Rscript DrawPrimaryPlots.R
+LONG_RUN_PLOTS_DIR := PlotOutputLongrun
+RECENT_PLOTS_DIR := PlotOutputRecent
+
+$(LONG_RUN_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
+	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2014-12-01"
+	
+$(RECENT_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
+	$(DRAW_PRIMARY_PLOTS) $@ $^ "2012-01-01" "2014-12-01"
+
+plots: $(LONG_RUN_PLOTS_DIR)/.sentinel $(RECENT_PLOTS_DIR)/.sentinel
+PHONY += plots
+
+
+
+
 
 
 
