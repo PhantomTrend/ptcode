@@ -49,7 +49,7 @@ LONG_RUN_PLOTS_DIR := PlotOutputLongrun
 RECENT_PLOTS_DIR := PlotOutputRecent
 
 $(LONG_RUN_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
-	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2014-12-01" "ShowPollsters"
+	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2014-12-01" "HidePollsters"
 	
 $(RECENT_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
 	$(DRAW_PRIMARY_PLOTS) $@ $^ "2013-01-01" "2014-12-01" "HidePollsters"

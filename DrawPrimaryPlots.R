@@ -4,7 +4,7 @@ library(scales)
 library(dplyr)
 
 if(interactive()){
-  args <- c('PlotOutputRecent/.sentinel', 'FittedModel.RData', "2013-01-01", "2014-12-01",
+  args <- c('PlotOutputLongrun/.sentinel', 'FittedModel.RData', "2000-01-01", "2014-12-01",
             "HidePollsters")
 }else{
   args <- commandArgs(trailingOnly = TRUE)
@@ -82,7 +82,7 @@ colScale <- scale_colour_manual(name = "Party", values = partyColours, guide='no
 plotLengthInWeeks <- as.numeric(difftime(plotEndDate, plotStartDate, units='weeks'))
 if(plotLengthInWeeks > 500){
   lineSize = 1
-  pointSize = 0.5
+  pointSize = 1
   xscale = scale_x_date(breaks=date_breaks('3 years'),
                         minor_breaks=date_breaks('years'), labels=date_format("%Y"))
 }else if(plotLengthInWeeks > 200){
@@ -91,7 +91,7 @@ if(plotLengthInWeeks > 500){
   xscale = scale_x_date(breaks=date_breaks('1 year'),
                         minor_breaks=date_breaks('years'), labels=date_format("%Y"))
 }else{
-  lineSize = 2
+  lineSize = 1
   pointSize = 1
   xscale = scale_x_date(breaks=date_breaks('3 months'),
                         minor_breaks=date_breaks('months'), labels=date_format("%b %Y"))
@@ -115,7 +115,7 @@ for(thisState in unlist(readableElectorateNames)){
   fileName <- sprintf('%s/%s.png', outputDirectory, thisState)
   ggsave(filename = fileName,
          plot = primaryPlot, 
-         width=15, height=10, units='cm')
+         width=25, height=20, units='cm', dpi=150)
 }
 
 
