@@ -5,7 +5,7 @@ library(KFAS)
 
 if(interactive()){
   args <- c('FittedModel.RData',
-            'PollingData/MergedData.csv', 'EstimatedMode.R', '5')
+            'PollingData/MergedData.csv', 'EstimatedMode.R', '2')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }

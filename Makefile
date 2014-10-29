@@ -42,19 +42,42 @@ fitted-model: $(MODEL_FILE)
 PHONY += fitted-model
 
 
+##### Two-party preferred #####
+
+WRITE_2PP := Rscript Write2PartyPreferred.R
+TWOPP_OUTPUT_DIR := ElectionResults
+N_2PP_DURBIN_KOOPMAN_SIMULATIONS := 50
+TWOPP_FLOW_FILE := ElectionData/HouseTppFlowByStateByParty2013.csv
+
+TWOPP_CSV := $(TWOPP_OUTPUT_DIR)/TwoPartyPreferred.csv
+
+$(TWOPP_CSV): $(MODEL_FILE) $(TWOPP_FLOW_FILE)
+	$(WRITE_2PP) $@ $^ $(N_2PP_DURBIN_KOOPMAN_SIMULATIONS)
+
+two-party-preferred: $(TWOPP_CSV)
+PHONY += two-party-preferred
+
 ##### Plots #####
 
 DRAW_PRIMARY_PLOTS := Rscript DrawPrimaryPlots.R
 LONG_RUN_PLOTS_DIR := PlotOutputLongrun
 RECENT_PLOTS_DIR := PlotOutputRecent
 
+DRAW_TPP_PLOTS := Rscript Draw2ppPlots.R
+TPP_PLOTS_DIR := TppPlots
+TPP_OBSERVATIONS_CSV := PollingData/National2ppData.csv
+
+
 $(LONG_RUN_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
 	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2014-12-01" "HidePollsters"
 	
 $(RECENT_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
-	$(DRAW_PRIMARY_PLOTS) $@ $^ "2013-01-01" "2014-12-01" "HidePollsters"
+	$(DRAW_PRIMARY_PLOTS) $@ $^ "2013-01-01" "2014-12-31" "HidePollsters"
 
-plots: $(LONG_RUN_PLOTS_DIR)/.sentinel $(RECENT_PLOTS_DIR)/.sentinel
+$(TPP_PLOTS_DIR)/.sentinel: $(TWOPP_CSV) $(TPP_OBSERVATIONS_CSV)
+	$(DRAW_TPP_PLOTS) $@ $^ "2013-01-01" "2014-12-31"
+
+plots: $(LONG_RUN_PLOTS_DIR)/.sentinel $(RECENT_PLOTS_DIR)/.sentinel $(TPP_PLOTS_DIR)/.sentinel
 PHONY += plots
 
 
