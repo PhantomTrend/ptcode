@@ -49,7 +49,7 @@ simulateOneElection <- function(swing, votesLastTime, preferenceFlow){
   swing$Swing <- swing$Swing + 1.5*rnorm(nrow(swing))
   
   votes <- inner_join(votesLastTime, swing, by='Party') %>% mutate(PctLastTime = Vote/sum(Vote)*100,
-                                                                   Pct = PctLastTime + Swing)
+                                                                   Pct = max(PctLastTime + Swing,0))
   while(!any(votes$Pct > 50)){
     if(nrow(votes) == 2){
       break
