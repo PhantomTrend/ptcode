@@ -49,7 +49,8 @@ simulateOneElection <- function(swing, votesLastTime, preferenceFlow){
   swing$Swing <- swing$Swing + 1.5*rnorm(nrow(swing))
   
   votes <- inner_join(votesLastTime, swing, by='Party') %>% mutate(PctLastTime = Vote/sum(Vote)*100,
-                                                                   Pct = max(PctLastTime + Swing,0))
+                                                                   Pct = PctLastTime + Swing) %>%
+    rowwise() %>% mutate(Pct = max(0, Pct)) %>% ungroup()
   while(!any(votes$Pct > 50)){
     if(nrow(votes) == 2){
       break
@@ -124,6 +125,9 @@ for(electorateName in unique(firstPrefs$DivisionNm)){
   }
   output = rbind(output, thisSeatOutput)
 }
+
+print('Mean ALP seats won:')
+print(sum(output$ALPWins)/(max(output$Repetition) * nSeatSimulations))
 
 write.csv(output, file=outputFile, row.names=FALSE)
 
