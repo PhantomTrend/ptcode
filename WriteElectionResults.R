@@ -7,7 +7,7 @@ if(interactive()){
   args <- c('ElectionResults/SeatResults.csv',
             'ElectionResults/StateSwings.csv', 'ElectionData/HouseTcpFlowByStateByParty2013.csv',
             'ElectionData/HouseFirstPrefsByCandidateByVoteType2013.csv',
-            '10')
+            '3')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
@@ -50,7 +50,7 @@ simulateOneElection <- function(swing, votesLastTime, preferenceFlow){
   
   votes <- inner_join(votesLastTime, swing, by='Party') %>% mutate(PctLastTime = Vote/sum(Vote)*100,
                                                                    Pct = PctLastTime + Swing) %>%
-    rowwise() %>% mutate(Pct = max(0, Pct)) %>% ungroup()
+    filter(Pct > 0)
   while(!any(votes$Pct > 50)){
     if(nrow(votes) == 2){
       break
@@ -80,6 +80,8 @@ for(electorateName in unique(firstPrefs$DivisionNm)){
     print(thisState)
     lastStateName <- thisState
   }
+  
+  print(electorateName)
   
   getVotes <- function(partycode){
     partyRows <- which(theseFirstPrefs$PartyAb %in% partycode)
