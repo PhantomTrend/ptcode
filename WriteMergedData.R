@@ -173,7 +173,7 @@ nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 0.9, 60)
 invisible(assert_that(is_in_closed_range(mean(nonZeroVotes), 20, 30)))
 pollstersWeKnowAbout <- c('Election', "Essential", "Essential Online", "Galaxy", "Morgan", "Morgan Multi", 
-                          "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL")
+                          "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL", "Ipsos")
 invisible(assert_that(all(levels(completeData$Pollster) %in% pollstersWeKnowAbout)))
 assert_all_are_not_na(completeData$Pollster)
 partiesWeKnowAbout <- c("ALP", "GRN", "LNP", "OTH", "PUP", "PUPOTH", "GRNOTH")

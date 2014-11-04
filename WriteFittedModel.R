@@ -270,6 +270,18 @@ posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + re
 
 theta0 <- dget(modeFilePath)
 
+pollstersInEstimatedMode <- setdiff(names(theta0), partyNames)
+newPollsters <- setdiff(pollsters[which(!pollsters %in% pollstersInEstimatedMode)], 'Election')
+if(length(newPollsters) > 0){
+  for(newPollster in newPollsters){
+    theta0[[newPollster]][['NoiseVariance']] <- 1
+    for(party in observedPartyNames){
+      theta0[[newPollster]][[party]] <- 0
+    }
+  }
+}
+
+
 # optimControl = list(trace=6,REPORT=1, maxit=10)
 # fit = optim(fn=posteriorfn, par=paramListToVector(theta0), method='CG',
 #             model=mod1, control=optimControl)

@@ -7,6 +7,7 @@ if(interactive()){
   args <- c('ElectionResults/SeatResults.csv',
             'ElectionResults/StateSwings.csv', 'ElectionData/HouseTcpFlowByStateByParty2013.csv',
             'ElectionData/HouseFirstPrefsByCandidateByVoteType2013.csv',
+            'ElectionData/HouseFirstPrefsByStateByParty2013.csv',
             '3')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
@@ -16,7 +17,8 @@ outputFile <- args[1]
 inputSwingsFile <- args[2]
 tcpFlowFile <- args[3]
 firstPrefsFile <- args[4]
-nSeatSimulations <- as.numeric(args[5])
+stateSwingsLastTimeFile <- args[5]
+nSeatSimulations <- as.numeric(args[6])
 
 
 lnpPartyNames <- c('LP','NP','LNQ','LNP','CLP')
@@ -38,15 +40,29 @@ firstPrefs <- tbl_df(read.csv(firstPrefsFile, skip=1))
 
 stateSwings <- tbl_df(read.csv(inputSwingsFile))
 
+stateSwingsLastTime <- tbl_df(read.csv(stateSwingsLastTimeFile, skip=1))
+stateSwingsLastTime$PartyAb[stateSwingsLastTime$PartyAb %in% lnpPartyNames] <- 'LNP'
+stateSwingsLastTime$PartyAb[!(stateSwingsLastTime$PartyAb %in% c('LNP','ALP','GRN','PUP'))] <- 'OTH'
+summaryStateSwingsLastTime <- stateSwingsLastTime %>%
+  mutate(WeightedSwing = TotalSwing*TotalVotes) %>%
+  group_by(StateAb, PartyAb) %>%
+  summarise(Swing = sum(WeightedSwing)/sum(TotalVotes)) %>%
+  ungroup()
+
+seatSwingsLastTime <- firstPrefs %>% filter(CandidateID != 999)
+seatSwingsLastTime$PartyAb[seatSwingsLastTime$PartyAb %in% lnpPartyNames] <- 'LNP'
+seatSwingsLastTime$PartyAb[!(seatSwingsLastTime$PartyAb %in% c('ALP','LNP','GRN','PUP'))] <- 'OTH'
+seatSwingsLastTime <- seatSwingsLastTime %>% mutate(WeightedSwing = TotalVotes*Swing) %>%
+  group_by(StateAb, DivisionNm, PartyAb) %>% summarise(TotalSwing = sum(WeightedSwing)/sum(TotalVotes))  %>%
+  ungroup() %>% left_join(summaryStateSwingsLastTime, by=c('StateAb', 'PartyAb')) %>%
+  mutate(RelativeSwing = TotalSwing - Swing)
+
+
 output <- data.frame(Electorate = character(),
                      ALPWins = integer(), LNPWins = integer(), GRNWins = integer(), PUPWins = integer(),
                      OTHWins = integer(), Repetition = integer())
 
-
-
 simulateOneElection <- function(swing, votesLastTime, preferenceFlow){
-  # TODO: use residuals from previous election
-  swing$Swing <- swing$Swing + 1.5*rnorm(nrow(swing))
   
   votes <- inner_join(votesLastTime, swing, by='Party') %>% mutate(PctLastTime = Vote/sum(Vote)*100,
                                                                    Pct = PctLastTime + Swing) %>%
@@ -107,14 +123,21 @@ for(electorateName in unique(firstPrefs$DivisionNm)){
     group_by(ToPartyDisplayAb, FromPartyGroupAb) %>%
     summarise(TotalVotes = sum(TransferVotes)) %>% ungroup() %>%
     filter(ToPartyDisplayAb != FromPartyGroupAb)
+
   
   thisSeatOutput <- data.frame(Electorate = character(),
              ALPWins = integer(), LNPWins = integer(), GRNWins = integer(), PUPWins = integer(),
              OTHWins = integer(), Repetition = integer())
   for(stateRep in unique(theseSwings$Repetition)){
-    thisSwing <- filter(theseSwings, Repetition == stateRep) %>% select(Party, Swing)
+    thisStateSwing <- filter(theseSwings, Repetition == stateRep) %>% select(Party, Swing)
+    
     luckyWinners <- c()
     for(seatRep in 1:nSeatSimulations){
+      resampledSeat <- sample(unique(seatSwingsLastTime$DivisionNm),size=1)
+      resampledSwing <- filter(seatSwingsLastTime, DivisionNm == resampledSeat) %>%
+        select(PartyAb, RelativeSwing) %>% rename(Party = PartyAb)
+      thisSwing <- inner_join(thisStateSwing, resampledSwing, by='Party') %>%
+        mutate(Swing = Swing + RelativeSwing)
       luckyWinners <- c(luckyWinners, simulateOneElection(thisSwing, theseVotes, summaryFlow))
     }
     thisSeatOutput <- rbind(thisSeatOutput,
