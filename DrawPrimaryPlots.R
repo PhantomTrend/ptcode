@@ -4,7 +4,7 @@ library(scales)
 library(dplyr)
 
 if(interactive()){
-  args <- c('PlotOutputLongrun/.sentinel', 'FittedModel.RData', "2000-01-01", "2014-12-01",
+  args <- c('PlotOutputLongrun/.sentinel', 'FittedModel.RData', "2013-01-01", "2014-12-31",
             "HidePollsters")
 }else{
   args <- commandArgs(trailingOnly = TRUE)
@@ -105,12 +105,18 @@ if(showPollsters){
   pointAes <- aes(colour=Party)
 }
 
+modelOutput <- modelOutput %>% group_by(Party,Electorate,Pollster) %>% 
+  mutate(VoteNext = c(Vote[-1], tail(Vote,1))) %>% ungroup()
+
 for(thisState in unlist(readableElectorateNames)){
   primaryPlot <- ggplot() + aes(x=PollEndDate, y=Vote) +
     geom_point(data = modelData %>% filter(Electorate==thisState),
                mapping=pointAes, size=pointSize) +
-    geom_line(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed'),
-              mapping=aes(colour=Party), size=lineSize) + colScale + xscale +
+    geom_segment(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed'),
+                 mapping=aes(colour=Party, x=PollEndDate+7, xend = PollEndDate+7, yend=VoteNext), size=lineSize) +
+    geom_segment(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed'),
+              mapping=aes(colour=Party,x = PollEndDate, xend = PollEndDate+7, yend=Vote), size=lineSize) +
+    colScale + xscale +
     shapeScale + ggtitle(thisState) + xlab('') + ylab('')
   fileName <- sprintf('%s/%s.png', outputDirectory, thisState)
   ggsave(filename = fileName,

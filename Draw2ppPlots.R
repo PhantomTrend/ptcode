@@ -41,18 +41,37 @@ plotColour <- 'red'
 xscale <- scale_x_date(breaks=date_breaks('3 months'),
                       minor_breaks=date_breaks('months'), labels=date_format("%b %Y"))
 
+
 for(thisState in unique(tppSimulations$Electorate)){
   summaryData <- tppSimulations %>% filter(Electorate == thisState, PollEndDate >= plotStartDate) %>%
     group_by(PollEndDate) %>% summarise(AlpMean = mean(ALP2pp),
                                         AlpLo = quantile(ALP2pp, probs=c(.05)),
                                         AlpHi = quantile(ALP2pp, probs=c(.95))) %>% ungroup()
-  twoPPplot <- ggplot(summaryData) + aes(x=PollEndDate) +
-    geom_ribbon(aes(ymin=AlpLo, ymax=AlpHi), fill=plotColour, alpha=0.2) +
-    geom_line(aes(y=AlpMean), colour='darkred') + xlab('') + ylab('') +
+  summaryData$AlpMeanNext <- c(summaryData$AlpMean[-1], tail(summaryData$AlpMean,1))
+  summaryData$AlpLoNext <- c(summaryData$AlpLo[-1], tail(summaryData$AlpLo,1))
+  summaryData$AlpHiNext <- c(summaryData$AlpHi[-1], tail(summaryData$AlpHi,1))
+  
+  repeatedLo <- c(summaryData$AlpLo, summaryData$AlpLo)
+  repeatedHi <- c(summaryData$AlpHi, summaryData$AlpHi)
+  repeatedLo <- repeatedLo[order(c(1:length(summaryData$AlpLo),1:length(summaryData$AlpLo)))]
+  repeatedHi <- repeatedHi[order(c(1:length(summaryData$AlpLo),1:length(summaryData$AlpLo)))]
+  plotDatesStart <- summaryData$PollEndDate
+  plotDatesEnd <- plotDatesStart+7
+  plotDates <- c(plotDatesStart,plotDatesEnd)[order(c(1:length(plotDatesStart),1:length(plotDatesStart)))]
+  confidenceInterval <- data.frame(date = c(plotDates, rev(plotDates)),
+                                   value = c(repeatedLo, rev(repeatedHi)))
+  twoPPplot <- ggplot(summaryData) +
+    geom_segment(aes(x=PollEndDate, xend=PollEndDate+7,
+                     y=AlpMean, yend=AlpMean), colour='darkred') +
+    geom_segment(aes(x=PollEndDate+7, xend=PollEndDate+7,
+                     y=AlpMean, yend=AlpMeanNext), colour='darkred') +
+    geom_polygon(data=confidenceInterval, aes(x=date, y=value),
+                 fill=plotColour, alpha=0.2) + xlab('') + ylab('') +
     ggtitle(readableElectorateNames[[thisState]]) + xscale
   if(thisState == 'AUS'){
     twoPPplot <- twoPPplot +
-      geom_point(data=tppObservations %>% filter(PollEndDate >= plotStartDate), aes(y=Labor2ppAUS))
+      geom_point(data=tppObservations %>% filter(PollEndDate >= plotStartDate),
+                 aes(x=PollEndDate, y=Labor2ppAUS))
   }
   fileName <- sprintf('%s/%s.png', outputDirectory, thisState)
   ggsave(filename = fileName,

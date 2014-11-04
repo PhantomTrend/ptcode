@@ -69,7 +69,7 @@ TPP_OBSERVATIONS_CSV := PollingData/National2ppData.csv
 
 
 $(LONG_RUN_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
-	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2014-12-01" "HidePollsters"
+	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2014-12-31" "HidePollsters"
 	
 $(RECENT_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
 	$(DRAW_PRIMARY_PLOTS) $@ $^ "2013-01-01" "2014-12-31" "HidePollsters"
