@@ -117,7 +117,7 @@ for(thisState in unlist(readableElectorateNames)){
     geom_segment(data=modelOutput %>% filter(Electorate==thisState, Pollster=='Smoothed'),
               mapping=aes(colour=Party,x = PollEndDate, xend = PollEndDate+7, yend=Vote), size=lineSize) +
     colScale + xscale +
-    shapeScale + ggtitle(thisState) + xlab('') + ylab('')
+    shapeScale + ggtitle(sprintf('%s: Primary Votes',thisState)) + xlab('') + ylab('')
   fileName <- sprintf('%s/%s.png', outputDirectory, thisState)
   ggsave(filename = fileName,
          plot = primaryPlot, 

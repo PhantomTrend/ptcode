@@ -67,7 +67,7 @@ for(thisState in unique(tppSimulations$Electorate)){
                      y=AlpMean, yend=AlpMeanNext), colour='darkred') +
     geom_polygon(data=confidenceInterval, aes(x=date, y=value),
                  fill=plotColour, alpha=0.2) + xlab('') + ylab('') +
-    ggtitle(readableElectorateNames[[thisState]]) + xscale
+    ggtitle(sprintf('%s: Two-Party Preferred', readableElectorateNames[[thisState]])) + xscale
   if(thisState == 'AUS'){
     twoPPplot <- twoPPplot +
       geom_point(data=tppObservations %>% filter(PollEndDate >= plotStartDate),
