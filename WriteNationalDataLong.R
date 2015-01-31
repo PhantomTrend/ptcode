@@ -19,10 +19,10 @@ nationalData <- tbl_df(read.csv(inputFileName, header=TRUE, stringsAsFactors=TRU
 
 nationalData$PollEndDate <- as.Date(nationalData$PollEndDate, format='%d/%m/%y')
 
-nationalData <- nationalData %>% gather(PollEndDate, Vote, -(PollEndDate:Pollster))
-colnames(nationalData)[3] <- 'Party'
+nationalDataTidy <- nationalData %>% gather(PollEndDate, Vote, -(PollEndDate:Pollster))
+colnames(nationalDataTidy)[4] <- 'Party'
 
-nationalData <- mutate(nationalData, Electorate = 'AUS')
+nationalDataWithElectorate <- mutate(nationalDataTidy, Electorate = 'AUS')
 
-write.csv(nationalData, outputFileName, row.names=FALSE)
+write.csv(nationalDataWithElectorate, outputFileName, row.names=FALSE)
 
