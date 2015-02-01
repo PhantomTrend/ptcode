@@ -69,13 +69,13 @@ TPP_OBSERVATIONS_CSV := PollingData/National2ppData.csv
 
 
 $(LONG_RUN_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
-	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2014-12-31" "HidePollsters"
+	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2015-03-31" "HidePollsters"
 	
 $(RECENT_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
-	$(DRAW_PRIMARY_PLOTS) $@ $^ "2013-01-01" "2014-12-31" "HidePollsters"
+	$(DRAW_PRIMARY_PLOTS) $@ $^ "2013-01-01" "2015-03-31" "HidePollsters"
 
 $(TPP_PLOTS_DIR)/.sentinel: $(TWOPP_CSV) $(TPP_OBSERVATIONS_CSV)
-	$(DRAW_TPP_PLOTS) $@ $^ "2013-01-01" "2014-12-31"
+	$(DRAW_TPP_PLOTS) $@ $^ "2013-01-01" "2015-03-31"
 
 plots: $(LONG_RUN_PLOTS_DIR)/.sentinel $(RECENT_PLOTS_DIR)/.sentinel $(TPP_PLOTS_DIR)/.sentinel
 PHONY += plots
