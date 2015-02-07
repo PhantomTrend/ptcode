@@ -4,7 +4,8 @@ library(scales)
 library(dplyr)
 
 if(interactive()){
-  args <- c('PlotOutputLongrun/.sentinel', 'FittedModel.RData', "2013-01-01", "2014-12-31",
+  args <- c('PlotOutputLongrun/.sentinel', 'PlotData/.sentinel',
+            "2013-01-01", "2014-12-31",
             "HidePollsters")
 }else{
   args <- commandArgs(trailingOnly = TRUE)
@@ -15,7 +16,8 @@ outputDirectory <- dirname(outputSentinel)
 if(!file.exists(outputDirectory)){
   dir.create(outputDirectory, recursive=TRUE)
 }
-inputModelFile <- args[2]
+inputDirectory <- dirname(args[2])
+stopifnot(file.exists(inputDirectory))
 plotStartDate <- as.Date(args[3])
 plotEndDate <- as.Date(args[4])
 if(args[5] == 'ShowPollsters'){
@@ -26,35 +28,12 @@ if(args[5] == 'ShowPollsters'){
   stop(sprintf('Invalid argument %s', args[5]))
 }
 
-load(inputModelFile)
+modelOutput <- read.csv(paste0(inputDirectory, '/ModelOutput.csv'))
+modelData <- read.csv(paste0(inputDirectory, '/PollData.csv'))
 
-electorateNames <- unique(modelOutput$Electorate)
-readableElectorateNames <- list(AUS = 'Australia',
-                                NSW = 'New South Wales',
-                                VIC = 'Victoria',
-                                SA = 'South Australia',
-                                WA = 'Western Australia',
-                                TAS = 'Tasmania',
-                                QLD = 'Queensland',
-                                NT = 'Northern Territory',
-                                ACT = 'ACT')
-readablePartyNames <- list(ALP = 'ALP',
-                           LNP = 'Coalition',
-                           GRN = 'Greens',
-                           PUP = 'Palmer United',
-                           OTH = 'Others',
-                           PUPOTH = 'Palmer + Others',
-                           GRNOTH = 'Greens + Others')
+modelOutput$PollEndDate <- as.Date(modelOutput$PollEndDate)
+modelData$PollEndDate <- as.Date(modelData$PollEndDate)
 
-for(shortPartyName in names(readablePartyNames)){
-  modelOutput$Party[modelOutput$Party == shortPartyName] <- readablePartyNames[[shortPartyName]]
-  modelData$Party[modelData$Party == shortPartyName] <- readablePartyNames[[shortPartyName]]
-}
-
-for(shortElectorateName in names(readableElectorateNames)){
-  modelOutput$Electorate[modelOutput$Electorate == shortElectorateName] <- readableElectorateNames[[shortElectorateName]]
-  modelData$Electorate[modelData$Electorate == shortElectorateName] <- readableElectorateNames[[shortElectorateName]]
-}
 
 modelOutput <- filter(modelOutput, PollEndDate >= plotStartDate,
                       PollEndDate <= plotEndDate)
@@ -108,7 +87,9 @@ if(showPollsters){
 modelOutput <- modelOutput %>% group_by(Party,Electorate,Pollster) %>% 
   mutate(VoteNext = c(Vote[-1], tail(Vote,1))) %>% ungroup()
 
-for(thisState in unlist(readableElectorateNames)){
+electorateNames <- unique(modelOutput$Electorate)
+
+for(thisState in unlist(electorateNames)){
   primaryPlot <- ggplot() + aes(x=PollEndDate, y=Vote) +
     geom_point(data = modelData %>% filter(Electorate==thisState),
                mapping=pointAes, size=pointSize) +

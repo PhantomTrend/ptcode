@@ -59,6 +59,8 @@ PHONY += two-party-preferred
 
 ##### Plots #####
 
+WRITE_PLOT_DATA := Rscript WritePrimaryPlotData.R
+PLOT_DATA_DIR := PlotData
 DRAW_PRIMARY_PLOTS := Rscript DrawPrimaryPlots.R
 LONG_RUN_PLOTS_DIR := PlotOutputLongrun
 RECENT_PLOTS_DIR := PlotOutputRecent
@@ -67,18 +69,20 @@ DRAW_TPP_PLOTS := Rscript Draw2ppPlots.R
 TPP_PLOTS_DIR := TppPlots
 TPP_OBSERVATIONS_CSV := PollingData/National2ppData.csv
 
+$(PLOT_DATA_DIR)/.sentinel: $(MODEL_FILE)
+	$(WRITE_PLOT_DATA) $@ $^ "2013-01-01"
 
-$(LONG_RUN_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
+$(LONG_RUN_PLOTS_DIR)/.sentinel: $(PLOT_DATA_DIR)/.sentinel
 	$(DRAW_PRIMARY_PLOTS) $@ $^ "2000-01-01" "2015-03-31" "HidePollsters"
 	
-$(RECENT_PLOTS_DIR)/.sentinel: $(MODEL_FILE)
+$(RECENT_PLOTS_DIR)/.sentinel: $(PLOT_DATA_DIR)/.sentinel
 	$(DRAW_PRIMARY_PLOTS) $@ $^ "2013-01-01" "2015-03-31" "HidePollsters"
 
 $(TPP_PLOTS_DIR)/.sentinel: $(TWOPP_CSV) $(TPP_OBSERVATIONS_CSV)
 	$(DRAW_TPP_PLOTS) $@ $^ "2013-01-01" "2015-03-31"
 
 plots: $(LONG_RUN_PLOTS_DIR)/.sentinel $(RECENT_PLOTS_DIR)/.sentinel $(TPP_PLOTS_DIR)/.sentinel
-PHONY += plots
+PHONY += plots 
 
 
 ##### Election results #####
