@@ -1,4 +1,9 @@
 PollEndDate,Pollster,Party,NSW,VIC,QLD,SA,WA
+31/01/15,Ipsos,ALP,37,42,43,39,33
+31/01/15,Ipsos,LNP,45,35,35,37,37
+31/01/15,Ipsos,GRN,8,16,8,9,17
+31/01/15,Ipsos,PUP,2,1,8,1,0
+31/01/15,Ipsos,OTH,9,6,7,13,12
 30/09/14,Newspoll,ALP,35,40,35,33,27
 30/09/14,Newspoll,LNP,40,35,38,38,43
 30/09/14,Newspoll,GRN,12,13,9,9,16
@@ -626,6 +631,3 @@ PollEndDate,Pollster,Party,NSW,VIC,QLD,SA,WA
 31/12/99,Newspoll,LNP,45,47,45,44,42
 31/12/99,Newspoll,ALP,42,45,41,41,43
 31/12/99,Newspoll,OTH,13,8,14,15,15
-
-
-
