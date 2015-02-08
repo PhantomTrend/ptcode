@@ -11,6 +11,7 @@ ElectionData/HouseTcpFlowByStateByParty2013.csv
 PollingData/MergedData.csv
 PollingData/NationalDataLong.csv
 PollingData/StateDataLong.csv
+www/data/*.csv
 
 # OS X crap
 .DS_Store
