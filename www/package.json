@@ -6,7 +6,7 @@
   "dependencies": {
     "express": "^4.12.0",
     "pg": "^4.3.0",
-    "compress": "^0.99.0",
+    "compression": "^1.4.3",
     "dot": "^1.0.3",
     "helmet": "^0.7.1"
   },
