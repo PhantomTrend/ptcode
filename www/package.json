@@ -1,0 +1,17 @@
+{
+  "name": "ptcode",
+  "version": "1.0.0",
+  "description": "Phantom Trend",
+  "main": "ex1.js",
+  "dependencies": {
+    "compress": "^0.99.0",
+    "dot": "^1.0.3",
+    "helmet": "^0.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jamie Hall",
+  "license": "GPL2"
+}
