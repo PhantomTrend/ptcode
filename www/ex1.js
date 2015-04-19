@@ -12,7 +12,7 @@ var helmet = require('helmet');
 app.use(helmet());
 
 
-app.use(express.static(__dirname + '/public', {index: "trend.html"}));
+app.use(express.static(__dirname + '/public', {index: "index.html"}));
 
 
 app.get('/twopp', function(req, res) {

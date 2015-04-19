@@ -59,3 +59,33 @@ body {
     background: #f6f6f6;
     box-shadow: 0px 2px 2px #eaeaea;
 }
+
+#chart-controls {
+    margin-top: 15px;
+    padding: 5px;
+    text-align: center;
+}
+#chart-controls li {
+    display: inline-block;
+    width: 100px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+#chart-controls ul {
+    list-style: none;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    margin-right: auto;
+    margin-left: auto;
+}
+#chart-controls h3 {
+    margin: 0;
+    color: #838383;
+    text-align: left;
+}
+#chart-controls select {
+    background: #f8f8f8;
+    color:#2f2f2f;
+    border: 1px solid #eee;
+}
