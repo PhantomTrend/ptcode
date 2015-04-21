@@ -97,3 +97,7 @@ body {
     color:#2f2f2f;
     border: 1px solid #eee;
 }
+
+#chart-controls select:disabled {
+    color:#a8a8a8;
+}

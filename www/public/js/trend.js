@@ -103,6 +103,13 @@
                     graphColours.push(colourPalette[party]);
                     graphLabels.push(party);
                     callback();
+                    if(party === graphOptions.partypov) {
+                        var seriesOption = {};
+                        seriesOption[party] = {showInRangeSelector: true};
+                        graph.updateOptions({
+                            series: seriesOption
+                        });
+                    }
                 }
             });
         });
@@ -162,14 +169,14 @@
                         [100 - v[1][0], v[1][1]]
                     ];
                 }),
-                color: lnpColour,
+                colors: [colourPalette.LNP],
                 labels: ["time", "LNP"],
                 title: getTitle()
             });
         } else {
             graph.updateOptions({
                 file: graphData,
-                color: alpColour,
+                colors: [colourPalette.ALP],
                 title: getTitle(),
                 labels: ["time", "ALP"]
             });
@@ -181,6 +188,9 @@
         changeGraphOptions("type",$(this).val());
         if($(this).val() === "twopp") {
             graphLabels = ["time", graphOptions.partypov];
+            $("#twopp-party").prop('disabled', false);
+        } else {
+            $("#twopp-party").prop('disabled', true);
         }
         changeGraphToElectorate(graphOptions.electorate);
     });
