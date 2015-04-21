@@ -19,6 +19,16 @@ app.set('view engine', 'dot');
 app.engine('html', doT.__express);
 
 
+
+
+
+app.use('/dyg',express.static(__dirname+'/bower_components/dygraphs'));
+
+
+
+
+
+
 app.use('/css',express.static(__dirname+'/public/css'));
 app.use('/img',express.static(__dirname+'/public/img'));
 app.use('/js',express.static(__dirname+'/public/js'));
@@ -40,10 +50,30 @@ app.get('/twopp', function(req, res) {
     if(acceptableElectorates.indexOf(electorate) == -1){
         res.writeHead(404, {'content-type': 'text/plain'});
         res.end("Unknown electorate");
+        return;
     }
     getTwoPPJson(electorate, res);
 });
 
+app.get('/primary', function(req, res) {
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+    var electorate = query.electorate;
+    var acceptableElectorates = ['AUS','NSW','VIC','TAS','WA','SA','QLD','NT','ACT'];
+    if(acceptableElectorates.indexOf(electorate) == -1){
+        res.writeHead(404, {'content-type': 'text/plain'});
+        res.end("Unknown electorate");
+        return;
+    }
+    var party = query.party;
+    var acceptableParties = ['ALP','LNP','GRN','PUP','OTH'];
+    if(acceptableParties.indexOf(party) == -1){
+        res.writeHead(404, {'content-type': 'text/plain'});
+        res.end("Unknown party");
+        return;
+    }
+    getPrimaryJson(electorate, party, res);
+});
 
 var server = app.listen(3001, function() {
 
@@ -53,7 +83,22 @@ var server = app.listen(3001, function() {
 });
 
 
-getTwoPPJson = function(electorate, res) {
+function getTwoPPJson(electorate, res) {
+    getDbQuery("SELECT pollenddate, avg(alp2pp), stddev(alp2pp)" +
+            "FROM TwoPP WHERE electorate = $1" +
+            "GROUP BY pollenddate ORDER BY pollenddate;",
+            [electorate], res);
+}
+
+function getPrimaryJson(electorate, party, res){
+    getDbQuery("SELECT pollenddate, vote AS avg, onesd AS stddev " +
+            "FROM primarytrend WHERE electorate = $1 AND party = $2 " +
+            "ORDER BY pollenddate;",
+            [electorate,party],
+            res);
+}
+
+function getDbQuery(query, arg, res) {
     pg.connect(conString, function(err, client, done) {
         var handleError = function(err) {
             if (!err) return false;
@@ -66,10 +111,7 @@ getTwoPPJson = function(electorate, res) {
             res.end("Server error");
             return;
         }
-        client.query("SELECT pollenddate, avg(alp2pp), stddev(alp2pp)" +
-            "FROM TwoPP WHERE electorate = $1" +
-            "GROUP BY pollenddate ORDER BY pollenddate;",
-            [electorate],
+        client.query(query, arg,
             function(err, result) {
                 if (handleError(err)) {
                     res.writeHead(500, {'content-type': 'text/plain'});
@@ -83,4 +125,4 @@ getTwoPPJson = function(electorate, res) {
                 res.send(output);
             });
     });
-};
+}
