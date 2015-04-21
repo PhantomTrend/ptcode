@@ -61,6 +61,11 @@ getTwoPPJson = function(electorate, res) {
             console.log(err);
             return true;
         };
+        if (handleError(err)) {
+            res.writeHead(500, {'content-type': 'text/plain'});
+            res.end("Server error");
+            return;
+        }
         client.query("SELECT pollenddate, avg(alp2pp), stddev(alp2pp)" +
             "FROM TwoPP WHERE electorate = $1" +
             "GROUP BY pollenddate ORDER BY pollenddate;",
