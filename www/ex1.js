@@ -11,9 +11,20 @@ app.use(compression());
 var helmet = require('helmet');
 app.use(helmet());
 
+var doT = require('dot-express');
+app.set('view engine', 'dot');
+app.engine('html', doT.__express);
 
-app.use(express.static(__dirname + '/public', {index: "index.html"}));
-
+app.use('/css',express.static(__dirname+'/public/css'));
+app.use('/img',express.static(__dirname+'/public/img'));
+app.use('/js',express.static(__dirname+'/public/js'));
+app.get('/', function(req, res){
+	var templateData = {"houseResults": [
+        {"electorateName":"Grayndler",
+         "state":"NSW"}
+    ]};
+	res.render('index.html', templateData);
+});
 
 app.get('/twopp', function(req, res) {
     var url_parts = url.parse(req.url, true);
