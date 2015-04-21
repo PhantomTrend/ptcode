@@ -1,5 +1,8 @@
 var pg = require('pg');
-var conString = "postgres://ptuser@localhost:5432/ptdata";
+if(process.env.PT_HOST === undefined) {
+    throw "PT_HOST is not defined";
+}
+var conString = "postgres://ptuser@" + process.env.PT_HOST +":5432/ptdata";
 
 var express = require('express');
 var app = express();
@@ -15,19 +18,14 @@ var doT = require('dot-express');
 app.set('view engine', 'dot');
 app.engine('html', doT.__express);
 
-// Handle CORS policy
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-
 
 app.use('/css',express.static(__dirname+'/public/css'));
 app.use('/img',express.static(__dirname+'/public/img'));
 app.use('/js',express.static(__dirname+'/public/js'));
 app.get('/', function(req, res){
-	var templateData = {"houseResults": [
+	var templateData = {
+        "PT_HOST": process.env.PT_HOST,
+        "houseResults": [
         {"electorateName":"Grayndler",
          "state":"NSW"}
     ]};

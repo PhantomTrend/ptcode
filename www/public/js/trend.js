@@ -46,7 +46,7 @@ function createGraph() {
 
 function getDataForElectorate(electorate, callback) {
     $.ajax({
-        url: "http://localhost:3001/twopp?electorate=" + electorate,
+        url: "http://" + PT_HOST +":3001/twopp?electorate=" + electorate,
         error: function (jqXHR, textStatus, errorThrown ) {
                 console.log(errorThrown);
         },
