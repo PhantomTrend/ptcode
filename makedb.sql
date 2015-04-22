@@ -6,25 +6,25 @@ CREATE TABLE twopp (
     alp2pp   real,
     repetition integer
     );
+\copy twopp from '/tmp/TwoPartyPreferred.csv' with (DELIMITER ',', HEADER, FORMAT CSV);
 
-\copy twopp from 'ElectionResults/TwoPartyPreferred.csv' with (DELIMITER ',', HEADER, FORMAT CSV);
-
-DROP TABLE IF EXISTS primaryinput;
-CREATE TABLE primaryinput (
-    rownumber integer,
-    pollster character(23),
-    party character(15),
-    vote real,
-    electorate character(20),
-    year character(2),
-    week character(2),
+DROP TABLE IF EXISTS primarytrend;
+CREATE TABLE primarytrend (
+    party character(3),
+    electorate character(4),
     pollenddate date,
-    lag integer,
-    observationcolumn character(2)
+    vote real,
+    onesd real
     );
+\copy primarytrend from '/tmp/PrimaryVotes.csv' with (DELIMITER ',', HEADER, FORMAT CSV, NULL 'NA');
 
-\copy primaryinput from 'PlotData/ModelOutput.csv'with (DELIMITER ',', HEADER, FORMAT CSV, NULL 'NA');
-
-
-
-
+DROP TABLE IF EXISTS polldata;
+CREATE TABLE polldata (
+    pollenddate date,
+    pollster text,
+    party character(6),
+    vote real,
+    electorate character(4),
+    url text
+);
+\copy polldata from '/tmp/PollsForDb.csv' with (DELIMITER ',', HEADER, FORMAT CSV, NULL 'NA');

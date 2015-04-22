@@ -85,7 +85,7 @@ plots: $(LONG_RUN_PLOTS_DIR)/.sentinel $(RECENT_PLOTS_DIR)/.sentinel $(TPP_PLOTS
 PHONY += plots 
 
 
-##### Election results #####
+##### Election results and database input #####
 
 ELECTION_RESULTS_DIR := ElectionResults
 
@@ -108,7 +108,13 @@ $(STATE_SWINGS): $(MODEL_FILE) $(FIRST_PREFS_SUMMARY)
 $(SEAT_RESULTS_CSV): $(STATE_SWINGS) $(TCP_FLOWS) $(FIRST_PREFS_BY_SEAT) $(FIRST_PREFS_BY_STATE)
 	$(WRITE_ELECTION_OUTCOMES) $@ $^ $(N_SEAT_REPS)
 
-election: $(SEAT_RESULTS_CSV)
+WRITE_PRIMARY_TRENDS := Rscript WritePrimaryTrends.R
+PRIMARY_TRENDS := $(ELECTION_RESULTS_DIR)/PrimaryVotes.csv
+
+$(PRIMARY_TRENDS): $(MODEL_FILE)
+    $(WRITE_PRIMARY_TRENDS) $@ $^
+
+election: $(SEAT_RESULTS_CSV) $(PRIMARY_TRENDS)
 
 PHONY += election
 
