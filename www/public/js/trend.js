@@ -12,9 +12,13 @@ var colourPalette = {
     "OTH": "#d1e349"
 };
 
+var knownPollsters = ["Galaxy", "Ipsos", "Morgan", "EssentialOnline", "Newspoll",
+    "Nielsen", "MorganSMS", "ReachTEL", "MorganMulti", "Essential",
+    "Election", "NewspollQuarterly"];
+
 var graphLabels = ["time", "ALP"];
 var graphColours = [colourPalette.ALP];
-var graphSeriesOptions = {"ALP": {"connectSeparatedPoints":true}};
+var graphSeriesOptions = {"ALP": {"connectSeparatedPoints":true}   };
 var graph;
 
 
@@ -47,6 +51,10 @@ function splicePollsterDataIntoPlotData(newDataSeries) {
             graphDataRow++;
         }
     }
+    while (graphDataRow < graphData.length){
+        graphData[graphDataRow].push(null);
+        graphDataRow++;
+    }
 }
 
 
@@ -70,8 +78,8 @@ function createGraph() {
         document.getElementById("trend-chart"),
         graphData, {
             dateWindow: [new Date("2013-01-01"), new Date("2015-06-01")],
-            errorBars: true,
             labels: graphLabels,
+            errorBars: true,
             title: getTitle(),
             ylabel: '(per cent)',
             legend: 'hideOverlayOnMouseOut',
@@ -85,6 +93,15 @@ function createGraph() {
     );
 }
 
+function refreshGraph() {
+    graph.updateOptions({
+        file: graphData,
+        title: getTitle(),
+        colors: graphColours,
+        labels: graphLabels
+    });
+}
+
 function getDataForElectorate(electorate, callback) {
     if (graphOptions.type === "twopp") {
         getTwoppDataForElectorate(electorate, callback);
@@ -93,23 +110,22 @@ function getDataForElectorate(electorate, callback) {
     }
 }
 
-function getPollDataForElectorate(electorate, callback) {
-
-    var party = "ALP2pp";
-    var pollster = "Newspoll";
-
+function getPollDataForElectorate(electorate, callback, party, pollster) {
     $.ajax({
         url: "http://" + PT_HOST + ":3001/polls?electorate=" + electorate + "&party=" + party + "&pollster=" + pollster,
         error: function(jqXHR, textStatus, errorThrown) {
             console.log(errorThrown);
         },
         success: function(data) {
+            if(data.length < 2) {
+                return;
+            }
             thisPollData = data.map(function(v) {
                 return [new Date(v[0]), v[2]];
             });
             splicePollsterDataIntoPlotData(thisPollData);
             graphColours.push("black");
-            graphLabels.push(pollster);
+            graphLabels.push(pollster + " " + (party === "ALP2pp" ? "2PP" : party));
             callback();
         }
     });
@@ -169,22 +185,8 @@ function getPrimaryDataForElectorate(electorate, callback) {
 }
 
 function changeGraphToElectorate(electorate) {
-    getDataForElectorate(electorate, function() {
-        graph.updateOptions({
-            file: graphData,
-            title: getTitle(),
-            colors: graphColours,
-            labels: graphLabels
-        });
-    });
+    getDataForElectorate(electorate, refreshGraph);
 }
-
-$(document).ready(function() {
-    // TODO: read cookie
-    getDataForElectorate('AUS', function() {
-        getPollDataForElectorate('AUS', createGraph);
-    });
-});
 
 function changeGraphOptions(key, value) {
     graphOptions[key] = value;
@@ -215,28 +217,26 @@ $("#trend-yaxis-range").change(function() {
     changeGraphOptions("yaxis", $(this).val());
 });
 
+
+function invertTwoppPoints() {
+    graphData = graphData.map(function(v) {
+        return [v[0],
+            [100 - v[1][0], v[1][1]]
+        ];
+    });
+}
+
 $("#twopp-party").change(function() {
     changeGraphOptions("partypov", $(this).val());
+    invertTwoppPoints();
     if ($(this).val() === "LNP") {
-        graph.updateOptions({
-            file: graphData.map(function(v) {
-                return [v[0],
-                    [100 - v[1][0], v[1][1]]
-                ];
-            }),
-            colors: [colourPalette.LNP],
-            labels: ["time", "LNP"],
-            title: getTitle()
-        });
+        graphColours[0] = colourPalette.LNP;
+        graphLabels[1] = "LNP";
     } else {
-        graph.updateOptions({
-            file: graphData,
-            colors: [colourPalette.ALP],
-            title: getTitle(),
-            labels: ["time", "ALP"]
-        });
+        graphColours[0] = colourPalette.ALP;
+        graphLabels[1] = "ALP";
     }
-
+    refreshGraph();
 });
 
 $("#trend-graph-type").change(function() {
@@ -248,6 +248,17 @@ $("#trend-graph-type").change(function() {
         $("#twopp-party").prop('disabled', true);
     }
     changeGraphToElectorate(graphOptions.electorate);
+});
+
+
+$(document).ready(function() {
+    // TODO: read cookie
+    getDataForElectorate('AUS', function() {
+        createGraph();
+        knownPollsters.forEach(function(pollster){
+            getPollDataForElectorate('AUS', refreshGraph, "ALP2pp", pollster);
+        });
+    });
 });
 
 //})();
