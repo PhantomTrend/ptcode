@@ -18,7 +18,11 @@ var knownPollsters = ["Galaxy", "Ipsos", "Morgan", "EssentialOnline", "Newspoll"
 
 var graphLabels = ["time", "ALP"];
 var graphColours = [colourPalette.ALP];
-var graphSeriesOptions = {"ALP": {"connectSeparatedPoints":true}   };
+var graphSeriesOptions = {"ALP": {"connectSeparatedPoints":true},
+                            "LNP": {"connectSeparatedPoints":true},
+                            "PUP": {"connectSeparatedPoints":true},
+                            "GRN": {"connectSeparatedPoints":true},
+                            "OTH": {"connectSeparatedPoints":true}    };
 var graph;
 
 
@@ -220,9 +224,8 @@ $("#trend-yaxis-range").change(function() {
 
 function invertTwoppPoints() {
     graphData = graphData.map(function(v) {
-        return [v[0],
-            [100 - v[1][0], v[1][1]]
-        ];
+        return ([v[0], v[1] ? [100 - v[1][0], v[1][1]] : null ]
+                .concat(v.slice(2).map(function(z){ return (z ? [(100 - z[0]),null] : null); })));
     });
 }
 
