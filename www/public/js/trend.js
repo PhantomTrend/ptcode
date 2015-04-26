@@ -57,7 +57,7 @@ function drawGraph() {
                             .filter(function(pname){return(graphState.primariesToShow.indexOf(pname.split(' ')[1]) !== -1);})
                             .map(function(pname){return(pollDataFromDb[pname]);})
                             .reduce(function(prevPolls, thisPoll){ return prevPolls.merge(thisPoll); })
-                            .merge(twoppDataFromDb.columns(graphState.primariesToShow));
+                            .merge(primaryDataFromDb.columns(graphState.primariesToShow));
     }
     var columnNames = ["time"].concat(plotData.colnames);
     var graphOptions = prepareDygraphsOptionsObject(plotData, columnNames);
@@ -73,9 +73,9 @@ function drawGraph() {
     }
 }
 
-function prepareDygraphsOptionsObject(data, columnNames) {
+function prepareDygraphsOptionsObject(dataFrame, columnNames) {
     return {
-        file: data,
+        file: dataFrame.data,
         labels: columnNames,
         errorBars: true,
         title: getTitle(),
@@ -230,7 +230,7 @@ $("#trend-yaxis-range").change(function() {
             valueRange: [null, null]
         });
     } else if ($(this).val() === "fixed") {
-        if (graphOptions.type === "twopp") {
+        if (graphState.type === "twopp") {
             graph.updateOptions({
                 valueRange: [35, 65]
             });
@@ -251,12 +251,11 @@ $("#twopp-party").change(function() {
 $("#trend-graph-type").change(function() {
     changeGraphState("type", $(this).val());
     if ($(this).val() === "twopp") {
-        graphLabels = ["time", graphOptions.partypov];
         $("#twopp-party").prop('disabled', false);
     } else {
         $("#twopp-party").prop('disabled', true);
     }
-    changeGraphToElectorate(graphOptions.electorate);
+    drawGraph();
 });
 
 

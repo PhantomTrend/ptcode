@@ -88,15 +88,16 @@ DatedDataFrame.prototype.column = function(colname) {
 };
 
 DatedDataFrame.prototype.columns = function(colnames) {
+    var _this = this;
     var colIndexes = colnames.map(function(x) {
-        return this.colnames.indexOf(x);
+        return _this.colnames.indexOf(x);
     });
     colnames.forEach(function(x) {
-        assert(this.colnames.indexOf(x) !== -1, "Column '" + x + "' not found.");
+        assert(_this.colnames.indexOf(x) !== -1, "Column '" + x + "' not found.");
     });
     var output = [];
     for (var r = 0; r < this.data.length; r++) {
-        var thisRow = [this.data[r]];
+        var thisRow = [this.data[r][0]];
         for (var c = 0; c < colIndexes.length; c++) {
             thisRow.push(this.data[r][colIndexes[c] + 1]);
         }
@@ -162,11 +163,11 @@ DatedDataFrame.prototype.merge = function(newDf) {
         thisRow++;
     }
     while (newRow < newDf.data.length) {
-        mergedData.push([
+        mergedData.push(
             [newDf.data[newRow][0]]
             .concat(emptyExistingData)
             .concat(newDf.data[newRow].splice(1))
-        ]);
+        );
         newRow++;
     }
     return new DatedDataFrame(mergedData, this.colnames.concat(newDf.colnames));
