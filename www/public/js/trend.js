@@ -14,7 +14,6 @@ var colourPalette = {
     "OTH": "#d1e349"
 };
 
-var knownParties = ["ALP","ALP2pp","LNP","LNP2pp","GRN","PUP","OTH"];
 var knownPollsters = ["Galaxy", "Ipsos", "Morgan", "EssentialOnline", "Newspoll",
     "Nielsen", "MorganSMS", "ReachTEL", "MorganMulti", "Essential",
     "Election", "NewspollQuarterly"
@@ -32,33 +31,12 @@ var graphState = {
     yaxis: "auto",
     type: "twopp",
     primariesToShow: ["ALP", "LNP", "GRN", "PUP", "OTH"],
-    pollstersToHighlight: null
+    showPollsters: true
 };
 
 
 function drawGraph() {
-    var plotData;
-    if(graphState.type==="twopp"){
-        if(graphState.partypov === "ALP"){
-            plotData = Object.keys(pollDataFromDb)
-                                .filter(function(pname){return(pname.split(' ')[1] === "ALP2pp");})
-                                .map(function(pname){return(pollDataFromDb[pname]);})
-                                .reduce(function(prevPolls, thisPoll){ return prevPolls.merge(thisPoll); })
-                                .merge(twoppDataFromDb.column("ALP"));
-        }else{
-            plotData = Object.keys(pollDataFromDb)
-                                .filter(function(pname){return(pname.split(' ')[1] === "LNP2pp");})
-                                .map(function(pname){return(pollDataFromDb[pname]);})
-                                .reduce(function(prevPolls, thisPoll){ return prevPolls.merge(thisPoll); })
-                                .merge(twoppDataFromDb.column("LNP"));
-        }
-    }else{
-        plotData = Object.keys(pollDataFromDb)
-                            .filter(function(pname){return(graphState.primariesToShow.indexOf(pname.split(' ')[1]) !== -1);})
-                            .map(function(pname){return(pollDataFromDb[pname]);})
-                            .reduce(function(prevPolls, thisPoll){ return prevPolls.merge(thisPoll); })
-                            .merge(primaryDataFromDb.columns(graphState.primariesToShow));
-    }
+    var plotData = gatherData();
     var columnNames = ["time"].concat(plotData.colnames);
     var graphOptions = prepareDygraphsOptionsObject(plotData, columnNames);
     if (graph === undefined) {
@@ -70,6 +48,43 @@ function drawGraph() {
             plotData.data, graphOptions);
     } else {
         graph.updateOptions(graphOptions);
+    }
+}
+
+function gatherData() {
+    var trendData;
+    var pollsterFilterFunction;
+    if(graphState.type==="twopp"){
+        if(graphState.partypov === "ALP"){
+            pollsterFilterFunction = function(pname){return(pname.split(' ')[1] === "ALP2pp");};
+            trendData = twoppDataFromDb.column("ALP");
+        }else if (graphState.partypov === "LNP"){
+            pollsterFilterFunction = function(pname){return(pname.split(' ')[1] === "LNP2pp");};
+            trendData = twoppDataFromDb.column("LNP");
+        }else{
+            pollsterFilterFunction = function(pname){return((pname.split(' ')[1] === "ALP2pp") || (pname.split(' ')[1] === "LNP2pp"));};
+            trendData = twoppDataFromDb.columns(["ALP","LNP"]);
+        }
+    }else{
+        pollsterFilterFunction = function(pname){return(graphState.primariesToShow.indexOf(pname.split(' ')[1]) !== -1);};
+        trendData = primaryDataFromDb.columns(graphState.primariesToShow);
+    }
+    var displayPollsters = graphState.showPollsters;
+    var pollsterData;
+    if(graphState.showPollsters){
+        var availablePollsterRows = Object.keys(pollDataFromDb).filter(pollsterFilterFunction);
+        if(availablePollsterRows.length === 0){
+            displayPollsters = false;
+        }else{
+            pollsterData = availablePollsterRows
+                            .map(function(pname){return pollDataFromDb[pname];})
+                            .reduce(function(prevPolls, thisPoll){ return prevPolls.merge(thisPoll); });
+        }
+    }
+    if(displayPollsters){
+        return trendData.merge(pollsterData);
+    }else{
+        return trendData;
     }
 }
 
@@ -86,7 +101,7 @@ function prepareDygraphsOptionsObject(dataFrame, columnNames) {
         },
         showRangeSelector: true,
         colors: getGraphColours(columnNames.slice(1)),
-        series: graphSeriesOptions
+        series: getGraphSeriesOptions()
     };
 }
 
@@ -124,6 +139,41 @@ function getGraphColours(colNames) {
             return partyCol;
         }
     });
+}
+
+function partyToShowInRangeSelector() {
+    if(graphState.type === "twopp"){
+        if(graphState.partypov === "ALP"){
+            return "ALP";
+        }else{
+            return "LNP";
+        }
+    }else{
+        return graphState.primariesToShow[0];
+    }
+}
+
+function getGraphSeriesOptions(){
+    var output = {};
+    var knownParties = ["ALP","ALP2pp","LNP","LNP2pp","GRN","PUP","OTH"];
+    knownParties.forEach(function(p){
+        output[p] = {
+            "connectSeparatedPoints": true,
+            "strokeWidth": 2
+            };
+        if(p === partyToShowInRangeSelector()){
+            output[p].showInRangeSelector = true;
+        }
+    });
+    knownPollsters.forEach(function(pollster){
+        knownParties.forEach(function(party){
+            output[pollster + " " + party] = {
+                "strokeWidth": 0,
+                "pointSize": 2
+                };
+        });
+    });
+    return output;
 }
 
 function getDataForElectorate(electorate, callback) {
@@ -261,20 +311,6 @@ $("#trend-graph-type").change(function() {
 
 $(document).ready(function() {
     // TODO: read cookie
-    knownParties.forEach(function(p){
-        graphSeriesOptions[p] = {
-            "connectSeparatedPoints": true,
-            "strokeWidth": 2
-            };
-    });
-    knownPollsters.forEach(function(pollster){
-        knownParties.forEach(function(party){
-            graphSeriesOptions[pollster + " " + party] = {
-                "strokeWidth": 0,
-                "pointSize": 2
-                };
-        });
-    });
     getDataForElectorate('AUS', drawGraph);
 });
 

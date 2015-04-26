@@ -55,7 +55,6 @@ function DatedDataFrame(data, colnames) {
     } else {
         throw new Error("Unknown colnames type.");
     }
-
     this.data = data;
     this.colnames = colnames;
 }
