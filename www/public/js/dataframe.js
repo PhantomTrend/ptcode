@@ -114,7 +114,7 @@ DatedDataFrame.prototype.drop = function(colname) {
     var newData = [];
     var atLeastOneNonemptyRowRemains = false;
     for (var r = 0; r < this.data.length; r++) {
-        var rowWithoutDroppedCol = this.data[r].splice(colIndex + 1, 1);
+        var rowWithoutDroppedCol = this.data[r].slice(0, colIndex).concat(this.data[r].slice(colIndex+1,this.data[r].length));
         if (!rowIsNull(rowWithoutDroppedCol)) {
             newData.push(rowWithoutDroppedCol);
             atLeastOneNonemptyRowRemains = true;
@@ -122,7 +122,7 @@ DatedDataFrame.prototype.drop = function(colname) {
     }
     assert(atLeastOneNonemptyRowRemains, "Cannot drop column'" + colname + "' as it is the last non-empty column.");
     this.data = newData;
-    this.colnames = this.colnames.splice(colIndex, 1);
+    this.colnames.splice(colIndex, 1);
 };
 
 DatedDataFrame.prototype.merge = function(newDf) {
@@ -142,7 +142,7 @@ DatedDataFrame.prototype.merge = function(newDf) {
     }
     while (thisRow < this.data.length && newRow < newDf.data.length) {
         if (this.data[thisRow][0].getTime() === newDf.data[newRow][0].getTime()) {
-            mergedData.push(this.data[thisRow].concat(newDf.data[newRow].splice(1)));
+            mergedData.push(this.data[thisRow].concat(newDf.data[newRow].slice(1)));
             thisRow++;
             newRow++;
         } else if (this.data[thisRow][0] < newDf.data[newRow][0]) {
@@ -152,7 +152,7 @@ DatedDataFrame.prototype.merge = function(newDf) {
             mergedData.push(
                 [newDf.data[newRow][0]]
                 .concat(emptyExistingData)
-                .concat(newDf.data[newRow].splice(1))
+                .concat(newDf.data[newRow].slice(1))
             );
             newRow++;
         }
@@ -165,7 +165,7 @@ DatedDataFrame.prototype.merge = function(newDf) {
         mergedData.push(
             [newDf.data[newRow][0]]
             .concat(emptyExistingData)
-            .concat(newDf.data[newRow].splice(1))
+            .concat(newDf.data[newRow].slice(1))
         );
         newRow++;
     }
