@@ -20,11 +20,7 @@ app.engine('html', doT.__express);
 
 
 
-
-
 app.use('/dyg', express.static(__dirname + '/bower_components/dygraphs'));
-
-
 
 
 
@@ -70,16 +66,7 @@ app.get('/primary', function(req, res) {
         res.end("Unknown electorate");
         return;
     }
-    var party = query.party;
-    var acceptableParties = ['ALP', 'LNP', 'GRN', 'PUP', 'OTH'];
-    if (acceptableParties.indexOf(party) == -1) {
-        res.writeHead(404, {
-            'content-type': 'text/plain'
-        });
-        res.end("Unknown party");
-        return;
-    }
-    getPrimaryJson(electorate, party, res);
+    getPrimaryJson(electorate, res);
 });
 
 app.get('/polls', function(req, res) {
@@ -94,28 +81,7 @@ app.get('/polls', function(req, res) {
         res.end("Unknown electorate");
         return;
     }
-    var party = query.party;
-    var acceptableParties = ['ALP2pp', 'ALP', 'LNP', 'GRN', 'GRNOTH', 'PUP', 'PUPOTH', 'OTH'];
-    if (acceptableParties.indexOf(party) == -1) {
-        res.writeHead(404, {
-            'content-type': 'text/plain'
-        });
-        res.end("Unknown party");
-        return;
-    }
-    var pollster = query.pollster;
-    var acceptablePollsters = ["Galaxy", "Ipsos", "Morgan", "EssentialOnline", "Newspoll",
-        "Nielsen", "MorganSMS", "ReachTEL", "MorganMulti", "Essential",
-        "Election", "NewspollQuarterly"
-    ];
-    if (acceptablePollsters.indexOf(pollster) == -1) {
-        res.writeHead(404, {
-            'content-type': 'text/plain'
-        });
-        res.end("Unknown pollster");
-        return;
-    }
-    getPollData(electorate, party, pollster, res);
+    getPollData(electorate, res);
 });
 
 
@@ -137,22 +103,22 @@ function getTwoPPJson(electorate, res) {
         res);
 }
 
-function getPrimaryJson(electorate, party, res) {
-    getDbQuery("SELECT pollenddate, vote AS avg, onesd AS stddev " +
-        "FROM primarytrend WHERE electorate = $1 AND party = $2 " +
-        "ORDER BY pollenddate;", [electorate, party],
+function getPrimaryJson(electorate, res) {
+    getDbQuery("SELECT pollenddate, party, vote AS avg, onesd AS stddev " +
+        "FROM primarytrend WHERE electorate = $1 " +
+        "ORDER BY pollenddate;", [electorate],
         function(v) {
-            return ([new Date(v.pollenddate), [v.avg, v.stddev]]);
+            return ([new Date(v.pollenddate), v.party.trim(), [v.avg, v.stddev]]);
         },
         res);
 }
 
-function getPollData(electorate, party, pollster, res) {
-    getDbQuery("SELECT * FROM polldata WHERE electorate = $1 AND party = $2 AND pollster = $3 " +
+function getPollData(electorate, res) {
+    getDbQuery("SELECT * FROM polldata WHERE electorate = $1 " +
         "AND pollenddate >= '2000-01-01' " +
-        "ORDER BY pollenddate;", [electorate, party, pollster],
+        "ORDER BY pollster, party, pollenddate;", [electorate],
         function(v) {
-            return ([new Date(v.pollenddate), v.pollster, v.vote, v.url]);
+            return ([new Date(v.pollenddate), v.pollster, v.vote, v.url, v.party.trim()]);
         },
         res);
 }
