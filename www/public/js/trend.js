@@ -308,7 +308,61 @@ $("#trend-graph-type").change(function() {
     drawGraph();
 });
 
+$("#show-pollsters").change(function(){
+    changeGraphState("showPollsters", $(this).val() === "show" ? true : false);
+    drawGraph();
+});
 
+$("#show-ALP").change(function(){
+    var currentList = graphState.primariesToShow;
+    if($(this).prop("checked")){
+        changeGraphState("primariesToShow", currentList.concat("ALP"));
+    }else{
+        currentList.splice(currentList.indexOf("ALP"),1);
+        changeGraphState("primariesToShow", currentList);
+    }
+    drawGraph();
+});
+$("#show-LNP").change(function(){
+    var currentList = graphState.primariesToShow;
+    if($(this).prop("checked")){
+        changeGraphState("primariesToShow", currentList.concat("LNP"));
+    }else{
+        currentList.splice(currentList.indexOf("LNP"),1);
+        changeGraphState("primariesToShow", currentList);
+    }
+    drawGraph();
+});
+$("#show-GRN").change(function(){
+    var currentList = graphState.primariesToShow;
+    if($(this).prop("checked")){
+        changeGraphState("primariesToShow", currentList.concat("GRN"));
+    }else{
+        currentList.splice(currentList.indexOf("GRN"),1);
+        changeGraphState("primariesToShow", currentList);
+    }
+    drawGraph();
+});
+$("#show-PUP").change(function(){
+    var currentList = graphState.primariesToShow;
+    if($(this).prop("checked")){
+        changeGraphState("primariesToShow", currentList.concat("PUP"));
+    }else{
+        currentList.splice(currentList.indexOf("PUP"),1);
+        changeGraphState("primariesToShow", currentList);
+    }
+    drawGraph();
+});
+$("#show-OTH").change(function(){
+    var currentList = graphState.primariesToShow;
+    if($(this).prop("checked")){
+        changeGraphState("primariesToShow", currentList.concat("OTH"));
+    }else{
+        currentList.splice(currentList.indexOf("OTH"),1);
+        changeGraphState("primariesToShow", currentList);
+    }
+    drawGraph();
+});
 $(document).ready(function() {
     // TODO: read cookie
     getDataForElectorate('AUS', drawGraph);

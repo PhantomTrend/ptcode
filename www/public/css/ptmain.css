@@ -77,9 +77,9 @@ body {
 }
 #chart-controls li {
     display: inline-block;
-    width: 100px;
     margin-left: 20px;
     margin-right: 20px;
+    margin-bottom: 10px;
 }
 #chart-controls ul {
     list-style: none;
@@ -88,6 +88,7 @@ body {
     margin: 0;
     margin-right: auto;
     margin-left: auto;
+    max-width: 600px;
 }
 #chart-controls h3 {
     margin: 0;
