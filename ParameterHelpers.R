@@ -17,9 +17,9 @@ for(party in names(covarianceTerms)){
 getDefaultParamList <- function(v){
   out <- list()
   for(party in partyNames){
-    out[[party]][['AUS']] <- 0.4
+    out[[party]][['AUS']] <- 0.5
     for(s in stateNames){
-      out[[party]][[s]] <- 0.05
+      out[[party]][[s]] <- 0.1
     }
   }
   
@@ -32,7 +32,7 @@ getDefaultParamList <- function(v){
   }
   
   for(pollster in setdiff(pollsters, 'Election')){
-    out[[pollster]][['NoiseVariance']] <- 4
+    out[[pollster]][['NoiseVariance']] <- 1.5
     for(party in observedPartyNames){
       out[[pollster]][[party]] <- 0
     }
