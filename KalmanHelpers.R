@@ -23,10 +23,12 @@ makeQmatrix <- function(params){
       R1[componentI, nLatentComponentsBase + partyIndex] <- thisPartyParams[[otherParty]]
     }
   }
-  Q <- R1 %*% t(R1)  + 1e-9*diag(nLatentComponentsBase)
+  Qsmall <- R1 %*% t(R1)  + 1e-9*diag(nLatentComponentsBase)
+  Q <- rbind( cbind(Qsmall, smallZeroMatrix, smallZeroMatrix),
+              cbind(smallZeroMatrix, 1e-3*smallIdentityMatrix, smallZeroMatrix),
+              cbind(smallZeroMatrix, smallZeroMatrix, 1e-3*smallIdentityMatrix) )
   
-  # KFAS needs a 3d array
-  Q <- array(Q, c(nLatentComponentsBase, nLatentComponentsBase, 1))
+  Q <- array(Q, c(nLatentComponents, nLatentComponents, 1))
   return(Q)
 }
 

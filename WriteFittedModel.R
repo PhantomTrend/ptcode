@@ -1,7 +1,8 @@
 
 library(dplyr)
+library(assertthat)
 library(assertive)
-library(KFAS)
+library(FKF)
 
 if(interactive()){
   args <- c('FittedModel.RData',
@@ -10,15 +11,13 @@ if(interactive()){
   args <- commandArgs(trailingOnly = TRUE)
 }
 
-
 outputFileName <- args[1]
 mergedDataPath <- args[2]
 modeFilePath <- args[3]
-nMHiterations <- as.numeric(args[4])
+nOptimIterations <- as.numeric(args[4])
 
-longData <- tbl_df(read.csv(mergedDataPath))
+longData <- tbl_df(read.csv(mergedDataPath, stringsAsFactors=FALSE))
 longData$PollEndDate <- as.Date(longData$PollEndDate)
-
 
 pollsters <- unique(longData$Pollster)
 nPollsters <- length(pollsters)
@@ -47,11 +46,9 @@ stateNames <- c("NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT")
 names(popweights) <- stateNames
 
 
-
 partyNames <- c("ALP", "LNP", "GRN", "PUP", "OTH")
 observedPartyNames <- c(partyNames, "PUPOTH", "GRNOTH")
 nParties <- length(partyNames)
-
 
 
 latentComponentNamesBase <- as.vector(outer(stateNames, partyNames, FUN = 'paste'))
@@ -80,8 +77,8 @@ getDateFromYearAndWeek <- function(y,w){ return( firstMondayOfYear(as.character(
 
 
 firstDate <- firstMondayOfYear("2000")
-invisible(assert_that(max(longData$PollEndDate) < as.Date('2015-03-31')))
-fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2015-03-31'))[-1]
+invisible(assert_that(max(longData$PollEndDate) < as.Date('2015-05-31')))
+fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2015-05-31'))[-1]
 
 modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   arrange(PollEndDate) %>% mutate(Year = getYear(PollEndDate),
@@ -93,11 +90,11 @@ modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
 unobservedElectorates <- setdiff(stateNames, unique( (modelData %>% filter(Pollster != 'Election'))$Electorate ))
 
 
-
 modelData$Lag <- NA
 for(thisPollster in pollsters){
   modelData$Lag[which(modelData$Pollster == thisPollster)] <- pollDurations[[thisPollster]]
 }
+
 
 pollstersReportingWeeklyData <- names(pollDurations)[which(pollDurations == "Week")]
 observationTypes <- unique(modelData  %>% filter(Pollster %in% pollstersReportingWeeklyData)
@@ -190,6 +187,7 @@ Y <- matrix(NA, nrow=nObservations, ncol=nObservationTypes)
 
 smallIdentityMatrix <- diag(nLatentComponentsBase)
 smallZeroMatrix <- matrix(0, nrow=nLatentComponentsBase, ncol=nLatentComponentsBase)
+smallEpsMatrix <- 0.1*smallIdentityMatrix
 bigT <- rbind( cbind(smallIdentityMatrix, smallZeroMatrix, smallZeroMatrix),
                cbind(smallIdentityMatrix, smallZeroMatrix, smallZeroMatrix),
                cbind( quarterlyPDLcoefficient*smallIdentityMatrix, smallZeroMatrix, (1-quarterlyPDLcoefficient) * smallIdentityMatrix)  )
@@ -198,9 +196,10 @@ R <- rbind(smallIdentityMatrix,
            smallZeroMatrix,
            quarterlyPDLcoefficient * smallIdentityMatrix)
 
+
 # Initialise distribution of primary votes at t = 0
 startingValues <- list(ALP = 50, LNP = 50, GRN = 2, PUP = 0, OTH = 10)
-startingPlusOrMinus <- list(ALP = 25, LNP = 25, GRN = 2, PUP = 1, OTH = 8)
+startingPlusOrMinus <- list(ALP = 10, LNP = 10, GRN = 3, PUP = 1, OTH = 7)
 a1 <- rep(NA, nLatentComponentsBase)
 diagP1 <- rep(NA, nLatentComponentsBase)
 for(party in partyNames){
@@ -210,24 +209,29 @@ for(party in partyNames){
 a1 <- rep(a1, (nLatentComponents/nLatentComponentsBase))
 P1 <- diag(rep(diagP1, (nLatentComponents/nLatentComponentsBase)))
 
-mod1 = SSModel( Y ~ 0+ SSMcustom(Z, bigT, R, Q=diag(NA, nrow=nLatentComponentsBase, ncol=nLatentComponentsBase),
-                                 a1=a1, P1=P1, index=NULL, n=nObservations)  )
-
-
 source('ParameterHelpers.R')
 source('KalmanHelpers.R')
 source('DataHelpers.R')
 source('PriorDistributions.R')
 
-reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
+reciprocalLogLikelihood = function(paramVector,estimate=TRUE){
   paramList = paramVectorToList(paramVector)
   
-  model$Q <- makeQmatrix(paramList)
+  Q <- makeQmatrix(paramList)
   yAndH <- makeDataMatrix(modelData, paramList)
-  model$y <- yAndH$Y
-  model$H <- yAndH$H
+  yt <- t(yAndH$Y)
+  GGt <- yAndH$H
   
-  weeklyLogLikelihood <- logLik(model, check.model=TRUE)
+  fittedModel <- fkf(a1, P1, array(rep(0,nLatentComponents),c(nLatentComponents,1)),
+                     array(rep(0, nObservationTypes),c(nObservationTypes,1)),
+                     array(bigT,c(nLatentComponents,nLatentComponents,1)),
+                     array(Z,c(nObservationTypes,nLatentComponents,1)), Q, GGt, yt)
+  weeklyLogLikelihood <- fittedModel$logLik
+  
+  # Catch estimation errors / invalid parameters
+  if(!all(fittedModel$status == c(0,0))){
+    return(1e10)
+  }
   
   # Add likelihood for election weeks
   electionWeeks <- (filter(modelData, Pollster=='Election'))$RowNumber
@@ -236,11 +240,11 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
   for(electionRowNumber in unique(electionEvePolls$RowNumber)){
     thisSetOfPolls <- filter(modelData, RowNumber %in% electionRowNumber)
     actualResult <- filter(thisSetOfPolls, Pollster == 'Election')
-    pollResults <- filter(thisSetOfPolls, Pollster != 'Election')
+    pollResults <- filter(thisSetOfPolls, Pollster != 'Election' & !is.na(Vote))
     for(rowI in 1:nrow(pollResults)){
-      thisParty <- pollResults$Party[rowI]
+      thisParty <- as.character(pollResults$Party[rowI])
+      thisPollster <- as.character(pollResults$Pollster[rowI])
       thisNumber <- pollResults$Vote[rowI] - paramList[[thisPollster]][[thisParty]]
-      thisPollster <- pollResults$Pollster[rowI]
       thisElectorate <- pollResults$Electorate[rowI]
       if(thisElectorate == 'AUS' | !(thisParty %in% partyNames)){
         next
@@ -260,15 +264,16 @@ reciprocalLogLikelihood = function(paramVector,model,estimate=TRUE){
   if(estimate){
     return(-totalLogLikelihood)
   }else{  
-    return(model)
+    return(fittedModel)
   }
 }
 
-posteriorfn = function(x,model){ result <- reciprocalLogLikelihood(x,model) + reciprocalLogPrior(x)
+posteriorfn = function(x){ result <- reciprocalLogLikelihood(x) + reciprocalLogPrior(x)
                                  return(result) }
 
 
 theta0 <- dget(modeFilePath)
+# theta0 <- getDefaultParamList()
 
 pollstersInEstimatedMode <- setdiff(names(theta0), partyNames)
 newPollsters <- setdiff(pollsters[which(!pollsters %in% pollstersInEstimatedMode)], 'Election')
@@ -281,45 +286,32 @@ if(length(newPollsters) > 0){
   }
 }
 
-
-# optimControl = list(trace=6,REPORT=1, maxit=10)
-# fit = optim(fn=posteriorfn, par=paramListToVector(theta0), method='CG',
-#             model=mod1, control=optimControl)
-
-thetaNow <- paramListToVector(theta0)
-if(nMHiterations > 0){
-  momentum <- rep(0, length(thetaNow))
-  fNow <- posteriorfn(thetaNow, mod1)
-  proposalScale <- 0.02
-  for(iterI in 1:nMHiterations){
-    thetaOld <- thetaNow
-    blockSize <- 50
-    blockIndices <- sample.int(n=length(thetaNow), size=blockSize, replace=FALSE)
-    randomStep <- rep(0, length(thetaNow))
-    randomStep[blockIndices] <- proposalScale * rnorm(blockSize)
-    thetaProposed <- thetaNow + momentum + randomStep
-    tryCatch({fProposed <- posteriorfn(thetaProposed, mod1)},
-             interrupt = function(cond){ estimatedMode <- paramVectorToList(thetaNow)
-                                         dput(estimatedMode, file='EstimatedMode.R')
-                                         stop('Cancelling estimation.') }
-    )
-    print(c('Current ', -fNow, ' Proposed ', -fProposed))
-    if(runif(1) < exp((-fProposed) - (-fNow))){
-      print('Accepted.')
-      thetaNow <- thetaProposed
-      fNow <- fProposed
-    }
-    momentum <- 0.7*momentum + (thetaNow - thetaOld)
+if(nOptimIterations > 0){
+nCoordinatesPerBlock = 4
+thetaNow = paramListToVector(theta0)
+print(posteriorfn(thetaNow))
+optimControl = list(trace=6,REPORT=1, maxit=nOptimIterations)
+blockCoordinates = seq(0, length(thetaNow), nCoordinatesPerBlock)
+shuffledBlockCoordinates = sample(blockCoordinates, length(blockCoordinates))
+for(paramIndex in shuffledBlockCoordinates){
+  restrictedPosterior = function(x){
+    xFull = thetaNow
+    xFull[paramIndex:(paramIndex+nCoordinatesPerBlock)] = x
+    return (posteriorfn(xFull))
   }
+  fit = optim(fn=restrictedPosterior, par=thetaNow[paramIndex:(paramIndex+nCoordinatesPerBlock)],
+             control=optimControl, method="CG")
+  thetaNow[paramIndex:(paramIndex+nCoordinatesPerBlock)] = fit$par
 }
 
 estimatedMode <- paramVectorToList(thetaNow)
 
 dput(estimatedMode, file='EstimatedMode.R')     # Save to file, in sorta-human-readable form
+}else{
+  thetaNow = paramListToVector(theta0)
+}
 
-fittedModel <- reciprocalLogLikelihood(thetaNow, mod1, estimate=FALSE)
-smoothedModel <- KFS(fittedModel, filtering='state', smoothing='state')
-
+fittedModel <- reciprocalLogLikelihood(thetaNow, estimate=FALSE)
 
 modelOutput <- modelData[0,]
 for(componentI in 1:nLatentComponentsBase){
@@ -327,28 +319,21 @@ for(componentI in 1:nLatentComponentsBase){
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'Smoothed',
                                   Party = latentPartyNames[componentI],
-                                  Vote = as.numeric(smoothedModel$alphahat[,componentI]),
+                                  Vote = as.numeric(fittedModel$att[componentI,]),
                                   Electorate = latentStateNames[componentI],
                                   Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA),
                        data.frame(RowNumber = 1:nObservations,
                                   Pollster = 'SmoothedOneStdDevWidth',
                                   Party = latentPartyNames[componentI],
-                                  Vote = sqrt(as.vector(smoothedModel$V[componentI,componentI,])),
-                                  Electorate = latentStateNames[componentI],
-                                  Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA),
-                       data.frame(RowNumber = 1:nObservations,
-                                  Pollster = 'Filtered',
-                                  Party = latentPartyNames[componentI],
-                                  Vote = as.numeric(smoothedModel$a[1:nObservations,componentI]),
+                                  Vote = sqrt(as.vector(fittedModel$Ptt[componentI,componentI,])),
                                   Electorate = latentStateNames[componentI],
                                   Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA)
   )
 }
 for(party in partyNames){
   componentCols <- which(latentPartyNames == party)
-  ausVectorSmoothed <- as.vector(popweights %*% t(smoothedModel$alphahat[,componentCols]))
-  ausVectorFiltered <- as.vector(popweights %*% t(smoothedModel$a[1:nObservations,componentCols]))
-  oneSdWidth <- sqrt(apply(smoothedModel$V[which(latentPartyNames == party),which(latentPartyNames == party),], 3,
+  ausVectorSmoothed <- as.vector(popweights %*% fittedModel$att[componentCols,])
+  oneSdWidth <- sqrt(apply(fittedModel$Ptt[which(latentPartyNames == party),which(latentPartyNames == party),], 3,
                            function(V){t(popweights) %*% V %*% popweights}))
   modelOutput <- rbind(modelOutput,
                        data.frame(RowNumber = 1:nObservations,
@@ -362,23 +347,16 @@ for(party in partyNames){
                                   Party = party,
                                   Vote = oneSdWidth,
                                   Electorate = 'AUS',
-                                  Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA),
-                       data.frame(RowNumber = 1:nObservations,
-                                  Pollster = 'Filtered',
-                                  Party = party,
-                                  Vote = ausVectorFiltered,
-                                  Electorate = 'AUS',
                                   Year = NA, Week = NA, PollEndDate = fullDateSequence[1:nObservations], Lag = 0, ObservationColumn = NA)
-                       
   )
 }
 
-finalPeriodCovariance <- smoothedModel$V[1:nLatentComponentsBase,1:nLatentComponentsBase,nObservations]
+finalPeriodCovariance <- fittedModel$Ptt[1:nLatentComponentsBase,1:nLatentComponentsBase,nObservations]
 
 pupStartRow <- (modelData %>% filter(Party=='PUP', !is.na(Vote)) %>% arrange(RowNumber))$RowNumber[1]
 modelOutput <- mutate(modelOutput, Vote=ifelse(Party=='PUP' & RowNumber < pupStartRow, NA, Vote))
 
-save(fittedModel, smoothedModel, finalPeriodCovariance, modelOutput, modelData,
+save(fittedModel, finalPeriodCovariance, modelOutput, modelData,
      latentComponentNamesBase, latentPartyNames, latentStateNames,
      file=outputFileName)
 

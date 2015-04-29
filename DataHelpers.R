@@ -5,8 +5,9 @@ weightedMeanOfPolls <- function(fullDataEntries, paramList){
   x <- fullDataEntries$Vote
   sigma2 <- rep(0, nrow(fullDataEntries))
   for(i in 1:nrow(fullDataEntries)){
-    x[i] <- x[i] - as.numeric(paramList[[fullDataEntries$Pollster[i]]][[fullDataEntries$Party[i]]])
-    sigma2[i] <- paramList[[fullDataEntries$Pollster[i]]][['NoiseVariance']]
+    pollsterName <- as.character(fullDataEntries$Pollster[i])
+    x[i] <- x[i] - as.numeric(paramList[[pollsterName]][[as.character(fullDataEntries$Party[i])]])
+    sigma2[i] <- paramList[[pollsterName]][['NoiseVariance']]
   }
   return( sum(x/sigma2)/sum(1/sigma2) )
 }
@@ -14,7 +15,7 @@ weightedMeanOfPolls <- function(fullDataEntries, paramList){
 varianceOfWeightedMean <- function(fullDataEntries, paramList){
   sigma2 <- rep(0, nrow(fullDataEntries))
   for(i in 1:nrow(fullDataEntries)){
-    sigma2[i] <- paramList[[fullDataEntries$Pollster[i]]][['NoiseVariance']]
+    sigma2[i] <- paramList[[as.character(fullDataEntries$Pollster[i])]][['NoiseVariance']]
   }
   return( prod(sigma2)/sum(sigma2) )
 }
@@ -26,7 +27,7 @@ makeDataMatrixEntry <- function(fullDataEntries, paramList){
     return(fullDataEntries$Vote[which(fullDataEntries$Pollster == 'Election')])
   }
   if(nrow(fullDataEntries)==1){
-    return(fullDataEntries$Vote - paramList[[fullDataEntries$Pollster[1]]][[fullDataEntries$Party[1]]])
+    return(fullDataEntries$Vote - paramList[[as.character(fullDataEntries$Pollster[1])]][[fullDataEntries$Party[1]]])
   }else{
     return( weightedMeanOfPolls(fullDataEntries, paramList) )
   }
@@ -37,7 +38,7 @@ makeH <- function(fullDataEntries, paramList){
     return(0.045**2)    # Elections only have rounding error
   }
   if(nrow(fullDataEntries)==1){
-    return(paramList[[fullDataEntries$Pollster[1]]][['NoiseVariance']])
+    return(paramList[[as.character(fullDataEntries$Pollster[1])]][['NoiseVariance']])
   }else{
     return( varianceOfWeightedMean(fullDataEntries, paramList) )
   }
@@ -47,12 +48,12 @@ makeH <- function(fullDataEntries, paramList){
 makeDataMatrixRowAndH <- function(fullDataRow, paramList){
   columns <- unique(fullDataRow$ObservationColumn)
   rowOutput <- matrix(NA, nrow=1, ncol=nrow(observationTypes))
-  diagH <- rep(100, nrow(observationTypes))
+  diagH <- rep(NA, nrow(observationTypes))
   for(column in columns){
     rowOutput[1,column] <- makeDataMatrixEntry(fullDataRow %>% filter(ObservationColumn == column), paramList)
     diagH[column] <- makeH(fullDataRow %>% filter(ObservationColumn == column), paramList)
   }
-  return(list(Row = rowOutput, H = diag(diagH)))
+  return(list(Row = rowOutput, H = diag(diagH, nrow=nrow(observationTypes))))
 }
 
 
