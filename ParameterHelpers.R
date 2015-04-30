@@ -32,7 +32,7 @@ getDefaultParamList <- function(v){
   }
   
   for(pollster in setdiff(pollsters, 'Election')){
-    out[[pollster]][['NoiseVariance']] <- 1.5
+    out[[pollster]][['NoiseVariance']] <- 6
     for(party in observedPartyNames){
       out[[pollster]][[party]] <- 0
     }

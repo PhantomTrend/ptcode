@@ -8,6 +8,7 @@ if(interactive()){
             'ElectionResults/StateSwings.csv', 'ElectionData/HouseTcpFlowByStateByParty2013.csv',
             'ElectionData/HouseFirstPrefsByCandidateByVoteType2013.csv',
             'ElectionData/HouseFirstPrefsByStateByParty2013.csv',
+            'ElectionData/Incumbents.csv',
             '3')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
@@ -18,12 +19,14 @@ inputSwingsFile <- args[2]
 tcpFlowFile <- args[3]
 firstPrefsFile <- args[4]
 stateSwingsLastTimeFile <- args[5]
-nSeatSimulations <- as.numeric(args[6])
+incumbentFile <- args[6]
+nSeatSimulations <- as.numeric(args[7])
 
 
+incumbentData <- read.csv(incumbentFile, stringsAsFactors=FALSE)
 lnpPartyNames <- c('LP','NP','LNQ','LNP','CLP')
 
-tcpData <- (tbl_df(read.csv(tcpFlowFile, skip=1)) %>%
+tcpData <- (tbl_df(read.csv(tcpFlowFile, skip=1, stringsAsFactors=FALSE)) %>%
               filter(FromPartyGroupAb != ""))   # Remove first preferences
 
 # Summarise all Liberal-National parties under the 'LNP' label
@@ -36,11 +39,11 @@ tcpData$ToPartyDisplayAb[which(!(tcpData$ToPartyDisplayAb %in% c('ALP', 'LNP', '
 tcpData$FromPartyGroupAb[which(!(tcpData$FromPartyGroupAb %in% c('ALP', 'LNP', 'GRN', 'PUP')))] <- 'OTH'
 
 
-firstPrefs <- tbl_df(read.csv(firstPrefsFile, skip=1))
+firstPrefs <- tbl_df(read.csv(firstPrefsFile, skip=1, stringsAsFactors=FALSE))
 
-stateSwings <- tbl_df(read.csv(inputSwingsFile))
+stateSwings <- tbl_df(read.csv(inputSwingsFile, stringsAsFactors=FALSE))
 
-stateSwingsLastTime <- tbl_df(read.csv(stateSwingsLastTimeFile, skip=1))
+stateSwingsLastTime <- tbl_df(read.csv(stateSwingsLastTimeFile, skip=1, stringsAsFactors=FALSE))
 stateSwingsLastTime$PartyAb[stateSwingsLastTime$PartyAb %in% lnpPartyNames] <- 'LNP'
 stateSwingsLastTime$PartyAb[!(stateSwingsLastTime$PartyAb %in% c('LNP','ALP','GRN','PUP'))] <- 'OTH'
 summaryStateSwingsLastTime <- stateSwingsLastTime %>%
@@ -151,10 +154,7 @@ for(electorateName in unique(firstPrefs$DivisionNm)){
   output = rbind(output, thisSeatOutput)
 }
 
-print('Mean ALP seats won:')
-print(sum(output$ALPWins)/(max(output$Repetition) * nSeatSimulations))
 
-write.csv(output, file=outputFile, row.names=FALSE)
 
 
 

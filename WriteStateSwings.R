@@ -4,7 +4,7 @@ set.seed(31337)
 
 if(interactive()){
   args <- c('ElectionResults/StateSwings.csv', 'FittedModel.RData', 'ElectionData/FirstPrefs.csv',
-            '10', '2013-09-07')
+            '50', '2013-09-07')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
@@ -16,14 +16,15 @@ if(!file.exists(outputDirectory)){
 }
 load(args[2])
 lastElectionDate <- as.Date(args[5])
-firstPrefs <- tbl_df(read.csv(args[3])) %>% mutate(PollEndDate == as.Date(PollEndDate)) %>% filter(PollEndDate == lastElectionDate)
+firstPrefs <- tbl_df(read.csv(args[3], stringsAsFactors=FALSE)) %>%
+  mutate(PollEndDate == as.Date(PollEndDate)) %>% filter(PollEndDate == lastElectionDate)
 nRepetitions <- as.numeric(args[4])
 
 choleskyOfLatentSwings <- chol(finalPeriodCovariance)
 
-nObservations <- dim(smoothedModel$alphahat)[1]
+nObservations <- dim(smoothedModel$astar)[1]
 nLatentStates <- length(latentComponentNamesBase)
-finalPeriodState <- smoothedModel$alphahat[nObservations,1:nLatentStates]
+finalPeriodState <- smoothedModel$astar[nObservations,1:nLatentStates]
 
 nParties <- length(unique(latentPartyNames))
 nStates <- length(unique(latentStateNames))

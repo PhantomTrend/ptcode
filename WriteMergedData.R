@@ -14,15 +14,18 @@ if(interactive()){
 
 outputFileName <- args[1]
 
-nationalData <- tbl_df(read.csv(args[2]))
+nationalData <- tbl_df(read.csv(args[2], stringsAsFactors=FALSE))
 nationalData$PollEndDate <- as.Date(nationalData$PollEndDate)
 
-stateData <- tbl_df(read.csv(args[3]))
+stateData <- tbl_df(read.csv(args[3], stringsAsFactors=FALSE))
 stateData$PollEndDate <- as.Date(stateData$PollEndDate)
 stateData$Vote[which(stateData$Vote == '<0.5')] <- "0.2"
 stateData$Vote <- as.numeric(stateData$Vote)
 
-pupFoundationDate <- as.Date('2013-05-01')
+# This is approximately the date when Clive Palmer announced he was forming
+# a new party. The party itself was registered as the UAP in April 2013, then
+# re-registered as PUP a month later.
+pupFoundationDate <- as.Date('2012-11-15')
 
 fixMinorParties <- function(x){
   # Take minor parties that we don't track, and add them to Other
@@ -140,7 +143,7 @@ for(badI in 1:nrow(badNationalData)){
 }
 
 
-electoralData <- tbl_df(read.csv(args[4]))
+electoralData <- tbl_df(read.csv(args[4], stringsAsFactors=FALSE))
 badElectoralData <- electoralData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(validateData(.))
 invisible(assert_that(nrow(badElectoralData)==0))
 
@@ -158,7 +161,12 @@ completeData$Vote[which(completeData$Party == 'PUP' &
 print(summary(completeData))
 
 # Keep note of Newspoll Quarterly reports, so we can model their averaging properly when fitting the model
-newspollQuarterlyDates <- unique((stateDataNew %>% filter(Pollster == 'Newspoll'))$PollEndDate)
+isEndOfMonth <- function(d){
+  monthDay <- format(d, "%m-%d")
+  return(monthDay == "03-31" || monthDay == "06-30" || monthDay == "09-30" || monthDay == "12-31")
+}
+newspollStateDates <- unique((stateDataNew %>% filter(Pollster == 'Newspoll'))$PollEndDate)
+newspollQuarterlyDates <- newspollStateDates[(Vectorize(isEndOfMonth))(newspollStateDates)]
 levels(completeData$Pollster) <- c(levels(completeData$Pollster), 'Newspoll Quarterly')
 completeData[which(completeData$PollEndDate %in% newspollQuarterlyDates &
                      completeData$Pollster == 'Newspoll'), 'Pollster'] <- 'Newspoll Quarterly'
@@ -167,7 +175,7 @@ completeData[which(completeData$PollEndDate %in% newspollQuarterlyDates &
 assert_all_are_in_past(as.POSIXct(completeData$PollEndDate))
 assert_is_numeric(completeData$Vote)
 # One Nielsen WA state poll + Galaxy QLD + the pre-2013 PUP votes should be NA
-invisible(assert_that(length(which(is.na(completeData$Vote))) == 1647))   
+invisible(assert_that(length(which(is.na(completeData$Vote))) == 1553))   
 assert_all_are_non_negative(na.omit(completeData$Vote))
 nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 0.9, 60)
