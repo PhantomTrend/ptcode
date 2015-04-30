@@ -14,6 +14,22 @@ body {
     top: 0px;
 }
 
+a:link {
+    text-decoration: none;
+    color: #7358eb;
+}
+a:visited {
+    text-decoration: none;
+    color: #7358eb;
+}
+a:hover {
+    text-decoration: underline;
+    color: #7358eb;
+}
+a:active {
+    text-decoration: underline;
+    color: #7358eb;
+}
 
 .navbar {
     position: fixed;
@@ -64,8 +80,7 @@ body {
 }
 
 #trend-chart {
-    max-width: 700px;
-    max-height: 450px;
+    width: 75%;
     margin-left: auto;
     margin-right: auto;
 }
@@ -103,4 +118,17 @@ body {
 
 #chart-controls select:disabled {
     color:#a8a8a8;
+}
+
+#github-commit-list {
+    margin-left: 25px;
+}
+
+#aboutthis h3 {
+    margin-left: 25px;
+}
+
+#aboutthis p {
+    margin-left: 25px;
+    margin-right: 25px;
 }

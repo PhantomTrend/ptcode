@@ -7,6 +7,8 @@ var conString = "postgres://ptuser@" + process.env.PT_HOST + ":5432/ptdata";
 var express = require('express');
 var app = express();
 var url = require('url');
+var fs = require('fs');
+var FileStreamRotator = require('file-stream-rotator');
 
 var compression = require('compression');
 app.use(compression());
@@ -14,16 +16,26 @@ app.use(compression());
 var helmet = require('helmet');
 app.use(helmet());
 
+
+var morgan = require('morgan');
+var logDirectory = __dirname + '/log';
+// ensure log directory exists
+if(!fs.existsSync(logDirectory)){
+    fs.mkdirSync(logDirectory);
+}
+// create a rotating write stream
+var accessLogStream = FileStreamRotator.getStream({
+  filename: logDirectory + '/access.log',
+  frequency: 'daily',
+  verbose: false
+});
+// setup the logger
+app.use(morgan('combined', {stream: accessLogStream}));
+
+
 var doT = require('dot-express');
 app.set('view engine', 'dot');
 app.engine('html', doT.__express);
-
-
-
-app.use('/dyg', express.static(__dirname + '/bower_components/dygraphs'));
-
-
-
 
 app.use('/css', express.static(__dirname + '/public/css'));
 app.use('/img', express.static(__dirname + '/public/img'));
@@ -94,9 +106,9 @@ var server = app.listen(3001, function() {
 
 
 function getTwoPPJson(electorate, res) {
-    getDbQuery("SELECT pollenddate, avg(alp2pp), stddev(alp2pp)" +
-        "FROM TwoPP WHERE electorate = $1" +
-        "GROUP BY pollenddate ORDER BY pollenddate;", [electorate],
+    getDbQuery("SELECT pollenddate, alp2pp AS avg, onesd AS stddev " +
+        "FROM twopp WHERE electorate = $1" +
+        "ORDER BY pollenddate;", [electorate],
         function(v) {
             return ([new Date(v.pollenddate), [v.avg, v.stddev]]);
         },
