@@ -197,7 +197,7 @@ function getDataForElectorate(electorate, callback) {
 
 function getPollDataForElectorate(electorate, callback) {
     $.ajax({
-        url: "http://" + PT_HOST + ":3001/polls?electorate=" + electorate,
+        url: "http://" + PT_HOST + "/polls?electorate=" + electorate,
         error: function(jqXHR, textStatus, errorThrown) {
             console.log(errorThrown);
         },
@@ -229,7 +229,7 @@ function getPollDataForElectorate(electorate, callback) {
 
 function getTwoppDataForElectorate(electorate, callback) {
     $.ajax({
-        url: "http://" + PT_HOST + ":3001/twopp?electorate=" + electorate,
+        url: "http://" + PT_HOST + "/twopp?electorate=" + electorate,
         error: function(jqXHR, textStatus, errorThrown) {
             console.log(errorThrown);
         },
@@ -246,7 +246,7 @@ function getTwoppDataForElectorate(electorate, callback) {
 
 function getPrimaryDataForElectorate(electorate, callback) {
     $.ajax({
-        url: "http://" + PT_HOST + ":3001/primary?electorate=" + electorate,
+        url: "http://" + PT_HOST + "/primary?electorate=" + electorate,
         error: function(jqXHR, textStatus, errorThrown) {
             console.log(errorThrown);
         },
