@@ -89,6 +89,8 @@ function gatherData() {
 }
 
 function prepareDygraphsOptionsObject(dataFrame, columnNames) {
+    var containerDivWidth = $("#trend").width();
+    var titleHeightPx = containerDivWidth > 500 ? 30 : 20;
     return {
         file: dataFrame.data,
         labels: columnNames,
@@ -101,7 +103,10 @@ function prepareDygraphsOptionsObject(dataFrame, columnNames) {
         },
         showRangeSelector: true,
         colors: getGraphColours(columnNames.slice(1)),
-        series: getGraphSeriesOptions()
+        series: getGraphSeriesOptions(),
+        width: 0.8*containerDivWidth,
+        height: 0.6*containerDivWidth,
+        titleHeight: titleHeightPx
     };
 }
 
@@ -366,6 +371,13 @@ $("#show-OTH").change(function(){
 $(document).ready(function() {
     // TODO: read cookie
     getDataForElectorate('AUS', drawGraph);
+
+    $(window).resize(function(){
+       drawGraph();
+    });
+    window.addEventListener("orientationchange", function(){
+        drawGraph();
+    });
 });
 
 //})();
