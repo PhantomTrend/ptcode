@@ -2,7 +2,7 @@ var pg = require('pg');
 if (process.env.PT_HOST === undefined) {
     throw "PT_HOST is not defined";
 }
-var conString = "postgres://ptuser@localhost:5432/ptdata";
+var conString = "postgres://ptuser:ptpt@localhost:5432/ptdata";
 
 var express = require('express');
 var app = express();
