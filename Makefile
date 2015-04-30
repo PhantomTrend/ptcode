@@ -46,13 +46,12 @@ PHONY += fitted-model
 
 WRITE_2PP := Rscript Write2PartyPreferred.R
 TWOPP_OUTPUT_DIR := ElectionResults
-N_2PP_DURBIN_KOOPMAN_SIMULATIONS := 50
 TWOPP_FLOW_FILE := ElectionData/HouseTppFlowByStateByParty2013.csv
 
 TWOPP_CSV := $(TWOPP_OUTPUT_DIR)/TwoPartyPreferred.csv
 
 $(TWOPP_CSV): $(MODEL_FILE) $(TWOPP_FLOW_FILE)
-	$(WRITE_2PP) $@ $^ $(N_2PP_DURBIN_KOOPMAN_SIMULATIONS)
+	$(WRITE_2PP) $@ $^
 
 two-party-preferred: $(TWOPP_CSV)
 PHONY += two-party-preferred
@@ -120,5 +119,30 @@ election: $(SEAT_RESULTS_CSV) $(PRIMARY_TRENDS)
 PHONY += election
 
 
+##### Inputs for web app #####
+
+WEB_APP_SENTINEL := .webapp
+WEB_APP_ADDRESS := root@128.199.72.176
+WEB_APP_DIR := /tmp
+
+POLLS_FOR_DB := PollsForDb.csv
+POLLING_URLS = PollingData/PollingURLs.csv
+WRITE_POLL_DATA_FOR_DB := Rscript WritePollingDataForDb.R
+$(POLLS_FOR_DB): $(MERGED_DATA_FILE) $(TPP_OBSERVATIONS_CSV) $(POLLING_URLS)
+	$(WRITE_POLL_DATA_FOR_DB) $@ $^
+
+
+$(WEB_APP_SENTINEL): $(PRIMARY_TRENDS) $(TWOPP_CSV) $(POLLS_FOR_DB)
+	scp $(PRIMARY_TRENDS) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PrimaryVotes.csv
+	cp $(PRIMARY_TRENDS) $(WEB_APP_DIR)/PrimaryVotes.csv
+	scp $(TWOPP_CSV) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/TwoPartyPreferred.csv
+	cp $(TWOPP_CSV) $(WEB_APP_DIR)/TwoPartyPreferred.csv
+	scp $(POLLS_FOR_DB) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PollsForDb.csv
+	cp $(POLLS_FOR_DB) $(WEB_APP_DIR)/PollsForDb.csv
+	psql -U ptuser -d ptdata -f makedb.sql
+	touch $(WEB_APP_SENTINEL)
+
+webapp: $(WEB_APP_SENTINEL)
+PHONY += webapp
 
 

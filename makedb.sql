@@ -4,7 +4,7 @@ CREATE TABLE twopp (
     pollenddate date,
     electorate character(4),
     alp2pp   real,
-    repetition integer
+    onesd   real
     );
 \copy twopp from '/tmp/TwoPartyPreferred.csv' with (DELIMITER ',', HEADER, FORMAT CSV);
 
