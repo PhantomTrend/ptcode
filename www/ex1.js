@@ -1,13 +1,12 @@
+var fs = require('fs');
+var serverConfig = JSON.parse(fs.readFileSync("server_config.json"));
+
 var pg = require('pg');
-if (process.env.PT_HOST === undefined) {
-    throw "PT_HOST is not defined";
-}
-var conString = "postgres://ptuser:ptpt@localhost:5432/ptdata";
 
 var express = require('express');
 var app = express();
 var url = require('url');
-var fs = require('fs');
+
 var FileStreamRotator = require('file-stream-rotator');
 
 var compression = require('compression');
@@ -20,17 +19,19 @@ app.use(helmet());
 var morgan = require('morgan');
 var logDirectory = __dirname + '/log';
 // ensure log directory exists
-if(!fs.existsSync(logDirectory)){
+if (!fs.existsSync(logDirectory)) {
     fs.mkdirSync(logDirectory);
 }
 // create a rotating write stream
 var accessLogStream = FileStreamRotator.getStream({
-  filename: logDirectory + '/access.log',
-  frequency: 'daily',
-  verbose: false
+    filename: logDirectory + '/access.log',
+    frequency: 'daily',
+    verbose: false
 });
 // setup the logger
-app.use(morgan('combined', {stream: accessLogStream}));
+app.use(morgan('combined', {
+    stream: accessLogStream
+}));
 
 
 var doT = require('dot-express');
@@ -42,7 +43,7 @@ app.use('/img', express.static(__dirname + '/public/img'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.get('/', function(req, res) {
     var templateData = {
-        "PT_HOST": process.env.PT_HOST,
+        "PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port,
         "houseResults": [{
             "electorateName": "Grayndler",
             "state": "NSW"
@@ -96,15 +97,15 @@ app.get('/polls', function(req, res) {
     getPollData(electorate, res);
 });
 
-app.get('/robots.txt', function (req, res) {
+app.get('/robots.txt', function(req, res) {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: http://www.phantomtrend.com/twopp\nDisallow:http://www.phantomtrend.com/primary\nDisallow:http://www.phantomtrend.com/polls\n/");
 });
 
-var server = app.listen(80, function() {
-    var host = server.address().address;
-    var port = server.address().port;
-    console.log('Example app listening at http://%s:%s', host, port);
+var server = app.listen(serverConfig.host_port, function() {
+    var host = serverConfig.host_address;
+    var port = serverConfig.host_port;
+    console.log('PhantomTrend app listening at http://%s:%s', host, port);
 });
 
 
@@ -139,7 +140,7 @@ function getPollData(electorate, res) {
 }
 
 function getDbQuery(query, arg, formatter, res) {
-    pg.connect(conString, function(err, client, done) {
+    pg.connect(serverConfig.pg_connection_string, function(err, client, done) {
         var handleError = function(err) {
             if (!err) return false;
             done(client); // remove client from pool if it exists

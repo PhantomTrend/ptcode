@@ -19,3 +19,6 @@ www/data/*.csv
 # R crap
 .Rhistory
 
+# Website settings
+www/server_config.json
+
