@@ -96,6 +96,10 @@ app.get('/polls', function(req, res) {
     getPollData(electorate, res);
 });
 
+app.get('/robots.txt', function (req, res) {
+    res.type('text/plain');
+    res.send("User-agent: *\nDisallow: http://www.phantomtrend.com/twopp\nDisallow:http://www.phantomtrend.com/primary\nDisallow:http://www.phantomtrend.com/polls\n/");
+});
 
 var server = app.listen(80, function() {
     var host = server.address().address;
