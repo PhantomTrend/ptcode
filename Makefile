@@ -121,6 +121,7 @@ PHONY += election
 
 ##### Inputs for web app #####
 
+LOCAL_APP_SENTINEL := .localapp
 WEB_APP_SENTINEL := .webapp
 WEB_APP_ADDRESS := root@128.199.72.176
 WEB_APP_DIR := /tmp
@@ -131,18 +132,23 @@ WRITE_POLL_DATA_FOR_DB := Rscript WritePollingDataForDb.R
 $(POLLS_FOR_DB): $(MERGED_DATA_FILE) $(TPP_OBSERVATIONS_CSV) $(POLLING_URLS)
 	$(WRITE_POLL_DATA_FOR_DB) $@ $^
 
+$(LOCAL_APP_SENTINEL): $(PRIMARY_TRENDS) $(TWOPP_CSV) $(POLLS_FOR_DB)
+	cp $(PRIMARY_TRENDS) $(WEB_APP_DIR)/PrimaryVotes.csv
+	cp $(TWOPP_CSV) $(WEB_APP_DIR)/TwoPartyPreferred.csv
+	cp $(POLLS_FOR_DB) $(WEB_APP_DIR)/PollsForDb.csv
+	psql -U ptuser -d ptdata -f makedb.sql
+	touch $(LOCAL_APP_SENTINEL)
 
 $(WEB_APP_SENTINEL): $(PRIMARY_TRENDS) $(TWOPP_CSV) $(POLLS_FOR_DB)
 	scp $(PRIMARY_TRENDS) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PrimaryVotes.csv
-	cp $(PRIMARY_TRENDS) $(WEB_APP_DIR)/PrimaryVotes.csv
 	scp $(TWOPP_CSV) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/TwoPartyPreferred.csv
-	cp $(TWOPP_CSV) $(WEB_APP_DIR)/TwoPartyPreferred.csv
 	scp $(POLLS_FOR_DB) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PollsForDb.csv
-	cp $(POLLS_FOR_DB) $(WEB_APP_DIR)/PollsForDb.csv
-	psql -U ptuser -d ptdata -f makedb.sql
 	touch $(WEB_APP_SENTINEL)
 
+localapp: $(LOCAL_APP_SENTINEL)
 webapp: $(WEB_APP_SENTINEL)
-PHONY += webapp
+app: localapp webapp
+PHONY += webapp localapp app
+
 
 
