@@ -15,23 +15,25 @@ KalmanSmoother <- function(yt, ss, kf)
   Pstar[,,n] <- kf$Ptt[,,n]
   littleR <- rep(0, nrow(kf$att))
   bigN <- matrix(0, nrow(kf$att), nrow(kf$att))
-  for (i in seq.int(n-1, 1))
-  {
+  for (i in seq.int(n, 1)) {
     Pstar[,,i] <- kf$Ptt[,,i]
     astar[,i] <- kf$att[,i]
     availableCoordinates <- which(!is.na(yt[,i]))
-    if (any(availableCoordinates))
-    {
+    if (any(availableCoordinates)) {
       K <- ss$bigT %*% kf$Pt[,,i] %*% t(Z[availableCoordinates,]) %*% solve(kf$Ft[availableCoordinates,availableCoordinates,i])
       L <- ss$bigT - K %*% Z[availableCoordinates,]
       littleR <- (t(Z[availableCoordinates,]) %*%
                     solve(kf$Ft[availableCoordinates,availableCoordinates,i], kf$vt[availableCoordinates,i])) +
                   t(L) %*% littleR
-      astar[,i] <- kf$att[,i] + kf$Pt[,,i] %*% littleR
       bigN <- (t(Z[availableCoordinates,]) %*% solve(kf$Ft[availableCoordinates,availableCoordinates,i], Z[availableCoordinates,]) +
                  t(L) %*% bigN %*% L)
-      Pstar[,,i] <- kf$Pt[,,i] - kf$Pt[,,i] %*% bigN %*% kf$Pt[,,i]
-    } 
+      
+    } else {
+      littleR <- t(ss$bigT) %*% littleR
+      bigN <- t(ss$bigT) %*% bigN %*% ss$bigT
+    }
+    astar[,i] <- kf$at[,i] + kf$Pt[,,i] %*% littleR
+    Pstar[,,i] <- kf$Pt[,,i] - kf$Pt[,,i] %*% bigN %*% kf$Pt[,,i]
   }
   return(list(astar = astar, Pstar = Pstar))
 }

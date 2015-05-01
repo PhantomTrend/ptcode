@@ -314,12 +314,12 @@ dput(estimatedMode, file='EstimatedMode.R')     # Save to file, in sorta-human-r
 
 fittedModel <- reciprocalLogLikelihood(thetaNow, estimate=FALSE)
 
-# yAndH <- makeDataMatrix(modelData, paramVectorToList(thetaNow))
-# yt <- t(yAndH$Y)
-# GGt <- yAndH$H
-# smootherInput <- list(bigT = bigT, Z = Z, Q = makeQmatrix(paramVectorToList(thetaNow)), H = GGt)
-# smoothedModel <- KalmanSmoother(yt, smootherInput, fittedModel)
-smoothedModel <- list(astar = fittedModel$att, Pstar = fittedModel$Ptt)
+yAndH <- makeDataMatrix(modelData, paramVectorToList(thetaNow))
+yt <- t(yAndH$Y)
+GGt <- yAndH$H
+smootherInput <- list(bigT = bigT, Z = Z, Q = makeQmatrix(paramVectorToList(thetaNow)), H = GGt)
+smoothedModel <- KalmanSmoother(yt, smootherInput, fittedModel)
+# smoothedModel <- list(astar = fittedModel$att, Pstar = fittedModel$Ptt)
 
 modelOutput <- modelData[0,]
 for(componentI in 1:nLatentComponentsBase){
