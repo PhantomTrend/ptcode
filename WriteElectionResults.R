@@ -63,18 +63,20 @@ seatSwingsLastTime <- seatSwingsLastTime %>% mutate(WeightedSwing = TotalVotes*S
 
 output <- data.frame(Electorate = character(),
                      ALPWins = integer(), LNPWins = integer(), GRNWins = integer(), PUPWins = integer(),
-                     OTHWins = integer(), Repetition = integer())
+                     OTHWins = integer(),
+                     ALPPrimary = numeric(), LNPPrimary = numeric(), GRNPrimary = numeric(),
+                     PUPPrimary = numeric(), OTHPrimary = numeric(),
+                     ALP2PP = numeric(), LNP2PP = numeric(),
+                     Repetition = integer())
 
 simulateOneElection <- function(swing, votesLastTime, preferenceFlow){
-  
-  votes <- inner_join(votesLastTime, swing, by='Party') %>% mutate(PctLastTime = Vote/sum(Vote)*100,
+  primaryVotes <- inner_join(votesLastTime, swing, by='Party') %>% mutate(PctLastTime = Vote/sum(Vote)*100,
                                                                    Pct = PctLastTime + Swing) %>%
     filter(Pct > 0)
-  while(!any(votes$Pct > 50)){
-    if(nrow(votes) == 2){
-      break
-    }
-    smallestParty <- votes$Party[which(votes$Pct == min(votes$Pct))]
+  primaryVotes$Party <- as.character(primaryVotes$Party)
+  votes <- primaryVotes
+  while(nrow(votes) > 2){
+    smallestParty <- votes$Party[which(votes$Pct == min(votes$Pct))[1]]
     prefs <- filter(preferenceFlow, ToPartyDisplayAb %in% votes$Party,
                     FromPartyGroupAb == smallestParty) %>% mutate(PctFlow = TotalVotes/sum(TotalVotes))
     for(toParty in prefs$ToPartyDisplayAb){
@@ -83,13 +85,34 @@ simulateOneElection <- function(swing, votesLastTime, preferenceFlow){
     }
     votes <- votes[-which(votes$Party == smallestParty),]
   }
-  return(votes$Party[which(votes$Pct == max(votes$Pct))])
+  winner <- votes$Party[which(votes$Pct == max(votes$Pct))]
+  getPrimaryVote <- function(partyName){
+    v = (primaryVotes %>% filter(Party == partyName))$Pct
+    if(length(v) == 0){
+      v = 0
+    }
+    return(v)
+  }
+  alpPrimary <- getPrimaryVote("ALP")
+  lnpPrimary <- getPrimaryVote("LNP")
+  grnPrimary <- getPrimaryVote("GRN")
+  pupPrimary <- getPrimaryVote("PUP")
+  othPrimary <- getPrimaryVote("OTH")
+  alp2ppRow <- which(votes$Party == "ALP")
+  lnp2ppRow <- which(votes$Party == "LNP")
+  if(length(alp2ppRow) == 0 || length(lnp2ppRow) == 0){
+    alp2pp <- NA
+    lnp2pp <- NA
+  }else{
+    alp2pp <- votes[alp2ppRow,]$Pct / sum(votes$Pct) *100
+    lnp2pp <- votes[lnp2ppRow,]$Pct / sum(votes$Pct) *100
+  }
+  return(data.frame(Winner = winner, ALP = alpPrimary, LNP = lnpPrimary, GRN = grnPrimary,
+                    PUP = pupPrimary, OTH = othPrimary, ALP2PP = alp2pp, LNP2PP = lnp2pp))
 }
 
 
-
 lastStateName <- ''
-
 for(electorateName in unique(firstPrefs$DivisionNm)){
   # Informals are recorded with BallotPosition 999.
   theseFirstPrefs <- filter(firstPrefs, DivisionNm == electorateName, BallotPosition != 999)
@@ -119,6 +142,7 @@ for(electorateName in unique(firstPrefs$DivisionNm)){
   
   theseVotes <- tbl_df(data.frame(Party = c('ALP', 'LNP', 'GRN', 'PUP', 'OTH'),
                            Vote = c(alpVotes, lnpVotes, grnVotes, pupVotes, othVotes)))
+  theseVotes$Pary <- as.character(theseVotes$Party)
   
   theseSwings <- stateSwings %>% filter( Electorate == thisState )
   
@@ -134,6 +158,9 @@ for(electorateName in unique(firstPrefs$DivisionNm)){
   for(stateRep in unique(theseSwings$Repetition)){
     thisStateSwing <- filter(theseSwings, Repetition == stateRep) %>% select(Party, Swing)
     
+    seatSims <- data.frame(ALPPrimary = numeric(), LNPPrimary = numeric(), GRNPrimary = numeric(),
+                           PUPPrimary = numeric(), OTHPrimary = numeric(),
+                           ALP2PP = numeric(), LNP2PP = numeric())
     luckyWinners <- c()
     for(seatRep in 1:nSeatSimulations){
       resampledSeat <- sample(unique(seatSwingsLastTime$DivisionNm),size=1)
@@ -141,7 +168,9 @@ for(electorateName in unique(firstPrefs$DivisionNm)){
         select(PartyAb, RelativeSwing) %>% rename(Party = PartyAb)
       thisSwing <- inner_join(thisStateSwing, resampledSwing, by='Party') %>%
         mutate(Swing = Swing + RelativeSwing)
-      luckyWinners <- c(luckyWinners, simulateOneElection(thisSwing, theseVotes, summaryFlow))
+      thisSim <- simulateOneElection(thisSwing, theseVotes, summaryFlow)
+      seatSims <- rbind(seatSims, thisSim[names(thisSim) != "Winner"])
+      luckyWinners <- c(luckyWinners, as.character(thisSim$Winner))
     }
     thisSeatOutput <- rbind(thisSeatOutput,
                             data.frame(Electorate = electorateName,
@@ -149,16 +178,78 @@ for(electorateName in unique(firstPrefs$DivisionNm)){
                                        LNPWins = sum(luckyWinners == 'LNP'),
                                        GRNWins = sum(luckyWinners == 'GRN'),
                                        PUPWins = sum(luckyWinners == 'PUP'),
-                                       OTHWins = sum(luckyWinners == 'OTH'), Repetition = stateRep))
+                                       OTHWins = sum(luckyWinners == 'OTH'),
+                                       ALPPrimary = mean(seatSims$ALP),
+                                       LNPPrimary = mean(seatSims$LNP),
+                                       GRNPrimary = mean(seatSims$GRN),
+                                       PUPPrimary = mean(seatSims$PUP),
+                                       OTHPrimary = mean(seatSims$OTH),
+                                       ALP2PP = mean(seatSims$ALP2PP),
+                                       LNP2PP = mean(seatSims$LNP2PP),
+                                       Repetition = stateRep))
   }
   output = rbind(output, thisSeatOutput)
 }
 
 
+nRepetitions <- max(stateSwings$Repetition)
 
+getWinPct <- function(wins){ sum(wins)/(nSeatSimulations*nRepetitions)*100  }
+outcomeSummary <- output %>% group_by(Electorate) %>%
+  summarise(ALPWinPct = getWinPct(ALPWins),
+            LNPWinPct = getWinPct(LNPWins),
+            GRNWinPct = getWinPct(GRNWins),
+            PUPWinPct = getWinPct(PUPWins),
+            OTHWinPct = getWinPct(OTHWins),
+            ALPPrimary = mean(na.omit(ALPPrimary)),
+            LNPPrimary = mean(na.omit(LNPPrimary)),
+            GRNPrimary = mean(na.omit(GRNPrimary)),
+            PUPPrimary = mean(na.omit(PUPPrimary)),
+            OTHPrimary = mean(na.omit(OTHPrimary)),
+            ALP2PP = mean(na.omit(ALP2PP)),
+            LNP2PP = mean(na.omit(LNP2PP))) %>%
+  mutate(Electorate = as.character(Electorate))
+            
+incumbentData$Party[incumbentData$Party=="Liberal"] <- "LNP"
+incumbentData$Party[incumbentData$Party=="National"] <- "LNP"
+incumbentData$Party[incumbentData$Party=="Independent"] <- "OTH"
+incumbentData$Party[incumbentData$Party=="Palmer United"] <- "PUP"
+incumbentData$Party[incumbentData$Party=="Katter's Australian Party"] <- "OTH"
+incumbentData$Party[incumbentData$Party=="Greens"] <- "GRN"
+incumbentData$Party[incumbentData$Party=="CLP"] <- "LNP"
+incumbentData$Party[incumbentData$Party=="Labor"] <- "ALP"
+incumbentData <- incumbentData %>% rename(IncumbentParty = Party)
+summariseResult <- function(summaryRow){
+  if(summaryRow$IncumbentParty == "OTH"){
+    return (data.frame(Electorate = summaryRow$Electorate,
+                      Winner = "OTH",
+                      Description = "Assumed OTH win"))
+  }
+  winningPcts <- c(summaryRow$ALPWinPct, summaryRow$LNPWinPct, summaryRow$GRNWinPct,
+                   summaryRow$PUPWinPct, summaryRow$OTHWinPct)
+  maxWinPct <- max(winningPcts)
+  parties <- c("ALP","LNP","GRN","PUP","OTH")
+  winner <- parties[winningPcts == maxWinPct][1]
+  type <- ifelse(winner == summaryRow$IncumbentParty, "retain", "win")
+  margin <- "Marginal"
+  if(maxWinPct > 60){
+    margin <- "Likely"
+  }
+  if(maxWinPct > 80){
+    margin <- "Easy"
+  }
+  return(data.frame(Electorate = summaryRow$Electorate,
+                    Winner = winner,
+                    Description = paste(margin, winner, type)))
+}
 
+lowerHouseWinners <- outcomeSummary %>% inner_join(incumbentData, by="Electorate") %>%
+  rowwise() %>% do(summariseResult(.)) %>% ungroup()
 
+finalOutput <- outcomeSummary %>% inner_join(incumbentData, by="Electorate") %>%
+  inner_join(lowerHouseWinners, by="Electorate")
 
+write.csv(finalOutput, file=outputFile, row.names=FALSE)
 
 
 

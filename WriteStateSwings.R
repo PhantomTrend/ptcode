@@ -22,9 +22,9 @@ nRepetitions <- as.numeric(args[4])
 
 choleskyOfLatentSwings <- chol(finalPeriodCovariance)
 
-nObservations <- dim(smoothedModel$astar)[1]
+nObservations <- dim(smoothedModel$astar)[2]
 nLatentStates <- length(latentComponentNamesBase)
-finalPeriodState <- smoothedModel$astar[nObservations,1:nLatentStates]
+finalPeriodState <- smoothedModel$astar[1:nLatentStates, nObservations]
 
 nParties <- length(unique(latentPartyNames))
 nStates <- length(unique(latentStateNames))
