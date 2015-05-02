@@ -28,3 +28,12 @@ CREATE TABLE polldata (
     url text
 );
 \copy polldata from '/tmp/PollsForDb.csv' with (DELIMITER ',', HEADER, FORMAT CSV, NULL 'NA');
+
+
+
+GRANT SELECT ON twopp TO ptuser;
+GRANT SELECT ON primarytrend TO ptuser;
+GRANT SELECT ON polldata TO ptuser;
+GRANT SELECT ON seatresults TO ptuser;
+
+
