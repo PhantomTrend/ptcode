@@ -31,6 +31,30 @@ CREATE TABLE polldata (
 
 
 
+DROP TABLE IF EXISTS seatresults;
+CREATE TABLE seatresults (
+    electorate text,
+    alpwinpct real,
+    lnpwinpct real,
+    grnwinpct real,
+    pupwinpct real,
+    othwinpct real,
+    alpprimary real,
+    lnpprimary real,
+    grnprimary real,
+    pupprimary real,
+    othprimary real,
+    alp2pp real,
+    lnp2pp real,
+    member text,
+    incumbentparty text,
+    state text,
+    winner text,
+    description text
+);
+\copy seatresults from '/tmp/SeatResults.csv' with (DELIMITER ',', HEADER, FORMAT CSV, NULL 'NA');
+
+
 GRANT SELECT ON twopp TO ptuser;
 GRANT SELECT ON primarytrend TO ptuser;
 GRANT SELECT ON polldata TO ptuser;

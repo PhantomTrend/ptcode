@@ -6,7 +6,7 @@ library(FKF)
 
 if(interactive()){
   args <- c('FittedModel.RData',
-            'PollingData/MergedData.csv', 'EstimatedMode.R', '0')
+            'PollingData/MergedData.csv', 'EstimatedMode.R', '5')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
@@ -288,21 +288,23 @@ if(length(newPollsters) > 0){
 }
 
 if(nOptimIterations > 0){
-nCoordinatesPerBlock = 4
+nCoordinatesPerBlock = 10
 thetaNow = paramListToVector(theta0)
 print(posteriorfn(thetaNow))
 optimControl = list(trace=6,REPORT=1, maxit=nOptimIterations)
-blockCoordinates = seq(0, length(thetaNow), nCoordinatesPerBlock)
-shuffledBlockCoordinates = sample(blockCoordinates, length(blockCoordinates))
-for(paramIndex in shuffledBlockCoordinates){
+shuffledCoordinates = sample.int(length(thetaNow))
+coordinateIndexes = seq(0, length(thetaNow), nCoordinatesPerBlock)
+for(paramIndex in coordinateIndexes){
+  theseCoordinates <- shuffledCoordinates[paramIndex:min(length(thetaNow),(paramIndex+nCoordinatesPerBlock-1))]
+  print(names(do.call(c, unlist(theta0, recursive=FALSE)))[theseCoordinates])
   restrictedPosterior = function(x){
     xFull = thetaNow
-    xFull[paramIndex:(paramIndex+nCoordinatesPerBlock)] = x
+    xFull[theseCoordinates] = x
     return (posteriorfn(xFull))
   }
-  fit = optim(fn=restrictedPosterior, par=thetaNow[paramIndex:(paramIndex+nCoordinatesPerBlock)],
+  fit = optim(fn=restrictedPosterior, par=thetaNow[theseCoordinates],
              control=optimControl, method="CG")
-  thetaNow[paramIndex:(paramIndex+nCoordinatesPerBlock)] = fit$par
+  thetaNow[theseCoordinates] = fit$par
 }
 
 estimatedMode <- paramVectorToList(thetaNow)

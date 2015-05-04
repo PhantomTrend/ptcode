@@ -132,17 +132,20 @@ WRITE_POLL_DATA_FOR_DB := Rscript WritePollingDataForDb.R
 $(POLLS_FOR_DB): $(MERGED_DATA_FILE) $(TPP_OBSERVATIONS_CSV) $(POLLING_URLS)
 	$(WRITE_POLL_DATA_FOR_DB) $@ $^
 
-$(LOCAL_APP_SENTINEL): $(PRIMARY_TRENDS) $(TWOPP_CSV) $(POLLS_FOR_DB)
+$(LOCAL_APP_SENTINEL): $(PRIMARY_TRENDS) $(TWOPP_CSV) $(POLLS_FOR_DB) $(SEAT_RESULTS_CSV)
 	cp $(PRIMARY_TRENDS) $(WEB_APP_DIR)/PrimaryVotes.csv
 	cp $(TWOPP_CSV) $(WEB_APP_DIR)/TwoPartyPreferred.csv
 	cp $(POLLS_FOR_DB) $(WEB_APP_DIR)/PollsForDb.csv
-	psql -U ptuser -d ptdata -f makedb.sql
+	cp $(SEAT_RESULTS_CSV) $(WEB_APP_DIR)/SeatResults.csv
+	psql -d ptdata -f makedb.sql
 	touch $(LOCAL_APP_SENTINEL)
 
 $(WEB_APP_SENTINEL): $(PRIMARY_TRENDS) $(TWOPP_CSV) $(POLLS_FOR_DB)
 	scp $(PRIMARY_TRENDS) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PrimaryVotes.csv
 	scp $(TWOPP_CSV) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/TwoPartyPreferred.csv
 	scp $(POLLS_FOR_DB) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PollsForDb.csv
+	scp $(SEAT_RESULTS_CSV) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/SeatResults.csv
+	ssh root@128.199.72.176 "/root/updatedb.sh"
 	touch $(WEB_APP_SENTINEL)
 
 localapp: $(LOCAL_APP_SENTINEL)

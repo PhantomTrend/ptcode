@@ -42,14 +42,13 @@ app.use('/css', express.static(__dirname + '/public/css'));
 app.use('/img', express.static(__dirname + '/public/img'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.get('/', function(req, res) {
-    var templateData = {
-        "PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port,
-        "houseResults": [{
-            "electorateName": "Grayndler",
-            "state": "NSW"
-        }]
-    };
-    res.render('index.html', templateData);
+    getHouseResultsJson(function(houseResults){
+        var templateData = {
+            "PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port,
+            "houseResults": houseResults
+        };
+        res.render('index.html', templateData);
+    });
 });
 
 app.get('/twopp', function(req, res) {
@@ -137,6 +136,28 @@ function getPollData(electorate, res) {
             return ([new Date(v.pollenddate), v.pollster, v.vote, v.url, v.party.trim()]);
         },
         res);
+}
+
+function getHouseResultsJson(callback) {
+    pg.connect(serverConfig.pg_connection_string, function(err, client, done) {
+        var handleError = function(err) {
+            if (!err) return false;
+            done(client); // remove client from pool if it exists
+            console.log(err);
+            return true;
+        };
+        if (handleError(err)) {
+            return {};
+        }
+        client.query("SELECT * FROM seatresults;",
+            function(err, result) {
+                if (handleError(err)) {
+                    return {};
+                }
+                done();
+                callback(result.rows);
+            });
+    });
 }
 
 function getDbQuery(query, arg, formatter, res) {
