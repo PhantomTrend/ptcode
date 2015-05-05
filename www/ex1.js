@@ -42,13 +42,14 @@ app.use('/css', express.static(__dirname + '/public/css'));
 app.use('/img', express.static(__dirname + '/public/img'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.get('/', function(req, res) {
-    getHouseResultsJson(function(houseResults){
-        var templateData = {
-            "PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port,
-            "houseResults": houseResults
-        };
-        res.render('index.html', templateData);
-    });
+    //getHouseResultsJson(function(houseResults){
+    //    var templateData = {
+    //        "PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port,
+    //        "houseResults": houseResults
+    //    };
+    //    res.render('index.html', templateData);
+    //});
+    res.render('index.html', {"PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port});
 });
 
 app.get('/twopp', function(req, res) {
