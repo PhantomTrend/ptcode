@@ -110,21 +110,21 @@ var server = app.listen(serverConfig.host_port, function() {
 
 
 function getTwoPPJson(electorate, res) {
-    getDbQuery("SELECT pollenddate, alp2pp AS avg, onesd AS stddev " +
+    getDbQuery("SELECT pollenddate + 7 AS trailingdate, alp2pp AS avg, onesd AS stddev " +
         "FROM twopp WHERE electorate = $1" +
-        "ORDER BY pollenddate;", [electorate],
+        "ORDER BY trailingdate;", [electorate],
         function(v) {
-            return ([new Date(v.pollenddate), [v.avg, v.stddev]]);
+            return ([new Date(v.trailingdate), [v.avg, v.stddev]]);
         },
         res);
 }
 
 function getPrimaryJson(electorate, res) {
-    getDbQuery("SELECT pollenddate, party, vote AS avg, onesd AS stddev " +
+    getDbQuery("SELECT pollenddate + 7 AS trailingdate, party, vote AS avg, onesd AS stddev " +
         "FROM primarytrend WHERE electorate = $1 " +
-        "ORDER BY pollenddate;", [electorate],
+        "ORDER BY trailingdate;", [electorate],
         function(v) {
-            return ([new Date(v.pollenddate), v.party.trim(), [v.avg, v.stddev]]);
+            return ([new Date(v.trailingdate), v.party.trim(), [v.avg, v.stddev]]);
         },
         res);
 }

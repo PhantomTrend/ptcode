@@ -22,3 +22,4 @@ www/data/*.csv
 # Website settings
 www/server_config.json
 
+www/bower_components
