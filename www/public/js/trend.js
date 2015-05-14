@@ -1,4 +1,4 @@
-(function() {
+var trend = (function() {
 
     var twoppDataFromDb;
     var primaryDataFromDb;
@@ -213,7 +213,7 @@
 
     function getPollDataForElectorate(electorate, callback) {
         $.ajax({
-            url: "http://" + PT_HOST + "/polls?electorate=" + electorate,
+            url: "http://" + document.location.host + "/polls?electorate=" + electorate,
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log(errorThrown);
             },
@@ -245,7 +245,7 @@
 
     function getTwoppDataForElectorate(electorate, callback) {
         $.ajax({
-            url: "http://" + PT_HOST + "/twopp?electorate=" + electorate,
+            url: "http://" + document.location.host + "/twopp?electorate=" + electorate,
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log(errorThrown);
             },
@@ -264,7 +264,7 @@
 
     function getPrimaryDataForElectorate(electorate, callback) {
         $.ajax({
-            url: "http://" + PT_HOST + "/primary?electorate=" + electorate,
+            url: "http://" + document.location.host + "/primary?electorate=" + electorate,
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log(errorThrown);
             },
