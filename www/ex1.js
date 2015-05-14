@@ -24,14 +24,15 @@ if (!fs.existsSync(logDirectory)) {
 }
 // create a rotating write stream
 var accessLogStream = FileStreamRotator.getStream({
-    filename: logDirectory + '/access.log',
-    frequency: 'daily',
-    verbose: false
+  filename: logDirectory + '/access-%DATE%.log',
+  frequency: 'daily',
+  verbose: false,
+  date_format: 'YYYYMMDD'
 });
+
 // setup the logger
-app.use(morgan('combined', {
-    stream: accessLogStream
-}));
+app.use(morgan('combined', {stream: accessLogStream}));
+
 
 
 var doT = require('dot-express');
@@ -42,14 +43,13 @@ app.use('/css', express.static(__dirname + '/public/css'));
 app.use('/img', express.static(__dirname + '/public/img'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.get('/', function(req, res) {
-    //getHouseResultsJson(function(houseResults){
-    //    var templateData = {
-    //        "PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port,
-    //        "houseResults": houseResults
-    //    };
-    //    res.render('index.html', templateData);
-    //});
-    res.render('index.html', {"PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port});
+    getHouseResultsJson(function(houseResults){
+        var templateData = {
+            "PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port,
+            "houseResults": houseResults
+        };
+        res.render('index.html', templateData);
+    });
 });
 
 app.get('/twopp', function(req, res) {
