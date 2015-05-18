@@ -191,11 +191,9 @@ smallEpsMatrix <- 0.1*smallIdentityMatrix
 bigT <- rbind( cbind(smallIdentityMatrix, smallZeroMatrix, smallZeroMatrix),
                cbind(smallIdentityMatrix, smallZeroMatrix, smallZeroMatrix),
                cbind( quarterlyPDLcoefficient*smallIdentityMatrix, smallZeroMatrix, (1-quarterlyPDLcoefficient) * smallIdentityMatrix)  )
-
-R <- rbind(smallIdentityMatrix,
-           smallZeroMatrix,
-           quarterlyPDLcoefficient * smallIdentityMatrix)
-
+bigR <- rbind( smallIdentityMatrix,
+               smallZeroMatrix,
+               quarterlyPDLcoefficient*smallIdentityMatrix )
 
 # Initialise distribution of primary votes at t = 0
 startingValues <- list(ALP = 50, LNP = 50, GRN = 2, PUP = 0, OTH = 10)

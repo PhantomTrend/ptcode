@@ -23,12 +23,9 @@ makeQmatrix <- function(params){
       R1[componentI, nLatentComponentsBase + partyIndex] <- thisPartyParams[[otherParty]]
     }
   }
-  Qsmall <- R1 %*% t(R1)  + 1e-9*diag(nLatentComponentsBase)
-  Q <- rbind( cbind(Qsmall, smallZeroMatrix, smallZeroMatrix),
-              cbind(smallZeroMatrix, 1e-3*smallIdentityMatrix, smallZeroMatrix),
-              cbind(smallZeroMatrix, smallZeroMatrix, 1e-3*smallIdentityMatrix) )
+  Qsmall <- bigR %*% (R1 %*% t(R1)) %*% t(bigR)  + 1e-9*diag(nLatentComponents)
   
-  Q <- array(Q, c(nLatentComponents, nLatentComponents, 1))
+  Q <- array(Qsmall, c(nLatentComponents, nLatentComponents, 1))
   return(Q)
 }
 

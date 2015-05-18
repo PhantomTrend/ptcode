@@ -7,7 +7,8 @@ weightedMeanOfPolls <- function(fullDataEntries, paramList){
   for(i in 1:nrow(fullDataEntries)){
     pollsterName <- as.character(fullDataEntries$Pollster[i])
     x[i] <- x[i] - as.numeric(paramList[[pollsterName]][[as.character(fullDataEntries$Party[i])]])
-    sigma2[i] <- paramList[[pollsterName]][['NoiseVariance']]
+    sigma2[i] <- pollsterVarianceInElectorate(paramList[[pollsterName]][['NoiseVariance']],
+                                              as.character(fullDataEntries$Electorate[i]))
   }
   return( sum(x/sigma2)/sum(1/sigma2) )
 }
@@ -15,9 +16,20 @@ weightedMeanOfPolls <- function(fullDataEntries, paramList){
 varianceOfWeightedMean <- function(fullDataEntries, paramList){
   sigma2 <- rep(0, nrow(fullDataEntries))
   for(i in 1:nrow(fullDataEntries)){
-    sigma2[i] <- paramList[[as.character(fullDataEntries$Pollster[i])]][['NoiseVariance']]
+    sigma2[i] <- pollsterVarianceInElectorate(paramList[[as.character(fullDataEntries$Pollster[i])]][['NoiseVariance']],
+                                              as.character(fullDataEntries$Electorate[i]))
   }
   return( prod(sigma2)/sum(sigma2) )
+}
+
+# Rescale pollster's noise variance for each state such that taking an average
+# of their state-by-state estimates will have the same variance as their reported
+# national estimate
+pollsterVarianceInElectorate <- function(australiaWideVariance, thisElectorate){
+  if(thisElectorate == "AUS"){
+    return(australiaWideVariance)
+  }
+  return(australiaWideVariance / popweights[[thisElectorate]])
 }
 
 # Low-level data operations
@@ -38,7 +50,8 @@ makeH <- function(fullDataEntries, paramList){
     return(0.045**2)    # Elections only have rounding error
   }
   if(nrow(fullDataEntries)==1){
-    return(paramList[[as.character(fullDataEntries$Pollster[1])]][['NoiseVariance']])
+    return(pollsterVarianceInElectorate(paramList[[as.character(fullDataEntries$Pollster[1])]][['NoiseVariance']],
+                                        as.character(fullDataEntries$Electorate[1])))
   }else{
     return( varianceOfWeightedMean(fullDataEntries, paramList) )
   }
