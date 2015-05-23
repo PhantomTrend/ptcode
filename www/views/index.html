@@ -2,20 +2,36 @@
 
 <head>
     <title>Phantom Trend</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="css/ptmain.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 </head>
 
 <body>
 
-    <div class="container">
+    <div id="container">
 
         <div class="pagetitle">
             <h1>The Phantom Trend</h1>
             <p>Like Nate Silver, only less accurate</p>
         </div>
 
-        <div id="trend" class="pagepart firstrow">
+        <div class="pagepart firstrow">
+            <h2>Summary</h2>
+            <p>The latest estimate of voting intention has the ALP/LNP two-party preferred at <b>{{=it.electionSummaryStats.twoPartyPreferred}}/{{=100 - it.electionSummaryStats.twoPartyPreferred}}</b>. That's based on primary votes estimated at: LNP {{=it.electionSummaryStats.primary.LNP}},
+                ALP {{=it.electionSummaryStats.primary.ALP}}, Greens {{=it.electionSummaryStats.primary.GRN}}, Palmer United {{=it.electionSummaryStats.primary.PUP}}, Independent/Other {{=it.electionSummaryStats.primary.OTH}}.
+                See the Trends section for more details.
+            </p>
+            <p>A hypothetical election held now would probably lead to
+                <b>{{=it.electionSummaryStats.mostLikelyOutcome}}</b>, with outcome probabilities of
+                {{=it.electionSummaryStats.outcomeProbabilities["LNP Majority"]}}% for an LNP majority,
+                {{=it.electionSummaryStats.outcomeProbabilities["Hung Parliament"]}}% for a hung parliament,
+                and {{=it.electionSummaryStats.outcomeProbabilities["ALP Majority"]}}% for an ALP majority.
+                See the House of Reps section below for details on individual seats.
+            </p>
+        </div>
+
+        <div id="trend" class="pagepart">
             <h2>Trends</h2>
             <div id="trend-chart"></div>
             <div id="chart-controls">
@@ -37,9 +53,9 @@
                     <li>
                         <h3>Party</h3>
                         <select id="twopp-party">
-                            <option value="ALP" selected>ALP point of view</option>
+                            <option value="ALP">ALP point of view</option>
                             <option value="LNP">LNP point of view</option>
-                            <option value="BOTH">Both ALP and LNP</option>
+                            <option value="BOTH" selected>Both ALP and LNP</option>
                         </select>
                     </li>
                     <li>
@@ -84,14 +100,36 @@
             <script src="js/dataframe.js"></script>
             <script src="js/trend.js"></script>
 
-        <!--    <div id="houseforecast" class="pagepart">
-            <h2>House Of Reps</h2>
 
-            {{~it.houseResults :value:index}}
-            <div>{{=value.electorate}}: {{=value.description}}</div>
-            {{~}}
+            <script src="https://fb.me/react-0.13.3.min.js"></script>
 
-        </div>  -->
+
+            <div id="houseforecast" class="pagepart">
+                <h2>House Of Reps</h2>
+                <script>
+                    var houseResults = {
+                        {{~it.houseResults: value: index}}
+                        "{{=value.electorate}}": {
+                            "name": "{{=value.electorate}}",
+                            "description": "{{=value.description}}",
+                            "incumbentparty": "{{=value.incumbentparty}}",
+                            "member": "{{=value.member}}",
+                            "state": "{{=value.state}}",
+                            "winner": "{{=value.winner}}",
+                            "alpprimary": {{=value.alpprimary}},
+                            "lnpprimary": {{=value.lnpprimary}},
+                            "grnprimary": {{=value.grnprimary}},
+                            "pupprimary": {{=value.pupprimary}},
+                            "othprimary": {{=value.othprimary}},
+                            "alp2pp": {{=value.alp2pp}},
+                            "lnp2pp": {{=value.lnp2pp}}
+                            },
+                        {{~}}
+                    };
+                </script>
+                <div id="repsApp"></div>
+                <script src="js/reps.js"></script>
+            </div>
 
             <!--    <div id="senateforecast" class="pagepart">
             <h2>Senate</h2>
@@ -120,14 +158,15 @@
                     <h3>See Also</h3>
                     <p>There's another statistical polling model over at <a href="http://marktheballot.blogspot.com/">Mark The Ballot</a> (now back online, woohoo!). The <a href="http://blogs.crikey.com.au/pollbludger">Poll Bludger</a> and <a href="http://kevinbonham.blogspot.com.au/">Dr Kevin Bonham</a>                        both publish regularly updated polling aggregates which they put together using their own judgement.</p>
                     <h3>Thanks</h3>
-                    <p>Shouts out to Thomas McMahon who supplied a bunch of this data. And massive thanks to the <a href="http://blogs.crikey.com.au/pollbludger">Poll Bludger</a> and the <a href="https://twitter.com/GhostWhoVotes">Ghost Who Votes</a>,
-                        who curated the rest.</p>
+                    <p>Shouts out to Thomas McMahon who supplied a bunch of this data. And massive thanks to the <a href="http://blogs.crikey.com.au/pollbludger">Poll Bludger</a> and the <a href="https://twitter.com/GhostWhoVotes">Ghost Who Votes</a>, who
+                        curated the rest.</p>
                     <h3>The Author</h3>
                     <p>I'm Jamie Hall, a data scientist at <a href="https://www.kaggle.com">Kaggle</a>, formerly of the RBA's modelling department. Feel free to drop me a line on <a href="https://www.twitter.com/PhantomTrend">Twitter</a> or
                         <a href="mailto:phantomtrend@gmail.com">email</a> if you have comments, questions, suggestions or bug reports.
                     </p>
                     <h3>Privacy and Cookies</h3>
-                    <p>I've implemented <a href="https://support.google.com/analytics/answer/2799357?hl=en">Google Analytics</a>, because I'm curious to learn more about how people are using the site. So be aware that, by default, data on your use of the site may be collected in that way. You can opt out of this by blocking cookies, by using Google's own
+                    <p>I've implemented <a href="https://support.google.com/analytics/answer/2799357?hl=en">Google Analytics</a>, because I'm curious to learn more about how people are using the site. So be aware that, by default, data on your use of the
+                        site may be collected in that way. You can opt out of this by blocking cookies, by using Google's own
                         <a href="https://tools.google.com/dlpage/gaoptout/">opt-out tool</a>, by browsing the site in <a href="https://www.google.com/search?q=private+browsing+window">private</a> mode, or by installing
                         <a href="https://www.ghostery.com/">Ghostery</a>. In the future, this site will also store a cookie to help it remember your preferred graph settings. Again, feel free to opt out.</p>
             </div>

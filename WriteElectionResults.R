@@ -1,26 +1,38 @@
 
 library(dplyr)
+library(rjson)
+library(readr)
 
 set.seed(31337)
 
 if(interactive()){
-  args <- c('ElectionResults/SeatResults.csv',
-            'ElectionResults/StateSwings.csv', 'ElectionData/HouseTcpFlowByStateByParty2013.csv',
+  args <- c('ElectionResults/.sentinel',
+            'ElectionResults/StateSwings.csv',
+            'ElectionResults/TwoPartyPreferred.csv',
+            'ElectionResults/PrimaryVotes.csv',
+            'ElectionData/HouseTcpFlowByStateByParty2013.csv',
             'ElectionData/HouseFirstPrefsByCandidateByVoteType2013.csv',
             'ElectionData/HouseFirstPrefsByStateByParty2013.csv',
             'ElectionData/Incumbents.csv',
-            '3')
+            '1')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
 
-outputFile <- args[1]
+outputSentinel <- args[1]
+outputDirectory <- dirname(outputSentinel)
+if(!file.exists(outputDirectory)){
+  dir.create(outputDirectory, recursive=TRUE)
+}
+
 inputSwingsFile <- args[2]
-tcpFlowFile <- args[3]
-firstPrefsFile <- args[4]
-stateSwingsLastTimeFile <- args[5]
-incumbentFile <- args[6]
-nSeatSimulations <- as.numeric(args[7])
+tppTrendFile <- args[3]
+primaryTrendFile <- args[4]
+tcpFlowFile <- args[5]
+firstPrefsFile <- args[6]
+stateSwingsLastTimeFile <- args[7]
+incumbentFile <- args[8]
+nSeatSimulations <- as.numeric(args[9])
 
 
 incumbentData <- read.csv(incumbentFile, stringsAsFactors=FALSE)
@@ -249,12 +261,52 @@ lowerHouseWinners <- outcomeSummary %>% inner_join(incumbentData, by="Electorate
 finalOutput <- outcomeSummary %>% inner_join(incumbentData, by="Electorate") %>%
   inner_join(lowerHouseWinners, by="Electorate")
 
-write.csv(finalOutput, file=outputFile, row.names=FALSE)
+seatOutputFile <- paste0(outputDirectory, "/SeatResults.csv")
+write.csv(finalOutput, file=seatOutputFile, row.names=FALSE)
+
+pickWinner <- function(seatOutcomes){
+  if(seatOutcomes$IncumbentParty == "OTH"){
+    return(data.frame(Winner="OTH"))
+  }
+  winners <- c(seatOutcomes$ALPWins, seatOutcomes$LNPWins, seatOutcomes$GRNWins, seatOutcomes$PUPWins, seatOutcomes$OTHWins)
+  names(winners) <- c("ALP","LNP","GRN","PUP","OTH")
+  return(data.frame(Winner=names(winners)[which(winners == max(winners))[1]]))
+}
+summariseElectionOutcome <- function(d){
+  outcomes <- d %>% inner_join(incumbentData, by="Electorate") %>% rowwise() %>% do(pickWinner(.))
+  return(data.frame(ALP = sum(outcomes$Winner=="ALP"),
+                    LNP = sum(outcomes$Winner=="LNP"),
+                    GRN = sum(outcomes$Winner=="GRN"),
+                    PUP = sum(outcomes$Winner=="PUP"),
+                    OTH = sum(outcomes$Winner=="OTH")))
+}
+
+seatsWon <- output %>% group_by(Repetition) %>% do(summariseElectionOutcome(.)) %>% ungroup() %>%
+  mutate(Outcome = ifelse(ALP > 75, "ALP Majority", ifelse(LNP > 75, "LNP Majority", "Hung Parliament")))
 
 
+tppTrend <- read_csv(tppTrendFile) %>% filter(Electorate=="AUS") %>% tail(1)
 
+primaryTrend <- read_csv(primaryTrendFile) %>% filter(Electorate=="AUS") %>%
+                arrange(PollEndDate) %>% tail(5)
+primarySummary <- data.frame(ALP = primaryTrend %>% filter(Party=="ALP") %>% .[['Vote']] %>% round(.,1),
+                             LNP = primaryTrend %>% filter(Party=="LNP") %>% .[['Vote']] %>% round(.,1),
+                             GRN = primaryTrend %>% filter(Party=="GRN") %>% .[['Vote']] %>% round(.,1),
+                             PUP = primaryTrend %>% filter(Party=="PUP") %>% .[['Vote']] %>% round(.,1),
+                             OTH = primaryTrend %>% filter(Party=="OTH") %>% .[['Vote']] %>% round(.,1) )
+summaryOutputFile <- paste0(outputDirectory, "/ElectionSummary.json")
+outcomeProbabilities <- summary(as.factor(seatsWon$Outcome))/(nRepetitions)*100
 
+sink(file=summaryOutputFile)
+cat(toJSON(list(
+  twoPartyPreferred = round(tppTrend$ALP2pp,1),
+  primary = primarySummary,
+  outcomeProbabilities = outcomeProbabilities,
+  mostLikelyOutcome = names(which(unlist(outcomeProbabilities) == max(unlist(outcomeProbabilities))))
+  )
+  ))
+sink()
 
-
-
+emptyOutput <- data.frame()
+write.table(emptyOutput, file=outputSentinel, col.names=FALSE)
 
