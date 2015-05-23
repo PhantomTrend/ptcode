@@ -176,7 +176,7 @@ completeData[which(completeData$PollEndDate %in% newspollQuarterlyDates &
 
 assert_is_numeric(completeData$Vote)
 # One Nielsen WA state poll + Galaxy QLD + the pre-2013 PUP votes should be NA
-invisible(assert_that(length(which(is.na(completeData$Vote))) == 1553))   
+invisible(assert_that(length(which(is.na(completeData$Vote))) == 1573))   
 assert_all_are_non_negative(na.omit(completeData$Vote))
 nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 0.9, 60)
