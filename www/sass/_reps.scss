@@ -1,3 +1,5 @@
+$party-names-caps: ALP, LNP, GRN, PUP, OTH;
+
 .repsSummaryNumber {
     font-weight: bold;
 }
@@ -58,7 +60,7 @@
     margin-right: 3px;
 }
 .seatPrimaryRow div:first-child:before{
-    content: "Primary Votes";
+    content: "Primary Votes:";
     margin-right: 5px;
 }
 .seatPrimaryRow div {
@@ -66,9 +68,12 @@
     margin-left: 3px;
     margin-right: 3px;
 }
-.seatPrimaryRow div.ALP:before{
-    content: "ALP";
-    margin-right: 3px;
+
+@each $pname in $party-names-caps {
+    .seatPrimaryRow div.#{$pname}:before {
+        content: "#{$pname}:";
+        margin-right: 3px;
+    }
 }
 
 .seatExtraInfo div {
