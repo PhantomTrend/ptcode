@@ -1,0 +1,165 @@
+body {
+  background-image: url("../img/graphy.png");
+  color: #222;
+  font: 14px Helvetica Neue, Arial, sans-serif;
+  margin: 0;
+  padding: 0; }
+
+#container {
+  background: #fff;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 750px;
+  padding: 10px;
+  top: 0; }
+
+a:link {
+  color: #7358eb;
+  text-decoration: none; }
+
+a:visited {
+  color: #7358eb;
+  text-decoration: none; }
+
+a:hover {
+  color: #7358eb;
+  text-decoration: underline; }
+
+a:active {
+  color: #7358eb;
+  text-decoration: underline; }
+
+.pagetitle h1 {
+  color: #5521bb;
+  font: bold 60px Helvetica Neue, Arial, sans-serif;
+  line-height: .9;
+  margin-bottom: 5%;
+  margin-top: 5%;
+  text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.2); }
+
+.pagetitle p {
+  color: #777;
+  font-size: 140%; }
+
+.pagepart h2 {
+  background: #f6f6f6;
+  box-shadow: 0 2px 2px #eaeaea;
+  clear: both;
+  margin-bottom: 25px;
+  margin-top: 60px;
+  padding-bottom: 3px;
+  padding-left: 15px;
+  padding-top: 3px; }
+
+.pagepart.firstrow h2 {
+  margin-top: 25px; }
+
+#github-commit-list {
+  margin-left: 25px; }
+
+#aboutthis h3 {
+  margin-left: 25px; }
+
+#aboutthis p {
+  margin-left: 25px;
+  margin-right: 25px; }
+
+#trend-chart {
+  margin-left: auto;
+  margin-right: auto; }
+
+#chart-controls {
+  margin-top: 15px;
+  padding: 5px;
+  text-align: center; }
+
+#chart-controls li {
+  display: inline-block;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px; }
+
+#chart-controls ul {
+  list-style: none;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 600px; }
+
+#chart-controls h3 {
+  margin: 0;
+  color: #838383;
+  text-align: left; }
+
+#chart-controls select {
+  background: #f8f8f8;
+  color: #2f2f2f;
+  border: 1px solid #eee; }
+
+#chart-controls select:disabled {
+  color: #a8a8a8; }
+
+.repsSummaryNumber {
+  font-weight: bold; }
+
+.seatTile {
+  background-color: #dfdfdf;
+  margin-bottom: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+  border: 1px solid;
+  float: left;
+  width: 45%; }
+
+.seatTile.alpRetain {
+  background-color: #ffcfcf; }
+
+.seatTile.alpWin {
+  background-color: #ff6969; }
+
+.seatTile.lnpRetain {
+  background-color: #bbc9ff; }
+
+.seatTile.lnpWin {
+  background-color: #5577ff; }
+
+.seatTile.grnRetain {
+  background-color: #94f98f; }
+
+.seatTile.grnWin {
+  background-color: #38f32f; }
+
+@media screen and (max-width: 480px) {
+  .seatTile {
+    float: none;
+    width: auto; } }
+.seatHeaderRow div {
+  display: inline-block; }
+
+.seatIncumbentRow div {
+  display: inline-block; }
+
+.seatTwoPPRow div {
+  display: inline-block;
+  margin-left: 3px;
+  margin-right: 3px; }
+
+.seatPrimaryRow div:first-child:before {
+  content: "Primary Votes";
+  margin-right: 5px; }
+
+.seatPrimaryRow div {
+  display: inline-block;
+  margin-left: 3px;
+  margin-right: 3px; }
+
+.seatPrimaryRow div.ALP:before {
+  content: "ALP";
+  margin-right: 3px; }
+
+.seatExtraInfo div {
+  display: inline-block; }
+
+/*# sourceMappingURL=pt.css.map */

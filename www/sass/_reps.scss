@@ -1,0 +1,76 @@
+.repsSummaryNumber {
+    font-weight: bold;
+}
+
+.seatTile {
+    background-color: #dfdfdf;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border: 1px solid;
+    float: left;
+    width: 45%;
+}
+
+.seatTile.alpRetain {
+    background-color: lighten($alp-red, 20%);
+}
+
+.seatTile.alpWin {
+    background-color: $alp-red;
+}
+
+.seatTile.lnpRetain {
+    background-color: lighten($lnp-blue, 20%);
+}
+
+.seatTile.lnpWin {
+    background-color: $lnp-blue;
+}
+
+.seatTile.grnRetain {
+    background-color: lighten($grn-green, 20%);
+}
+
+.seatTile.grnWin {
+    background-color: $grn-green;
+}
+
+
+@media screen and (max-width: 480px) {
+    .seatTile {
+        float: none;
+        width: auto;
+    }
+}
+
+
+
+.seatHeaderRow div {
+    display: inline-block;
+}
+.seatIncumbentRow div {
+    display: inline-block;
+}
+.seatTwoPPRow div {
+    display: inline-block;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+.seatPrimaryRow div:first-child:before{
+    content: "Primary Votes";
+    margin-right: 5px;
+}
+.seatPrimaryRow div {
+    display: inline-block;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+.seatPrimaryRow div.ALP:before{
+    content: "ALP";
+    margin-right: 3px;
+}
+
+.seatExtraInfo div {
+    display: inline-block;
+}
