@@ -147,7 +147,7 @@ a:active {
   margin-right: 3px; }
 
 .seatPrimaryRow div:first-child:before {
-  content: "Primary Votes";
+  content: "Primary Votes:";
   margin-right: 5px; }
 
 .seatPrimaryRow div {
@@ -156,7 +156,23 @@ a:active {
   margin-right: 3px; }
 
 .seatPrimaryRow div.ALP:before {
-  content: "ALP";
+  content: "ALP:";
+  margin-right: 3px; }
+
+.seatPrimaryRow div.LNP:before {
+  content: "LNP:";
+  margin-right: 3px; }
+
+.seatPrimaryRow div.GRN:before {
+  content: "GRN:";
+  margin-right: 3px; }
+
+.seatPrimaryRow div.PUP:before {
+  content: "PUP:";
+  margin-right: 3px; }
+
+.seatPrimaryRow div.OTH:before {
+  content: "OTH:";
   margin-right: 3px; }
 
 .seatExtraInfo div {

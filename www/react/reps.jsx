@@ -33,6 +33,8 @@ var RepsSeatList = React.createClass({
         }
         return (
             <div className="repsSeatList">
+                <h4>Individual Seats</h4>
+                
                 {seatNodes}
             </div>
         );

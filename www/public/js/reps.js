@@ -33,6 +33,7 @@ var RepsSeatList = React.createClass({displayName: "RepsSeatList",
         }
         return (
             React.createElement("div", {className: "repsSeatList"}, 
+                React.createElement("h4", null, "Individual Seats"), 
                 seatNodes
             )
         );
