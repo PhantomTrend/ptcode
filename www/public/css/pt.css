@@ -46,7 +46,7 @@ a:active {
   box-shadow: 0 2px 2px #eaeaea;
   clear: both;
   margin-bottom: 25px;
-  margin-top: 60px;
+  margin-top: 50px;
   padding-bottom: 3px;
   padding-left: 15px;
   padding-top: 3px; }
@@ -104,6 +104,14 @@ a:active {
 .repsSummaryNumber {
   font-weight: bold; }
 
+.repsFilterBox {
+  margin-left: 10px;
+  margin-bottom: 15px;
+  min-width: 110px; }
+
+.repsSeatListEnd {
+  clear: both; }
+
 .seatTile {
   background-color: #dfdfdf;
   margin-bottom: 5px;
@@ -111,25 +119,42 @@ a:active {
   margin-right: 5px;
   border: 1px solid;
   float: left;
-  width: 45%; }
+  width: 45%;
+  padding: 5px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  border-radius: 3px; }
 
 .seatTile.alpRetain {
-  background-color: #ffcfcf; }
+  background: -webkit-gradient(linear, left top, left bottom, from(white), to(#ffcfcf));
+  background: -moz-linear-gradient(top, white, #ffcfcf);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='white', endColorstr='#ffcfcf'); }
 
 .seatTile.alpWin {
-  background-color: #ff6969; }
+  background: -webkit-gradient(linear, left top, left bottom, from(#ff9c9c), to(#ff6969));
+  background: -moz-linear-gradient(top, #ff9c9c, #ff6969);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff9c9c', endColorstr='#ff6969'); }
 
 .seatTile.lnpRetain {
-  background-color: #bbc9ff; }
+  background: -webkit-gradient(linear, left top, left bottom, from(#eef1ff), to(#bbc9ff));
+  background: -moz-linear-gradient(top, #eef1ff, #bbc9ff);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eef1ff', endColorstr='#bbc9ff'); }
 
 .seatTile.lnpWin {
-  background-color: #5577ff; }
+  background: -webkit-gradient(linear, left top, left bottom, from(#88a0ff), to(#5577ff));
+  background: -moz-linear-gradient(top, #88a0ff, #5577ff);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#88a0ff', endColorstr='#5577ff'); }
 
 .seatTile.grnRetain {
-  background-color: #94f98f; }
+  background: -webkit-gradient(linear, left top, left bottom, from(#c2fbc0), to(#94f98f));
+  background: -moz-linear-gradient(top, #c2fbc0, #94f98f);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c2fbc0', endColorstr='#94f98f'); }
 
 .seatTile.grnWin {
-  background-color: #38f32f; }
+  background: -webkit-gradient(linear, left top, left bottom, from(#66f65f), to(#38f32f));
+  background: -moz-linear-gradient(top, #66f65f, #38f32f);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#66f65f', endColorstr='#38f32f'); }
 
 @media screen and (max-width: 480px) {
   .seatTile {
@@ -137,7 +162,8 @@ a:active {
     width: auto; } }
 .seatTile span.fa {
   margin-right: 5px;
-  cursor: pointer; }
+  cursor: pointer;
+  color: #262626; }
 
 .seatHeaderRow {
   display: inline-block; }
@@ -145,22 +171,47 @@ a:active {
 .seatHeaderRow div {
   display: inline-block; }
 
+.seatName {
+  font-weight: bold; }
+
+.seatDescription {
+  margin-left: 15px; }
+
 .seatIncumbentRow div {
-  display: inline-block; }
+  display: inline-block;
+  margin-left: 3px;
+  margin-right: 3px;
+  margin-top: 5px; }
+
+.seatIncumbentName:before {
+  content: 'Current Member:';
+  margin-right: 3px; }
+
+.seatIncumbentParty:before {
+  content: '('; }
+
+.seatIncumbentParty:after {
+  content: ')'; }
 
 .seatTwoPPRow div {
   display: inline-block;
   margin-left: 3px;
+  margin-right: 3px;
+  margin-top: 2px; }
+
+.seatTwoPPRow div.ALP:before {
+  content: "ALP 2PP:";
   margin-right: 3px; }
 
-.seatPrimaryRow div:first-child:before {
-  content: "Primary Votes:";
-  margin-right: 5px; }
+.seatTwoPPRow div.LNP:before {
+  content: "LNP 2PP:";
+  margin-right: 3px; }
 
 .seatPrimaryRow div {
   display: inline-block;
   margin-left: 3px;
-  margin-right: 3px; }
+  margin-right: 3px;
+  margin-top: 2px; }
 
 .seatPrimaryRow div.ALP:before {
   content: "ALP:";
@@ -183,6 +234,13 @@ a:active {
   margin-right: 3px; }
 
 .seatExtraInfo div {
-  display: inline-block; }
+  display: inline-block;
+  margin-right: 3px;
+  margin-left: 3px;
+  margin-top: 5px; }
+
+.seatExtraInfo a {
+  color: #222;
+  font-weight: 500; }
 
 /*# sourceMappingURL=pt.css.map */
