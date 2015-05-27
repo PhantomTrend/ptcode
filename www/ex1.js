@@ -33,7 +33,7 @@ var accessLogStream = FileStreamRotator.getStream({
 // setup the logger
 app.use(morgan('combined', {stream: accessLogStream}));
 
-
+var electionSummaryStats = JSON.parse(fs.readFileSync("ElectionSummary.json", "utf8"));
 
 var doT = require('dot-express');
 app.set('view engine', 'dot');
@@ -46,6 +46,7 @@ app.get('/', function(req, res) {
     getHouseResultsJson(function(houseResults){
         var templateData = {
             "PT_HOST": serverConfig.host_address + ":" + serverConfig.host_port,
+            "electionSummaryStats": electionSummaryStats,
             "houseResults": houseResults
         };
         res.render('index.html', templateData);
@@ -99,7 +100,7 @@ app.get('/polls', function(req, res) {
 
 app.get('/robots.txt', function(req, res) {
     res.type('text/plain');
-    res.send("User-agent: *\nDisallow: http://www.phantomtrend.com/twopp\nDisallow:http://www.phantomtrend.com/primary\nDisallow:http://www.phantomtrend.com/polls\n/");
+    res.send("User-agent: *\nDisallow: http://www.phantomtrend.com/twopp\nDisallow:http://www.phantomtrend.com/primary\nDisallow:http://www.phantomtrend.com/polls\n");
 });
 
 var server = app.listen(serverConfig.host_port, function() {

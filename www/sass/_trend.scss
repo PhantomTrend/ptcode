@@ -1,0 +1,40 @@
+
+#trend-chart {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#chart-controls {
+    margin-top: 15px;
+    padding: 5px;
+    text-align: center;
+}
+#chart-controls li {
+    display: inline-block;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+#chart-controls ul {
+    list-style: none;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 600px;
+}
+#chart-controls h3 {
+    margin: 0;
+    color: #838383;
+    text-align: left;
+}
+#chart-controls select {
+    background: #f8f8f8;
+    color:#2f2f2f;
+    border: 1px solid #eee;
+}
+
+#chart-controls select:disabled {
+    color:#a8a8a8;
+}

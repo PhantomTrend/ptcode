@@ -1,0 +1,158 @@
+$party-names-caps: ALP, LNP, GRN, PUP, OTH;
+
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+
+@mixin gradient($from, $to) {
+  background: -webkit-gradient(linear, left top, left bottom, from($from), to($to));
+  background: -moz-linear-gradient(top, $from, $to);
+  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$from}', endColorstr='#{$to}');
+}
+
+
+.repsSummaryNumber {
+    font-weight: bold;
+}
+
+.repsFilterBox {
+    margin-left: 10px;
+    margin-bottom: 15px;
+    min-width: 110px;
+}
+
+.repsSeatListEnd {
+    clear: both;
+}
+
+.seatTile {
+    background-color: #dfdfdf;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border: 1px solid;
+    float: left;
+    width: 45%;
+    padding: 5px;
+    @include border-radius(3px);
+}
+
+.seatTile.alpRetain {
+    @include gradient(lighten($alp-red, 30%), lighten($alp-red, 20%));
+}
+
+.seatTile.alpWin {
+    //background-color: $alp-red;
+    @include gradient(lighten($alp-red, 10%), $alp-red);
+}
+
+.seatTile.lnpRetain {
+    @include gradient(lighten($lnp-blue, 30%), lighten($lnp-blue, 20%));
+}
+
+.seatTile.lnpWin {
+    @include gradient(lighten($lnp-blue, 10%), $lnp-blue);
+}
+
+.seatTile.grnRetain {
+    @include gradient(lighten($grn-green, 30%), lighten($grn-green, 20%));
+}
+
+.seatTile.grnWin {
+    @include gradient(lighten($grn-green, 10%), $grn-green);
+}
+
+
+@media screen and (max-width: 480px) {
+    .seatTile {
+        float: none;
+        width: auto;
+    }
+}
+
+// Toggle icon display
+.seatTile span.fa {
+    margin-right: 5px;
+    cursor: pointer;
+    color: #262626;
+}
+
+.seatHeaderRow {
+    display: inline-block;
+}
+
+.seatHeaderRow div {
+    display: inline-block;
+}
+
+.seatName {
+    font-weight: bold;
+}
+
+.seatDescription {
+    margin-left: 15px;
+}
+
+.seatIncumbentRow div {
+    display: inline-block;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 5px;
+}
+
+.seatIncumbentName:before {
+    content: 'Current Member:';
+    margin-right: 3px;
+}
+
+.seatIncumbentParty:before {
+    content: '(';
+}
+
+.seatIncumbentParty:after {
+    content: ')';
+}
+
+
+.seatTwoPPRow div {
+    display: inline-block;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 2px;
+}
+
+@each $pname in ALP, LNP {
+    .seatTwoPPRow div.#{$pname}:before {
+        content: "#{$pname} 2PP:";
+        margin-right: 3px;
+    }
+}
+
+.seatPrimaryRow div {
+    display: inline-block;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 2px;
+}
+
+@each $pname in $party-names-caps {
+    .seatPrimaryRow div.#{$pname}:before {
+        content: "#{$pname}:";
+        margin-right: 3px;
+    }
+}
+
+.seatExtraInfo div {
+    display: inline-block;
+    margin-right: 3px;
+    margin-left: 3px;
+    margin-top: 5px;
+}
+
+.seatExtraInfo a {
+    color: #222;
+    font-weight: 500;
+}

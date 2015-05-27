@@ -27,7 +27,7 @@ var trend = (function() {
 
     var graphState = {
         electorate: "AUS",
-        partypov: "ALP",
+        partypov: "BOTH",
         yaxis: "auto",
         type: "twopp",
         primariesToShow: ["ALP", "LNP", "GRN", "PUP", "OTH"],
@@ -43,6 +43,8 @@ var trend = (function() {
             // Set an initial datewindow that will be overridden by the user
             graphOptions.dateWindow = [new Date("2013-01-01"), new Date("2015-06-01")];
             delete graphOptions.file; // because we specify graphData explicitly
+            graphOptions.width = Math.min(650, 0.9*document.getElementById('container').offsetWidth);
+            graphOptions.height = 0.9*graphOptions.graphWidth;
             graph = new Dygraph(
                 document.getElementById("trend-chart"),
                 plotData.data, graphOptions);
@@ -127,13 +129,19 @@ var trend = (function() {
         if (graphState.electorate === "AUS") {
             electorateName = "All of Australia";
         }
+        var partyNameString = graphState.partypov;
+        if(graphState.type === "primary"){
+            partyNameString = graphState.primariesToShow.join(', ');
+        }else if (graphState.partypov === "BOTH") {
+            partyNameString = "LNP/ALP";
+        }
         var graphTypeString = "";
         if (graphState.type === "twopp") {
-            graphTypeString = graphState.partypov + " \u2013 share of two-party preferred";
+            graphTypeString = "share of two-party preferred";
         } else {
-            graphTypeString = "Primary vote shares";
+            graphTypeString = "primary vote shares";
         }
-        return graphTypeString + " \u2013 " + electorateName;
+        return partyNameString + " \u2013 " + graphTypeString + " \u2013 " + electorateName;
     }
 
     function getGraphColours(colNames) {
