@@ -46,11 +46,20 @@ $party-names-caps: ALP, LNP, GRN, PUP, OTH;
     }
 }
 
+// Toggle icon display
+.seatTile span.fa {
+    margin-right: 5px;
+    cursor: pointer;
+}
 
+.seatHeaderRow {
+    display: inline-block;
+}
 
 .seatHeaderRow div {
     display: inline-block;
 }
+
 .seatIncumbentRow div {
     display: inline-block;
 }

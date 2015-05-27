@@ -135,6 +135,13 @@ a:active {
   .seatTile {
     float: none;
     width: auto; } }
+.seatTile span.fa {
+  margin-right: 5px;
+  cursor: pointer; }
+
+.seatHeaderRow {
+  display: inline-block; }
+
 .seatHeaderRow div {
   display: inline-block; }
 

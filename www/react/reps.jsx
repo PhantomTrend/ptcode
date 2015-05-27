@@ -34,7 +34,6 @@ var RepsSeatList = React.createClass({
         return (
             <div className="repsSeatList">
                 <h4>Individual Seats</h4>
-                
                 {seatNodes}
             </div>
         );
@@ -115,17 +114,33 @@ function getTileCssClass(d){
 }
 
 var RepsSeat = React.createClass({
+    getInitialState: function() {
+        return {showDetails: false};
+        },
+    handleClick: function(event) {
+        this.setState({showDetails: !this.state.showDetails});
+        },
     render: function() {
         var thisSeatClass = "seatTile " + getTileCssClass(this.props.data);
-        return(
-            <div className={thisSeatClass}>
-                <RepsSeatHeaderRow data={this.props.data} />
-                <RepsSeatIncumbentRow data={this.props.data} />
-                <RepsSeatTwoppRow data={this.props.data} />
-                <RepsSeatPrimaryRow data={this.props.data} />
-                <RepsSeatExtraInfoRow data={this.props.data} />
-            </div>
-        );
+        if(this.state.showDetails){
+            return(
+                <div className={thisSeatClass} onClick={this.handleClick}>
+                    <span className="fa fa-toggle-down"></span>
+                    <RepsSeatHeaderRow data={this.props.data} />
+                    <RepsSeatIncumbentRow data={this.props.data} />
+                    <RepsSeatTwoppRow data={this.props.data} />
+                    <RepsSeatPrimaryRow data={this.props.data} />
+                    <RepsSeatExtraInfoRow data={this.props.data} />
+                </div>
+            );
+        }else{
+            return(
+                <div className={thisSeatClass} onClick={this.handleClick}>
+                    <span className="fa fa-toggle-right"></span>
+                    <RepsSeatHeaderRow data={this.props.data} />
+                </div>
+            );
+        }
     }
 });
 

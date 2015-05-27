@@ -114,17 +114,33 @@ function getTileCssClass(d){
 }
 
 var RepsSeat = React.createClass({displayName: "RepsSeat",
+    getInitialState: function() {
+        return {showDetails: false};
+        },
+    handleClick: function(event) {
+        this.setState({showDetails: !this.state.showDetails});
+        },
     render: function() {
         var thisSeatClass = "seatTile " + getTileCssClass(this.props.data);
-        return(
-            React.createElement("div", {className: thisSeatClass}, 
-                React.createElement(RepsSeatHeaderRow, {data: this.props.data}), 
-                React.createElement(RepsSeatIncumbentRow, {data: this.props.data}), 
-                React.createElement(RepsSeatTwoppRow, {data: this.props.data}), 
-                React.createElement(RepsSeatPrimaryRow, {data: this.props.data}), 
-                React.createElement(RepsSeatExtraInfoRow, {data: this.props.data})
-            )
-        );
+        if(this.state.showDetails){
+            return(
+                React.createElement("div", {className: thisSeatClass, onClick: this.handleClick}, 
+                    React.createElement("span", {className: "fa fa-toggle-down"}), 
+                    React.createElement(RepsSeatHeaderRow, {data: this.props.data}), 
+                    React.createElement(RepsSeatIncumbentRow, {data: this.props.data}), 
+                    React.createElement(RepsSeatTwoppRow, {data: this.props.data}), 
+                    React.createElement(RepsSeatPrimaryRow, {data: this.props.data}), 
+                    React.createElement(RepsSeatExtraInfoRow, {data: this.props.data})
+                )
+            );
+        }else{
+            return(
+                React.createElement("div", {className: thisSeatClass, onClick: this.handleClick}, 
+                    React.createElement("span", {className: "fa fa-toggle-right"}), 
+                    React.createElement(RepsSeatHeaderRow, {data: this.props.data})
+                )
+            );
+        }
     }
 });
 
