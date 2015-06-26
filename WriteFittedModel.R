@@ -6,7 +6,7 @@ library(FKF)
 
 if(interactive()){
   args <- c('FittedModel.RData',
-            'PollingData/MergedData.csv', 'EstimatedMode.R', '5')
+            'PollingData/MergedData.csv', 'EstimatedMode.R', '4')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
@@ -77,8 +77,8 @@ getDateFromYearAndWeek <- function(y,w){ return( firstMondayOfYear(as.character(
 
 
 firstDate <- firstMondayOfYear("2000")
-invisible(assert_that(max(longData$PollEndDate) < as.Date('2015-05-31')))
-fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2015-05-31'))[-1]
+invisible(assert_that(max(longData$PollEndDate) < as.Date('2015-06-30')))
+fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2015-06-30'))[-1]
 
 modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   arrange(PollEndDate) %>% mutate(Year = getYear(PollEndDate),
@@ -293,6 +293,7 @@ optimControl = list(trace=6,REPORT=1, maxit=nOptimIterations)
 shuffledCoordinates = sample.int(length(thetaNow))
 coordinateIndexes = seq(0, length(thetaNow), nCoordinatesPerBlock)
 for(paramIndex in coordinateIndexes){
+  print(c("Coordinate", paramIndex, "of", length(coordinateIndexes)))
   theseCoordinates <- shuffledCoordinates[paramIndex:min(length(thetaNow),(paramIndex+nCoordinatesPerBlock-1))]
   print(names(do.call(c, unlist(theta0, recursive=FALSE)))[theseCoordinates])
   restrictedPosterior = function(x){
