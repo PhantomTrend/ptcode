@@ -45,6 +45,7 @@ var trend = (function() {
             delete graphOptions.file; // because we specify graphData explicitly
             graphOptions.width = Math.min(650, 0.9*document.getElementById('container').offsetWidth);
             graphOptions.height = 0.9*graphOptions.graphWidth;
+            graphOptions.axes = { 'y': {'valueFormatter': function(ppt){return(ppt.toFixed(1));}} };
             graph = new Dygraph(
                 document.getElementById("trend-chart"),
                 plotData.data, graphOptions);
