@@ -182,7 +182,8 @@ nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 0.9, 60)
 invisible(assert_that(is_in_closed_range(mean(nonZeroVotes), 20, 30)))
 pollstersWeKnowAbout <- c('Election', "Essential", "Essential Online", "Galaxy", "Morgan", "Morgan Multi", 
-                          "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL", "Ipsos")
+                          "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL", "Ipsos",
+                          "GalaxyNewspoll")
 invisible(assert_that(all(levels(completeData$Pollster) %in% pollstersWeKnowAbout)))
 assert_all_are_not_na(completeData$Pollster)
 partiesWeKnowAbout <- c("ALP", "GRN", "LNP", "OTH", "PUP", "PUPOTH", "GRNOTH")
@@ -191,7 +192,8 @@ assert_all_are_not_na(completeData$Party)
 electoratesWeKnowAbout <- c("AUS", "NSW", "QLD", "SA", "VIC", "WA", "ACT", "NT", "TAS")
 invisible(assert_that(all(levels(completeData$Electorate) %in% electoratesWeKnowAbout)))
 assert_all_are_not_na(completeData$Electorate)
-
+assert_is_empty(completeData %>% filter(Pollster == "Newspoll",
+                                        PollEndDate > as.Date("2015-07-01")), metric="elements")
 write.csv(completeData, outputFileName, row.names=FALSE)
 
 
