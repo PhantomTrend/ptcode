@@ -77,8 +77,8 @@ getDateFromYearAndWeek <- function(y,w){ return( firstMondayOfYear(as.character(
 
 
 firstDate <- firstMondayOfYear("2000")
-invisible(assert_that(max(longData$PollEndDate) < as.Date('2015-06-30')))
-fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2015-06-30'))[-1]
+invisible(assert_that(max(longData$PollEndDate) < as.Date('2015-12-31')))
+fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2015-12-31'))[-1]
 
 modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   arrange(PollEndDate) %>% mutate(Year = getYear(PollEndDate),
@@ -278,7 +278,7 @@ pollstersInEstimatedMode <- setdiff(names(theta0), partyNames)
 newPollsters <- setdiff(pollsters[which(!pollsters %in% pollstersInEstimatedMode)], 'Election')
 if(length(newPollsters) > 0){
   for(newPollster in newPollsters){
-    theta0[[newPollster]][['NoiseVariance']] <- 1
+    theta0[[newPollster]][['NoiseVariance']] <- 1.5
     for(party in observedPartyNames){
       theta0[[newPollster]][[party]] <- 0
     }
