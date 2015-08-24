@@ -123,7 +123,7 @@ validateData <- function(x){
 
 stateDataNew <- stateData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(fixMinorParties(.)) %>% ungroup()
 badStateData <- stateData %>% group_by(PollEndDate, Electorate, Pollster) %>% do(validateData(.))
-assert_that(nrow(badStateData)==13)     # One missing set of WA numbers, plus Galaxy's QLD-only polls
+assert_that(nrow(badStateData)==17)     # One missing set of WA numbers, plus Galaxy's QLD-only polls
 
 # Morgan reports Coalition numbers as "XX (YY)" where XX is the Liberal primary, YY is the National, and
 #  ZZ = (XX+YY) is the implicit Coalition primary. The APH Library have transcribed only XX+YY for all Morgan
@@ -176,7 +176,7 @@ completeData[which(completeData$PollEndDate %in% newspollQuarterlyDates &
 
 assert_is_numeric(completeData$Vote)
 # One Nielsen WA state poll + Galaxy QLD + the pre-2013 PUP votes should be NA
-invisible(assert_that(length(which(is.na(completeData$Vote))) == 1573))   
+invisible(assert_that(length(which(is.na(completeData$Vote))) == 1593))   
 assert_all_are_non_negative(na.omit(completeData$Vote))
 nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
 assert_all_are_in_closed_range(nonZeroVotes, 0.9, 60)
