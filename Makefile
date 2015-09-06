@@ -118,12 +118,12 @@ $(LOCAL_APP_SENTINEL): $(PRIMARY_TRENDS) $(TWOPP_CSV) $(POLLS_FOR_DB) $(ELECTION
 	touch $(LOCAL_APP_SENTINEL)
 
 $(WEB_APP_SENTINEL): $(PRIMARY_TRENDS) $(TWOPP_CSV) $(POLLS_FOR_DB) $(ELECTION_RESULTS_SENTINEL)
-	scp $(PRIMARY_TRENDS) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PrimaryVotes.csv
-	scp $(TWOPP_CSV) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/TwoPartyPreferred.csv
-	scp $(POLLS_FOR_DB) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PollsForDb.csv
-	scp $(SEAT_RESULTS_CSV) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/SeatResults.csv
-	scp $(ELECTION_SUMMARY_JSON) $(WEB_APP_ADDRESS):/root/ptcode/www/ElectionSummary.json
-	ssh root@128.199.72.176 "/root/updatedb.sh"
+	scp -i ~/.ssh/id_digitalocean $(PRIMARY_TRENDS) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PrimaryVotes.csv
+	scp -i ~/.ssh/id_digitalocean $(TWOPP_CSV) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/TwoPartyPreferred.csv
+	scp -i ~/.ssh/id_digitalocean $(POLLS_FOR_DB) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/PollsForDb.csv
+	scp -i ~/.ssh/id_digitalocean $(SEAT_RESULTS_CSV) $(WEB_APP_ADDRESS):$(WEB_APP_DIR)/SeatResults.csv
+	scp -i ~/.ssh/id_digitalocean $(ELECTION_SUMMARY_JSON) $(WEB_APP_ADDRESS):/root/ptcode/www/ElectionSummary.json
+	ssh -i ~/.ssh/id_digitalocean root@128.199.72.176 "/root/updatedb.sh"
 	touch $(WEB_APP_SENTINEL)
 
 localapp: $(LOCAL_APP_SENTINEL)
