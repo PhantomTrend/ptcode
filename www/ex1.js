@@ -42,6 +42,12 @@ app.engine('html', doT.__express);
 app.use('/css', express.static(__dirname + '/public/css'));
 app.use('/img', express.static(__dirname + '/public/img'));
 app.use('/js', express.static(__dirname + '/public/js'));
+
+app.get('/rss', function (req, res) {
+  res.set('Content-Type', 'application/rss+xml');
+  res.sendFile(__dirname + '/rss.xml');
+});
+
 app.get('/', function(req, res) {
     getHouseResultsJson(function(houseResults){
         var templateData = {
