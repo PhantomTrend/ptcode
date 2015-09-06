@@ -12,6 +12,10 @@ if(interactive()){
 }
 
 outputFileName <- args[1]
+outputDirectory <- dirname(outputFileName)
+if(!file.exists(outputDirectory)){
+  dir.create(outputDirectory, recursive=TRUE)
+}
 inputFileName  <- args[2]
 
 stateData <- tbl_df(read.csv(inputFileName, header=TRUE, stringsAsFactors=TRUE,

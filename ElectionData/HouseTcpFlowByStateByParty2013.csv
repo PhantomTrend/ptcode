@@ -1,0 +1,443 @@
+2013 Federal Election House of Representatives Two Candidate Preferred Preference Flow By State By Party [Event:17496 Phase:FinalResults Generated:2014-10-10T11:48:36 Cycle:d68da7af-d1b4-4e15-9884-37233f72ad6c Created:2013-12-05T15:24:22 Environment:PROD Site:PARKES Server:ACT01 Version:9.1.17.21449],,,,,,,,,,
+State,FromPartyGroupID,FromPartyGroupAb,FromPartyGroupNm,FromPartyOrderOfAppearance,ToPartyGroupID,ToPartyDisplayAb,ToPartyGroupNm,ToPartyOrderOfAppearance,TransferVotes,TransferPercentage
+NSW,2,ALP,Australian Labor Party,1,2,ALP,Australian Labor Party,1,0,0
+NSW,2,ALP,Australian Labor Party,1,4,LP,Liberal,2,0,0
+NSW,2,ALP,Australian Labor Party,1,20,NP,The Nationals,3,2666,24.63
+NSW,2,ALP,Australian Labor Party,1,40,IND,Independent,22,8159,75.37
+NSW,20,NP,The Nationals,3,2,ALP,Australian Labor Party,1,2612,30.59
+NSW,20,NP,The Nationals,3,4,LP,Liberal,2,5927,69.41
+NSW,20,NP,The Nationals,3,20,NP,The Nationals,3,0,0
+NSW,20,NP,The Nationals,3,40,IND,Independent,22,0,0
+NSW,37,GRN,The Greens,4,2,ALP,Australian Labor Party,1,269757,81.73
+NSW,37,GRN,The Greens,4,4,LP,Liberal,2,44251,13.41
+NSW,37,GRN,The Greens,4,20,NP,The Nationals,3,12641,3.83
+NSW,37,GRN,The Greens,4,40,IND,Independent,22,3401,1.03
+NSW,100573,KAP,Katter's Australian Party,5,2,ALP,Australian Labor Party,1,6673,40.36
+NSW,100573,KAP,Katter's Australian Party,5,4,LP,Liberal,2,7884,47.68
+NSW,100573,KAP,Katter's Australian Party,5,20,NP,The Nationals,3,1977,11.96
+NSW,100573,KAP,Katter's Australian Party,5,40,IND,Independent,22,0,0
+NSW,11,CDP,Christian Democratic Party,6,2,ALP,Australian Labor Party,1,24803,28
+NSW,11,CDP,Christian Democratic Party,6,4,LP,Liberal,2,51819,58.5
+NSW,11,CDP,Christian Democratic Party,6,20,NP,The Nationals,3,11425,12.9
+NSW,11,CDP,Christian Democratic Party,6,40,IND,Independent,22,529,0.6
+NSW,100574,PUP,Palmer United Party,7,2,ALP,Australian Labor Party,1,78703,45.09
+NSW,100574,PUP,Palmer United Party,7,4,LP,Liberal,2,65479,37.51
+NSW,100574,PUP,Palmer United Party,7,20,NP,The Nationals,3,27460,15.73
+NSW,100574,PUP,Palmer United Party,7,40,IND,Independent,22,2909,1.67
+NSW,32,DLP,DLP - Democratic Labour Party,8,2,ALP,Australian Labor Party,1,9629,56.95
+NSW,32,DLP,DLP - Democratic Labour Party,8,4,LP,Liberal,2,5169,30.57
+NSW,32,DLP,DLP - Democratic Labour Party,8,20,NP,The Nationals,3,2111,12.48
+NSW,32,DLP,DLP - Democratic Labour Party,8,40,IND,Independent,22,0,0
+NSW,1082,ON,One Nation,9,2,ALP,Australian Labor Party,1,8345,42.76
+NSW,1082,ON,One Nation,9,4,LP,Liberal,2,5514,28.25
+NSW,1082,ON,One Nation,9,20,NP,The Nationals,3,4730,24.24
+NSW,1082,ON,One Nation,9,40,IND,Independent,22,928,4.75
+NSW,49258,AFN,Australia First Party (NSW) Incorporated,10,2,ALP,Australian Labor Party,1,2430,39.94
+NSW,49258,AFN,Australia First Party (NSW) Incorporated,10,4,LP,Liberal,2,2187,35.95
+NSW,49258,AFN,Australia First Party (NSW) Incorporated,10,20,NP,The Nationals,3,1467,24.11
+NSW,49258,AFN,Australia First Party (NSW) Incorporated,10,40,IND,Independent,22,0,0
+NSW,100580,BTA,Bullet Train For Australia,11,2,ALP,Australian Labor Party,1,3939,48.19
+NSW,100580,BTA,Bullet Train For Australia,11,4,LP,Liberal,2,2461,30.11
+NSW,100580,BTA,Bullet Train For Australia,11,20,NP,The Nationals,3,1774,21.7
+NSW,100580,BTA,Bullet Train For Australia,11,40,IND,Independent,22,0,0
+NSW,1081,CEC,Citizens Electoral Council,12,2,ALP,Australian Labor Party,1,2298,56.64
+NSW,1081,CEC,Citizens Electoral Council,12,4,LP,Liberal,2,695,17.13
+NSW,1081,CEC,Citizens Electoral Council,12,20,NP,The Nationals,3,861,21.22
+NSW,1081,CEC,Citizens Electoral Council,12,40,IND,Independent,22,203,5
+NSW,100571,RUA,Rise Up Australia Party,13,2,ALP,Australian Labor Party,1,2324,42.65
+NSW,100571,RUA,Rise Up Australia Party,13,4,LP,Liberal,2,2503,45.94
+NSW,100571,RUA,Rise Up Australia Party,13,20,NP,The Nationals,3,622,11.41
+NSW,100571,RUA,Rise Up Australia Party,13,40,IND,Independent,22,0,0
+NSW,100566,SPP,Stable Population Party,14,2,ALP,Australian Labor Party,1,1181,52.61
+NSW,100566,SPP,Stable Population Party,14,4,LP,Liberal,2,1064,47.39
+NSW,100566,SPP,Stable Population Party,14,20,NP,The Nationals,3,0,0
+NSW,100566,SPP,Stable Population Party,14,40,IND,Independent,22,0,0
+NSW,100572,AIN,Australian Independents,15,2,ALP,Australian Labor Party,1,1231,58.84
+NSW,100572,AIN,Australian Independents,15,4,LP,Liberal,2,861,41.16
+NSW,100572,AIN,Australian Independents,15,20,NP,The Nationals,3,0,0
+NSW,100572,AIN,Australian Independents,15,40,IND,Independent,22,0,0
+NSW,16418,ASXP,Australian Sex Party,16,2,ALP,Australian Labor Party,1,2022,61.42
+NSW,16418,ASXP,Australian Sex Party,16,4,LP,Liberal,2,1270,38.58
+NSW,16418,ASXP,Australian Sex Party,16,20,NP,The Nationals,3,0,0
+NSW,16418,ASXP,Australian Sex Party,16,40,IND,Independent,22,0,0
+NSW,1094,NCP,Non-Custodial Parents Party,17,2,ALP,Australian Labor Party,1,784,58.86
+NSW,1094,NCP,Non-Custodial Parents Party,17,4,LP,Liberal,2,548,41.14
+NSW,1094,NCP,Non-Custodial Parents Party,17,20,NP,The Nationals,3,0,0
+NSW,1094,NCP,Non-Custodial Parents Party,17,40,IND,Independent,22,0,0
+NSW,1127,SAL,Socialist Alliance,18,2,ALP,Australian Labor Party,1,927,75.43
+NSW,1127,SAL,Socialist Alliance,18,4,LP,Liberal,2,302,24.57
+NSW,1127,SAL,Socialist Alliance,18,20,NP,The Nationals,3,0,0
+NSW,1127,SAL,Socialist Alliance,18,40,IND,Independent,22,0,0
+NSW,100567,FUT,Future Party,19,2,ALP,Australian Labor Party,1,453,65.37
+NSW,100567,FUT,Future Party,19,4,LP,Liberal,2,240,34.63
+NSW,100567,FUT,Future Party,19,20,NP,The Nationals,3,0,0
+NSW,100567,FUT,Future Party,19,40,IND,Independent,22,0,0
+NSW,49262,SPA,Secular Party of Australia,20,2,ALP,Australian Labor Party,1,405,67.28
+NSW,49262,SPA,Secular Party of Australia,20,4,LP,Liberal,2,197,32.72
+NSW,49262,SPA,Secular Party of Australia,20,20,NP,The Nationals,3,0,0
+NSW,49262,SPA,Secular Party of Australia,20,40,IND,Independent,22,0,0
+NSW,100569,VCE,Australian Voice Party,21,2,ALP,Australian Labor Party,1,249,45.69
+NSW,100569,VCE,Australian Voice Party,21,4,LP,Liberal,2,296,54.31
+NSW,100569,VCE,Australian Voice Party,21,20,NP,The Nationals,3,0,0
+NSW,100569,VCE,Australian Voice Party,21,40,IND,Independent,22,0,0
+NSW,40,IND,Independent,22,2,ALP,Australian Labor Party,1,27655,46.66
+NSW,40,IND,Independent,22,4,LP,Liberal,2,20356,34.34
+NSW,40,IND,Independent,22,20,NP,The Nationals,3,7523,12.69
+NSW,40,IND,Independent,22,40,IND,Independent,22,3740,6.31
+NSW,0,,First Preferences,9999,2,ALP,Australian Labor Party,1,1423017,41.94
+NSW,0,,First Preferences,9999,4,LP,Liberal,2,1551436,45.72
+NSW,0,,First Preferences,9999,20,NP,The Nationals,3,406233,11.97
+NSW,0,,First Preferences,9999,40,IND,Independent,22,12574,0.37
+VIC,2,ALP,Australian Labor Party,1,2,ALP,Australian Labor Party,1,0,0
+VIC,2,ALP,Australian Labor Party,1,4,LP,Liberal,2,9101,35.84
+VIC,2,ALP,Australian Labor Party,1,20,NP,The Nationals,3,7087,27.91
+VIC,2,ALP,Australian Labor Party,1,37,GRN,The Greens,4,0,0
+VIC,2,ALP,Australian Labor Party,1,40,IND,Independent,25,9207,36.26
+VIC,4,LP,Liberal,2,2,ALP,Australian Labor Party,1,41060,68.4
+VIC,4,LP,Liberal,2,4,LP,Liberal,2,0,0
+VIC,4,LP,Liberal,2,20,NP,The Nationals,3,0,0
+VIC,4,LP,Liberal,2,37,GRN,The Greens,4,18968,31.6
+VIC,4,LP,Liberal,2,40,IND,Independent,25,0,0
+VIC,20,NP,The Nationals,3,2,ALP,Australian Labor Party,1,1474,28.12
+VIC,20,NP,The Nationals,3,4,LP,Liberal,2,3768,71.88
+VIC,20,NP,The Nationals,3,20,NP,The Nationals,3,0,0
+VIC,20,NP,The Nationals,3,37,GRN,The Greens,4,0,0
+VIC,20,NP,The Nationals,3,40,IND,Independent,25,0,0
+VIC,37,GRN,The Greens,4,2,ALP,Australian Labor Party,1,228401,82.76
+VIC,37,GRN,The Greens,4,4,LP,Liberal,2,42171,15.28
+VIC,37,GRN,The Greens,4,20,NP,The Nationals,3,2749,1
+VIC,37,GRN,The Greens,4,37,GRN,The Greens,4,0,0
+VIC,37,GRN,The Greens,4,40,IND,Independent,25,2663,0.96
+VIC,100573,KAP,Katter's Australian Party,5,2,ALP,Australian Labor Party,1,5100,33.1
+VIC,100573,KAP,Katter's Australian Party,5,4,LP,Liberal,2,8640,56.07
+VIC,100573,KAP,Katter's Australian Party,5,20,NP,The Nationals,3,1309,8.5
+VIC,100573,KAP,Katter's Australian Party,5,37,GRN,The Greens,4,0,0
+VIC,100573,KAP,Katter's Australian Party,5,40,IND,Independent,25,360,2.34
+VIC,1125,FFP,Family First,6,2,ALP,Australian Labor Party,1,25240,42.57
+VIC,1125,FFP,Family First,6,4,LP,Liberal,2,30280,51.07
+VIC,1125,FFP,Family First,6,20,NP,The Nationals,3,1833,3.09
+VIC,1125,FFP,Family First,6,37,GRN,The Greens,4,1291,2.18
+VIC,1125,FFP,Family First,6,40,IND,Independent,25,644,1.09
+VIC,100574,PUP,Palmer United Party,7,2,ALP,Australian Labor Party,1,55886,46.72
+VIC,100574,PUP,Palmer United Party,7,4,LP,Liberal,2,55645,46.52
+VIC,100574,PUP,Palmer United Party,7,20,NP,The Nationals,3,4084,3.41
+VIC,100574,PUP,Palmer United Party,7,37,GRN,The Greens,4,2483,2.08
+VIC,100574,PUP,Palmer United Party,7,40,IND,Independent,25,1525,1.27
+VIC,100571,RUA,Rise Up Australia Party,8,2,ALP,Australian Labor Party,1,7000,38.62
+VIC,100571,RUA,Rise Up Australia Party,8,4,LP,Liberal,2,8764,48.36
+VIC,100571,RUA,Rise Up Australia Party,8,20,NP,The Nationals,3,791,4.36
+VIC,100571,RUA,Rise Up Australia Party,8,37,GRN,The Greens,4,890,4.91
+VIC,100571,RUA,Rise Up Australia Party,8,40,IND,Independent,25,679,3.75
+VIC,16418,ASXP,Australian Sex Party,9,2,ALP,Australian Labor Party,1,38883,57.64
+VIC,16418,ASXP,Australian Sex Party,9,4,LP,Liberal,2,21588,32
+VIC,16418,ASXP,Australian Sex Party,9,20,NP,The Nationals,3,2143,3.18
+VIC,16418,ASXP,Australian Sex Party,9,37,GRN,The Greens,4,3904,5.79
+VIC,16418,ASXP,Australian Sex Party,9,40,IND,Independent,25,942,1.4
+VIC,100576,AUC,Australian Christians,10,2,ALP,Australian Labor Party,1,6358,40.02
+VIC,100576,AUC,Australian Christians,10,4,LP,Liberal,2,9528,59.98
+VIC,100576,AUC,Australian Christians,10,20,NP,The Nationals,3,0,0
+VIC,100576,AUC,Australian Christians,10,37,GRN,The Greens,4,0,0
+VIC,100576,AUC,Australian Christians,10,40,IND,Independent,25,0,0
+VIC,32,DLP,DLP - Democratic Labour Party,11,2,ALP,Australian Labor Party,1,9418,56.35
+VIC,32,DLP,DLP - Democratic Labour Party,11,4,LP,Liberal,2,7119,42.59
+VIC,32,DLP,DLP - Democratic Labour Party,11,20,NP,The Nationals,3,0,0
+VIC,32,DLP,DLP - Democratic Labour Party,11,37,GRN,The Greens,4,177,1.06
+VIC,32,DLP,DLP - Democratic Labour Party,11,40,IND,Independent,25,0,0
+VIC,100570,CYA,Country Alliance,12,2,ALP,Australian Labor Party,1,1624,34.49
+VIC,100570,CYA,Country Alliance,12,4,LP,Liberal,2,2407,51.13
+VIC,100570,CYA,Country Alliance,12,20,NP,The Nationals,3,677,14.38
+VIC,100570,CYA,Country Alliance,12,37,GRN,The Greens,4,0,0
+VIC,100570,CYA,Country Alliance,12,40,IND,Independent,25,0,0
+VIC,100580,BTA,Bullet Train For Australia,13,2,ALP,Australian Labor Party,1,586,33.07
+VIC,100580,BTA,Bullet Train For Australia,13,4,LP,Liberal,2,693,39.11
+VIC,100580,BTA,Bullet Train For Australia,13,20,NP,The Nationals,3,0,0
+VIC,100580,BTA,Bullet Train For Australia,13,37,GRN,The Greens,4,171,9.65
+VIC,100580,BTA,Bullet Train For Australia,13,40,IND,Independent,25,322,18.17
+VIC,49262,SPA,Secular Party of Australia,14,2,ALP,Australian Labor Party,1,450,57.99
+VIC,49262,SPA,Secular Party of Australia,14,4,LP,Liberal,2,90,11.6
+VIC,49262,SPA,Secular Party of Australia,14,20,NP,The Nationals,3,80,10.31
+VIC,49262,SPA,Secular Party of Australia,14,37,GRN,The Greens,4,156,20.1
+VIC,49262,SPA,Secular Party of Australia,14,40,IND,Independent,25,0,0
+VIC,100566,SPP,Stable Population Party,15,2,ALP,Australian Labor Party,1,473,55.26
+VIC,100566,SPP,Stable Population Party,15,4,LP,Liberal,2,285,33.29
+VIC,100566,SPP,Stable Population Party,15,20,NP,The Nationals,3,0,0
+VIC,100566,SPP,Stable Population Party,15,37,GRN,The Greens,4,98,11.45
+VIC,100566,SPP,Stable Population Party,15,40,IND,Independent,25,0,0
+VIC,100565,AJP,Animal Justice Party,16,2,ALP,Australian Labor Party,1,726,38.66
+VIC,100565,AJP,Animal Justice Party,16,4,LP,Liberal,2,0,0
+VIC,100565,AJP,Animal Justice Party,16,20,NP,The Nationals,3,0,0
+VIC,100565,AJP,Animal Justice Party,16,37,GRN,The Greens,4,1152,61.34
+VIC,100565,AJP,Animal Justice Party,16,40,IND,Independent,25,0,0
+VIC,1081,CEC,Citizens Electoral Council,17,2,ALP,Australian Labor Party,1,194,34.83
+VIC,1081,CEC,Citizens Electoral Council,17,4,LP,Liberal,2,253,45.42
+VIC,1081,CEC,Citizens Electoral Council,17,20,NP,The Nationals,3,110,19.75
+VIC,1081,CEC,Citizens Electoral Council,17,37,GRN,The Greens,4,0,0
+VIC,1081,CEC,Citizens Electoral Council,17,40,IND,Independent,25,0,0
+VIC,1127,SAL,Socialist Alliance,18,2,ALP,Australian Labor Party,1,719,42.22
+VIC,1127,SAL,Socialist Alliance,18,4,LP,Liberal,2,152,8.93
+VIC,1127,SAL,Socialist Alliance,18,20,NP,The Nationals,3,0,0
+VIC,1127,SAL,Socialist Alliance,18,37,GRN,The Greens,4,832,48.85
+VIC,1127,SAL,Socialist Alliance,18,40,IND,Independent,25,0,0
+VIC,49258,AFN,Australia First Party (NSW) Incorporated,19,2,ALP,Australian Labor Party,1,87,41.04
+VIC,49258,AFN,Australia First Party (NSW) Incorporated,19,4,LP,Liberal,2,125,58.96
+VIC,49258,AFN,Australia First Party (NSW) Incorporated,19,20,NP,The Nationals,3,0,0
+VIC,49258,AFN,Australia First Party (NSW) Incorporated,19,37,GRN,The Greens,4,0,0
+VIC,49258,AFN,Australia First Party (NSW) Incorporated,19,40,IND,Independent,25,0,0
+VIC,100572,AIN,Australian Independents,20,2,ALP,Australian Labor Party,1,96,56.47
+VIC,100572,AIN,Australian Independents,20,4,LP,Liberal,2,0,0
+VIC,100572,AIN,Australian Independents,20,20,NP,The Nationals,3,0,0
+VIC,100572,AIN,Australian Independents,20,37,GRN,The Greens,4,74,43.53
+VIC,100572,AIN,Australian Independents,20,40,IND,Independent,25,0,0
+VIC,100579,APP,Australian Protectionist Party,21,2,ALP,Australian Labor Party,1,64,41.03
+VIC,100579,APP,Australian Protectionist Party,21,4,LP,Liberal,2,92,58.97
+VIC,100579,APP,Australian Protectionist Party,21,20,NP,The Nationals,3,0,0
+VIC,100579,APP,Australian Protectionist Party,21,37,GRN,The Greens,4,0,0
+VIC,100579,APP,Australian Protectionist Party,21,40,IND,Independent,25,0,0
+VIC,4877,LDP,Liberal Democrats (LDP),22,2,ALP,Australian Labor Party,1,964,20.44
+VIC,4877,LDP,Liberal Democrats (LDP),22,4,LP,Liberal,2,0,0
+VIC,4877,LDP,Liberal Democrats (LDP),22,20,NP,The Nationals,3,3752,79.56
+VIC,4877,LDP,Liberal Democrats (LDP),22,37,GRN,The Greens,4,0,0
+VIC,4877,LDP,Liberal Democrats (LDP),22,40,IND,Independent,25,0,0
+VIC,1094,NCP,Non-Custodial Parents Party,23,2,ALP,Australian Labor Party,1,133,61.86
+VIC,1094,NCP,Non-Custodial Parents Party,23,4,LP,Liberal,2,82,38.14
+VIC,1094,NCP,Non-Custodial Parents Party,23,20,NP,The Nationals,3,0,0
+VIC,1094,NCP,Non-Custodial Parents Party,23,37,GRN,The Greens,4,0,0
+VIC,1094,NCP,Non-Custodial Parents Party,23,40,IND,Independent,25,0,0
+VIC,100568,SOL,Senator Online,24,2,ALP,Australian Labor Party,1,83,39.71
+VIC,100568,SOL,Senator Online,24,4,LP,Liberal,2,126,60.29
+VIC,100568,SOL,Senator Online,24,20,NP,The Nationals,3,0,0
+VIC,100568,SOL,Senator Online,24,37,GRN,The Greens,4,0,0
+VIC,100568,SOL,Senator Online,24,40,IND,Independent,25,0,0
+VIC,40,IND,Independent,25,2,ALP,Australian Labor Party,1,12998,50.88
+VIC,40,IND,Independent,25,4,LP,Liberal,2,8854,34.66
+VIC,40,IND,Independent,25,20,NP,The Nationals,3,1039,4.07
+VIC,40,IND,Independent,25,37,GRN,The Greens,4,2017,7.9
+VIC,40,IND,Independent,25,40,IND,Independent,25,636,2.49
+VIC,41,NAFD,Non Affiliated,26,2,ALP,Australian Labor Party,1,406,21.76
+VIC,41,NAFD,Non Affiliated,26,4,LP,Liberal,2,0,0
+VIC,41,NAFD,Non Affiliated,26,20,NP,The Nationals,3,0,0
+VIC,41,NAFD,Non Affiliated,26,37,GRN,The Greens,4,1460,78.24
+VIC,41,NAFD,Non Affiliated,26,40,IND,Independent,25,0,0
+VIC,0,,First Preferences,9999,2,ALP,Australian Labor Party,1,1121499,43.64
+VIC,0,,First Preferences,9999,4,LP,Liberal,2,1260389,49.04
+VIC,0,,First Preferences,9999,20,NP,The Nationals,3,80803,3.14
+VIC,0,,First Preferences,9999,37,GRN,The Greens,4,79714,3.1
+VIC,0,,First Preferences,9999,40,IND,Independent,25,27763,1.08
+QLD,2,ALP,Australian Labor Party,1,2,ALP,Australian Labor Party,1,0,0
+QLD,2,ALP,Australian Labor Party,1,49261,LNP,Liberal National Party,2,5012,17.16
+QLD,2,ALP,Australian Labor Party,1,100573,KAP,Katter's Australian Party,4,11660,39.92
+QLD,2,ALP,Australian Labor Party,1,100574,PUP,Palmer United Party,6,12534,42.92
+QLD,37,GRN,The Greens,3,2,ALP,Australian Labor Party,1,118288,75.4
+QLD,37,GRN,The Greens,3,49261,LNP,Liberal National Party,2,32119,20.47
+QLD,37,GRN,The Greens,3,100573,KAP,Katter's Australian Party,4,1871,1.19
+QLD,37,GRN,The Greens,3,100574,PUP,Palmer United Party,6,4606,2.94
+QLD,100573,KAP,Katter's Australian Party,4,2,ALP,Australian Labor Party,1,35379,50.65
+QLD,100573,KAP,Katter's Australian Party,4,49261,LNP,Liberal National Party,2,33332,47.72
+QLD,100573,KAP,Katter's Australian Party,4,100573,KAP,Katter's Australian Party,4,0,0
+QLD,100573,KAP,Katter's Australian Party,4,100574,PUP,Palmer United Party,6,1138,1.63
+QLD,1125,FFP,Family First,5,2,ALP,Australian Labor Party,1,18712,36.42
+QLD,1125,FFP,Family First,5,49261,LNP,Liberal National Party,2,31450,61.22
+QLD,1125,FFP,Family First,5,100573,KAP,Katter's Australian Party,4,633,1.23
+QLD,1125,FFP,Family First,5,100574,PUP,Palmer United Party,6,580,1.13
+QLD,100574,PUP,Palmer United Party,6,2,ALP,Australian Labor Party,1,113424,44.36
+QLD,100574,PUP,Palmer United Party,6,49261,LNP,Liberal National Party,2,137871,53.92
+QLD,100574,PUP,Palmer United Party,6,100573,KAP,Katter's Australian Party,4,4421,1.73
+QLD,100574,PUP,Palmer United Party,6,100574,PUP,Palmer United Party,6,0,0
+QLD,100571,RUA,Rise Up Australia Party,7,2,ALP,Australian Labor Party,1,3258,32.95
+QLD,100571,RUA,Rise Up Australia Party,7,49261,LNP,Liberal National Party,2,6397,64.69
+QLD,100571,RUA,Rise Up Australia Party,7,100573,KAP,Katter's Australian Party,4,234,2.37
+QLD,100571,RUA,Rise Up Australia Party,7,100574,PUP,Palmer United Party,6,0,0
+QLD,1081,CEC,Citizens Electoral Council,8,2,ALP,Australian Labor Party,1,1234,53.84
+QLD,1081,CEC,Citizens Electoral Council,8,49261,LNP,Liberal National Party,2,1058,46.16
+QLD,1081,CEC,Citizens Electoral Council,8,100573,KAP,Katter's Australian Party,4,0,0
+QLD,1081,CEC,Citizens Electoral Council,8,100574,PUP,Palmer United Party,6,0,0
+QLD,1082,ON,One Nation,9,2,ALP,Australian Labor Party,1,797,31.51
+QLD,1082,ON,One Nation,9,49261,LNP,Liberal National Party,2,1230,48.64
+QLD,1082,ON,One Nation,9,100573,KAP,Katter's Australian Party,4,0,0
+QLD,1082,ON,One Nation,9,100574,PUP,Palmer United Party,6,502,19.85
+QLD,49262,SPA,Secular Party of Australia,10,2,ALP,Australian Labor Party,1,1248,69.03
+QLD,49262,SPA,Secular Party of Australia,10,49261,LNP,Liberal National Party,2,560,30.97
+QLD,49262,SPA,Secular Party of Australia,10,100573,KAP,Katter's Australian Party,4,0,0
+QLD,49262,SPA,Secular Party of Australia,10,100574,PUP,Palmer United Party,6,0,0
+QLD,100569,VCE,Australian Voice Party,11,2,ALP,Australian Labor Party,1,590,51.94
+QLD,100569,VCE,Australian Voice Party,11,49261,LNP,Liberal National Party,2,546,48.06
+QLD,100569,VCE,Australian Voice Party,11,100573,KAP,Katter's Australian Party,4,0,0
+QLD,100569,VCE,Australian Voice Party,11,100574,PUP,Palmer United Party,6,0,0
+QLD,100572,AIN,Australian Independents,12,2,ALP,Australian Labor Party,1,952,50.08
+QLD,100572,AIN,Australian Independents,12,49261,LNP,Liberal National Party,2,949,49.92
+QLD,100572,AIN,Australian Independents,12,100573,KAP,Katter's Australian Party,4,0,0
+QLD,100572,AIN,Australian Independents,12,100574,PUP,Palmer United Party,6,0,0
+QLD,16418,ASXP,Australian Sex Party,13,2,ALP,Australian Labor Party,1,1690,59.11
+QLD,16418,ASXP,Australian Sex Party,13,49261,LNP,Liberal National Party,2,1169,40.89
+QLD,16418,ASXP,Australian Sex Party,13,100573,KAP,Katter's Australian Party,4,0,0
+QLD,16418,ASXP,Australian Sex Party,13,100574,PUP,Palmer United Party,6,0,0
+QLD,100566,SPP,Stable Population Party,14,2,ALP,Australian Labor Party,1,290,39.78
+QLD,100566,SPP,Stable Population Party,14,49261,LNP,Liberal National Party,2,439,60.22
+QLD,100566,SPP,Stable Population Party,14,100573,KAP,Katter's Australian Party,4,0,0
+QLD,100566,SPP,Stable Population Party,14,100574,PUP,Palmer United Party,6,0,0
+QLD,32,DLP,DLP - Democratic Labour Party,15,2,ALP,Australian Labor Party,1,548,50.98
+QLD,32,DLP,DLP - Democratic Labour Party,15,49261,LNP,Liberal National Party,2,527,49.02
+QLD,32,DLP,DLP - Democratic Labour Party,15,100573,KAP,Katter's Australian Party,4,0,0
+QLD,32,DLP,DLP - Democratic Labour Party,15,100574,PUP,Palmer United Party,6,0,0
+QLD,100567,FUT,Future Party,16,2,ALP,Australian Labor Party,1,322,66.94
+QLD,100567,FUT,Future Party,16,49261,LNP,Liberal National Party,2,159,33.06
+QLD,100567,FUT,Future Party,16,100573,KAP,Katter's Australian Party,4,0,0
+QLD,100567,FUT,Future Party,16,100574,PUP,Palmer United Party,6,0,0
+QLD,1127,SAL,Socialist Alliance,17,2,ALP,Australian Labor Party,1,330,87.53
+QLD,1127,SAL,Socialist Alliance,17,49261,LNP,Liberal National Party,2,47,12.47
+QLD,1127,SAL,Socialist Alliance,17,100573,KAP,Katter's Australian Party,4,0,0
+QLD,1127,SAL,Socialist Alliance,17,100574,PUP,Palmer United Party,6,0,0
+QLD,100575,UNP,Uniting Australia Party,18,2,ALP,Australian Labor Party,1,174,45.08
+QLD,100575,UNP,Uniting Australia Party,18,49261,LNP,Liberal National Party,2,212,54.92
+QLD,100575,UNP,Uniting Australia Party,18,100573,KAP,Katter's Australian Party,4,0,0
+QLD,100575,UNP,Uniting Australia Party,18,100574,PUP,Palmer United Party,6,0,0
+QLD,40,IND,Independent,19,2,ALP,Australian Labor Party,1,4537,43.48
+QLD,40,IND,Independent,19,49261,LNP,Liberal National Party,2,4951,47.45
+QLD,40,IND,Independent,19,100573,KAP,Katter's Australian Party,4,386,3.7
+QLD,40,IND,Independent,19,100574,PUP,Palmer United Party,6,561,5.38
+QLD,41,NAFD,Non Affiliated,20,2,ALP,Australian Labor Party,1,1604,53.75
+QLD,41,NAFD,Non Affiliated,20,49261,LNP,Liberal National Party,2,1380,46.25
+QLD,41,NAFD,Non Affiliated,20,100573,KAP,Katter's Australian Party,4,0,0
+QLD,41,NAFD,Non Affiliated,20,100574,PUP,Palmer United Party,6,0,0
+QLD,0,,First Preferences,9999,2,ALP,Australian Labor Party,1,722024,37.58
+QLD,0,,First Preferences,9999,49261,LNP,Liberal National Party,2,1152217,59.97
+QLD,0,,First Preferences,9999,100573,KAP,Katter's Australian Party,4,24691,1.29
+QLD,0,,First Preferences,9999,100574,PUP,Palmer United Party,6,22409,1.17
+WA,2,ALP,Australian Labor Party,1,2,ALP,Australian Labor Party,1,0,0
+WA,2,ALP,Australian Labor Party,1,4,LP,Liberal,2,11278,38.55
+WA,2,ALP,Australian Labor Party,1,20,NP,The Nationals,3,17974,61.45
+WA,20,NP,The Nationals,3,2,ALP,Australian Labor Party,1,3227,28.38
+WA,20,NP,The Nationals,3,4,LP,Liberal,2,8144,71.62
+WA,20,NP,The Nationals,3,20,NP,The Nationals,3,0,0
+WA,37,GRN,The Greens,4,2,ALP,Australian Labor Party,1,89545,72.58
+WA,37,GRN,The Greens,4,4,LP,Liberal,2,25492,20.66
+WA,37,GRN,The Greens,4,20,NP,The Nationals,3,8333,6.75
+WA,100573,KAP,Katter's Australian Party,5,2,ALP,Australian Labor Party,1,1600,32.02
+WA,100573,KAP,Katter's Australian Party,5,4,LP,Liberal,2,2424,48.51
+WA,100573,KAP,Katter's Australian Party,5,20,NP,The Nationals,3,973,19.47
+WA,100576,AUC,Australian Christians,6,2,ALP,Australian Labor Party,1,5518,21.51
+WA,100576,AUC,Australian Christians,6,4,LP,Liberal,2,18888,73.64
+WA,100576,AUC,Australian Christians,6,20,NP,The Nationals,3,1243,4.85
+WA,100574,PUP,Palmer United Party,7,2,ALP,Australian Labor Party,1,26759,39.74
+WA,100574,PUP,Palmer United Party,7,4,LP,Liberal,2,35693,53.01
+WA,100574,PUP,Palmer United Party,7,20,NP,The Nationals,3,4880,7.25
+WA,100571,RUA,Rise Up Australia Party,8,2,ALP,Australian Labor Party,1,3401,37.16
+WA,100571,RUA,Rise Up Australia Party,8,4,LP,Liberal,2,4884,53.36
+WA,100571,RUA,Rise Up Australia Party,8,20,NP,The Nationals,3,868,9.48
+WA,1125,FFP,Family First,9,2,ALP,Australian Labor Party,1,5177,43.96
+WA,1125,FFP,Family First,9,4,LP,Liberal,2,5790,49.16
+WA,1125,FFP,Family First,9,20,NP,The Nationals,3,810,6.88
+WA,1081,CEC,Citizens Electoral Council,10,2,ALP,Australian Labor Party,1,627,38.28
+WA,1081,CEC,Citizens Electoral Council,10,4,LP,Liberal,2,616,37.61
+WA,1081,CEC,Citizens Electoral Council,10,20,NP,The Nationals,3,395,24.11
+WA,100579,APP,Australian Protectionist Party,11,2,ALP,Australian Labor Party,1,225,24.38
+WA,100579,APP,Australian Protectionist Party,11,4,LP,Liberal,2,698,75.62
+WA,100579,APP,Australian Protectionist Party,11,20,NP,The Nationals,3,0,0
+WA,3,DEM,Democrats,12,2,ALP,Australian Labor Party,1,692,59.15
+WA,3,DEM,Democrats,12,4,LP,Liberal,2,478,40.85
+WA,3,DEM,Democrats,12,20,NP,The Nationals,3,0,0
+WA,16418,ASXP,Australian Sex Party,13,2,ALP,Australian Labor Party,1,1300,58.14
+WA,16418,ASXP,Australian Sex Party,13,4,LP,Liberal,2,936,41.86
+WA,16418,ASXP,Australian Sex Party,13,20,NP,The Nationals,3,0,0
+WA,1127,SAL,Socialist Alliance,14,2,ALP,Australian Labor Party,1,622,83.71
+WA,1127,SAL,Socialist Alliance,14,4,LP,Liberal,2,121,16.29
+WA,1127,SAL,Socialist Alliance,14,20,NP,The Nationals,3,0,0
+WA,100577,SPRT,Australian Sports Party,15,2,ALP,Australian Labor Party,1,619,46.75
+WA,100577,SPRT,Australian Sports Party,15,4,LP,Liberal,2,705,53.25
+WA,100577,SPRT,Australian Sports Party,15,20,NP,The Nationals,3,0,0
+WA,40,IND,Independent,16,2,ALP,Australian Labor Party,1,1053,31.37
+WA,40,IND,Independent,16,4,LP,Liberal,2,1298,38.67
+WA,40,IND,Independent,16,20,NP,The Nationals,3,1006,29.97
+WA,0,,First Preferences,9999,2,ALP,Australian Labor Party,1,335000,34.46
+WA,0,,First Preferences,9999,4,LP,Liberal,2,599153,61.63
+WA,0,,First Preferences,9999,20,NP,The Nationals,3,38059,3.91
+SA,20,NP,The Nationals,3,2,ALP,Australian Labor Party,1,905,22.51
+SA,20,NP,The Nationals,3,4,LP,Liberal,2,3116,77.49
+SA,37,GRN,The Greens,4,2,ALP,Australian Labor Party,1,66526,79.91
+SA,37,GRN,The Greens,4,4,LP,Liberal,2,16726,20.09
+SA,100573,KAP,Katter's Australian Party,5,2,ALP,Australian Labor Party,1,1146,50.53
+SA,100573,KAP,Katter's Australian Party,5,4,LP,Liberal,2,1122,49.47
+SA,1125,FFP,Family First,6,2,ALP,Australian Labor Party,1,22612,41.56
+SA,1125,FFP,Family First,6,4,LP,Liberal,2,31797,58.44
+SA,100574,PUP,Palmer United Party,7,2,ALP,Australian Labor Party,1,19539,51.44
+SA,100574,PUP,Palmer United Party,7,4,LP,Liberal,2,18442,48.56
+SA,49258,AFN,Australia First Party (NSW) Incorporated,8,2,ALP,Australian Labor Party,1,468,41.94
+SA,49258,AFN,Australia First Party (NSW) Incorporated,8,4,LP,Liberal,2,648,58.06
+SA,32,DLP,DLP - Democratic Labour Party,9,2,ALP,Australian Labor Party,1,511,61.27
+SA,32,DLP,DLP - Democratic Labour Party,9,4,LP,Liberal,2,323,38.73
+SA,100571,RUA,Rise Up Australia Party,10,2,ALP,Australian Labor Party,1,422,35.43
+SA,100571,RUA,Rise Up Australia Party,10,4,LP,Liberal,2,769,64.57
+SA,1127,SAL,Socialist Alliance,11,2,ALP,Australian Labor Party,1,830,84.69
+SA,1127,SAL,Socialist Alliance,11,4,LP,Liberal,2,150,15.31
+SA,40,IND,Independent,12,2,ALP,Australian Labor Party,1,6720,52.36
+SA,40,IND,Independent,12,4,LP,Liberal,2,6114,47.64
+SA,0,,First Preferences,9999,2,ALP,Australian Labor Party,1,359273,44.54
+SA,0,,First Preferences,9999,4,LP,Liberal,2,447286,55.46
+TAS,4,LP,Liberal,2,2,ALP,Australian Labor Party,1,2466,16.38
+TAS,4,LP,Liberal,2,4,LP,Liberal,2,0,0
+TAS,4,LP,Liberal,2,40,IND,Independent,13,12592,83.62
+TAS,37,GRN,The Greens,3,2,ALP,Australian Labor Party,1,21366,77.79
+TAS,37,GRN,The Greens,3,4,LP,Liberal,2,3164,11.52
+TAS,37,GRN,The Greens,3,40,IND,Independent,13,2937,10.69
+TAS,100573,KAP,Katter's Australian Party,4,2,ALP,Australian Labor Party,1,230,48.12
+TAS,100573,KAP,Katter's Australian Party,4,4,LP,Liberal,2,248,51.88
+TAS,100573,KAP,Katter's Australian Party,4,40,IND,Independent,13,0,0
+TAS,100574,PUP,Palmer United Party,5,2,ALP,Australian Labor Party,1,10311,51.49
+TAS,100574,PUP,Palmer United Party,5,4,LP,Liberal,2,8783,43.86
+TAS,100574,PUP,Palmer United Party,5,40,IND,Independent,13,932,4.65
+TAS,1125,FFP,Family First,6,2,ALP,Australian Labor Party,1,2091,42.06
+TAS,1125,FFP,Family First,6,4,LP,Liberal,2,2526,50.81
+TAS,1125,FFP,Family First,6,40,IND,Independent,13,354,7.12
+TAS,100571,RUA,Rise Up Australia Party,7,2,ALP,Australian Labor Party,1,801,43.91
+TAS,100571,RUA,Rise Up Australia Party,7,4,LP,Liberal,2,939,51.48
+TAS,100571,RUA,Rise Up Australia Party,7,40,IND,Independent,13,84,4.61
+TAS,16418,ASXP,Australian Sex Party,8,2,ALP,Australian Labor Party,1,379,43.22
+TAS,16418,ASXP,Australian Sex Party,8,4,LP,Liberal,2,0,0
+TAS,16418,ASXP,Australian Sex Party,8,40,IND,Independent,13,498,56.78
+TAS,100576,AUC,Australian Christians,9,2,ALP,Australian Labor Party,1,200,20.77
+TAS,100576,AUC,Australian Christians,9,4,LP,Liberal,2,763,79.23
+TAS,100576,AUC,Australian Christians,9,40,IND,Independent,13,0,0
+TAS,32,DLP,DLP - Democratic Labour Party,10,2,ALP,Australian Labor Party,1,257,46.39
+TAS,32,DLP,DLP - Democratic Labour Party,10,4,LP,Liberal,2,0,0
+TAS,32,DLP,DLP - Democratic Labour Party,10,40,IND,Independent,13,297,53.61
+TAS,49262,SPA,Secular Party of Australia,11,2,ALP,Australian Labor Party,1,263,68.49
+TAS,49262,SPA,Secular Party of Australia,11,4,LP,Liberal,2,121,31.51
+TAS,49262,SPA,Secular Party of Australia,11,40,IND,Independent,13,0,0
+TAS,100566,SPP,Stable Population Party,12,2,ALP,Australian Labor Party,1,36,29.03
+TAS,100566,SPP,Stable Population Party,12,4,LP,Liberal,2,0,0
+TAS,100566,SPP,Stable Population Party,12,40,IND,Independent,13,88,70.97
+TAS,0,,First Preferences,9999,2,ALP,Australian Labor Party,1,114977,44.64
+TAS,0,,First Preferences,9999,4,LP,Liberal,2,117903,45.78
+TAS,0,,First Preferences,9999,40,IND,Independent,13,24688,9.59
+ACT,37,GRN,The Greens,3,2,ALP,Australian Labor Party,1,28468,87.98
+ACT,37,GRN,The Greens,3,4,LP,Liberal,2,3888,12.02
+ACT,100580,BTA,Bullet Train For Australia,4,2,ALP,Australian Labor Party,1,6389,64.83
+ACT,100580,BTA,Bullet Train For Australia,4,4,LP,Liberal,2,3466,35.17
+ACT,100574,PUP,Palmer United Party,5,2,ALP,Australian Labor Party,1,3424,50.44
+ACT,100574,PUP,Palmer United Party,5,4,LP,Liberal,2,3364,49.56
+ACT,3,DEM,Democrats,6,2,ALP,Australian Labor Party,1,1213,49.63
+ACT,3,DEM,Democrats,6,4,LP,Liberal,2,1231,50.37
+ACT,100571,RUA,Rise Up Australia Party,7,2,ALP,Australian Labor Party,1,591,39.19
+ACT,100571,RUA,Rise Up Australia Party,7,4,LP,Liberal,2,917,60.81
+ACT,49262,SPA,Secular Party of Australia,8,2,ALP,Australian Labor Party,1,927,73.34
+ACT,49262,SPA,Secular Party of Australia,8,4,LP,Liberal,2,337,26.66
+ACT,0,,First Preferences,9999,2,ALP,Australian Labor Party,1,103676,55.36
+ACT,0,,First Preferences,9999,4,LP,Liberal,2,83612,44.64
+NT,37,GRN,The Greens,3,2,ALP,Australian Labor Party,1,6310,80.47
+NT,37,GRN,The Greens,3,26,CLP,Country Liberals (NT),2,1531,19.53
+NT,1081,CEC,Citizens Electoral Council,4,2,ALP,Australian Labor Party,1,374,20.15
+NT,1081,CEC,Citizens Electoral Council,4,26,CLP,Country Liberals (NT),2,1482,79.85
+NT,100581,FNPP,A.F.N.P.P,5,2,ALP,Australian Labor Party,1,1081,59.72
+NT,100581,FNPP,A.F.N.P.P,5,26,CLP,Country Liberals (NT),2,729,40.28
+NT,100574,PUP,Palmer United Party,6,2,ALP,Australian Labor Party,1,1961,42.55
+NT,100574,PUP,Palmer United Party,6,26,CLP,Country Liberals (NT),2,2648,57.45
+NT,100571,RUA,Rise Up Australia Party,7,2,ALP,Australian Labor Party,1,588,40.72
+NT,100571,RUA,Rise Up Australia Party,7,26,CLP,Country Liberals (NT),2,856,59.28
+NT,16418,ASXP,Australian Sex Party,8,2,ALP,Australian Labor Party,1,1185,64.16
+NT,16418,ASXP,Australian Sex Party,8,26,CLP,Country Liberals (NT),2,662,35.84
+NT,100578,VEP,Voluntary Euthanasia Party,9,2,ALP,Australian Labor Party,1,349,58.46
+NT,100578,VEP,Voluntary Euthanasia Party,9,26,CLP,Country Liberals (NT),2,248,41.54
+NT,40,IND,Independent,10,2,ALP,Australian Labor Party,1,305,40.78
+NT,40,IND,Independent,10,26,CLP,Country Liberals (NT),2,443,59.22
+NT,0,,First Preferences,9999,2,ALP,Australian Labor Party,1,37221,47.3
+NT,0,,First Preferences,9999,26,CLP,Country Liberals (NT),2,41468,52.7

@@ -2,8 +2,9 @@
 
 ####### Data ######
 
+WORKING_DIR := Working
 ELECTION_DATA_DIR := ElectionData
-FIRST_PREFS_SUMMARY := $(ELECTION_DATA_DIR)/FirstPrefs.csv
+FIRST_PREFS_SUMMARY := $(WORKING_DIR)/FirstPrefs.csv
 $(FIRST_PREFS_SUMMARY): $(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2013.csv \
 	$(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2010.csv \
 	$(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2007.csv \
@@ -12,10 +13,10 @@ $(FIRST_PREFS_SUMMARY): $(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2013.c
 	
 POLL_DATA_DIR := PollingData
 
-$(POLL_DATA_DIR)/NationalDataLong.csv: $(POLL_DATA_DIR)/NationalData.csv
+$(WORKING_DIR)/NationalDataLong.csv: $(POLL_DATA_DIR)/NationalData.csv
 	Rscript WriteNationalDataLong.R $@ $^
 
-$(POLL_DATA_DIR)/StateDataLong.csv: $(POLL_DATA_DIR)/StateData.csv
+$(WORKING_DIR)/StateDataLong.csv: $(POLL_DATA_DIR)/StateData.csv
 	Rscript WriteStateDataLong.R $@ $^
 
 MERGED_DATA_FILE := $(POLL_DATA_DIR)/MergedData.csv

@@ -12,6 +12,10 @@ if(interactive()){
 }
 
 outputFileName <- args[1]
+outputDirectory <- dirname(outputFileName)
+if(!file.exists(outputDirectory)){
+  dir.create(outputDirectory, recursive=TRUE)
+}
 input2013  <- args[2]
 input2010  <- args[3]
 input2007  <- args[4]

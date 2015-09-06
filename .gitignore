@@ -6,12 +6,13 @@
 *.xlsx
 
 # Intermediate files
-ElectionData/FirstPrefs.csv
-ElectionData/HouseTcpFlowByStateByParty2013.csv
-PollingData/MergedData.csv
-PollingData/NationalDataLong.csv
-PollingData/StateDataLong.csv
+Working/
+ElectionResults/
 www/data/*.csv
+.localapp
+.webapp
+FittedModel.RData
+PollsForDb.csv
 
 # OS X crap
 .DS_Store
@@ -19,7 +20,19 @@ www/data/*.csv
 # R crap
 .Rhistory
 
-# Website settings
-www/server_config.json
+# Git crap
+.gitattributes
 
+# Website stuff
+www/server_config.json
 www/bower_components
+www/.sass-cache/
+www/ElectionSummary.json
+www/log/
+www/node_modules/
+www/public/js/.module-cache/
+www/render/
+www/rss.xml
+
+# Stuff I'm not ready to delete
+old/
