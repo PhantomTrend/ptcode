@@ -41,7 +41,7 @@ var trend = (function() {
         var graphOptions = prepareDygraphsOptionsObject(plotData, columnNames);
         if (graph === undefined) {
             // Set an initial datewindow that will be overridden by the user
-            graphOptions.dateWindow = [new Date("2013-01-01"), new Date("2015-09-01")];
+            graphOptions.dateWindow = [new Date("2013-01-01"), new Date("2015-12-01")];
             delete graphOptions.file; // because we specify graphData explicitly
             graphOptions.width = Math.min(650, 0.9*document.getElementById('container').offsetWidth);
             graphOptions.height = 0.9*graphOptions.graphWidth;
