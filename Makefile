@@ -19,9 +19,9 @@ $(WORKING_DIR)/NationalDataLong.csv: $(POLL_DATA_DIR)/NationalData.csv
 $(WORKING_DIR)/StateDataLong.csv: $(POLL_DATA_DIR)/StateData.csv
 	Rscript WriteStateDataLong.R $@ $^
 
-MERGED_DATA_FILE := $(POLL_DATA_DIR)/MergedData.csv
+MERGED_DATA_FILE := $(WORKING_DIR)/MergedData.csv
 
-$(MERGED_DATA_FILE): $(POLL_DATA_DIR)/NationalDataLong.csv $(POLL_DATA_DIR)/StateDataLong.csv $(FIRST_PREFS_SUMMARY)
+$(MERGED_DATA_FILE): $(WORKING_DIR)/NationalDataLong.csv $(WORKING_DIR)/StateDataLong.csv $(FIRST_PREFS_SUMMARY)
 	Rscript WriteMergedData.R $@ $^
 
 data-inputs: $(MERGED_DATA_FILE)
