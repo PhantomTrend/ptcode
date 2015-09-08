@@ -14,7 +14,7 @@ for(party in names(covarianceTerms)){
   invisible(assert_that(all(names(covarianceTerms[[party]]) %in% partyNames)))
 }
 
-getDefaultParamList <- function(v){
+getDefaultParamList <- function(){
   out <- list()
   for(party in partyNames){
     out[[party]][['AUS']] <- 0.5
@@ -33,8 +33,15 @@ getDefaultParamList <- function(v){
   
   for(pollster in setdiff(pollsters, 'Election')){
     out[[pollster]][['NoiseVariance']] <- 6
-    for(party in observedPartyNames){
-      out[[pollster]][[party]] <- 0
+    relevantCombos <- pollsterPartyStateCombos %>% filter(Pollster==pollster)
+    parties <- unique(relevantCombos$Party)
+    for(party in parties){
+      electorates <- relevantCombos %>% filter(Party==party) %>% .[["Electorate"]]
+      out[[pollster]][[party]] <- vector("list",1)
+      for(electorate in electorates){
+        out[[pollster]][[party]][[electorate]] <- 0
+      }
+      out[[pollster]][[party]][[1]] <- NULL
     }
   }
   return(out)
@@ -70,9 +77,16 @@ paramVectorToList <- function(v){
   for(pollster in setdiff(pollsters, 'Election')){
     out[[pollster]][['NoiseVariance']] <- exp(v[vIndex])
     vIndex <- vIndex + 1
-    for(party in observedPartyNames){
-      out[[pollster]][[party]] <- v[vIndex]
-      vIndex <- vIndex + 1
+    relevantCombos <- pollsterPartyStateCombos %>% filter(Pollster==pollster)
+    parties <- unique(relevantCombos$Party)
+    for(party in parties){
+      electorates <- relevantCombos %>% filter(Party==party) %>% .[["Electorate"]]
+      out[[pollster]][[party]] <- vector("list",1)
+      for(electorate in electorates){
+        out[[pollster]][[party]][[electorate]] <- v[vIndex]
+        vIndex <- vIndex + 1
+      }
+      out[[pollster]][[party]][[1]] <- NULL
     }
   }
   return(out)
@@ -99,7 +113,8 @@ paramListToVector <- function(p){
   for(pollster in setdiff(pollsters, 'Election')){
     out[vIndex] <- log(out[vIndex])
     vIndex <- vIndex + 1
-    for(party in observedPartyNames){
+    relevantCombos <- pollsterPartyStateCombos %>% filter(Pollster==pollster)
+    for(r in 1:nrow(relevantCombos)){
       vIndex <- vIndex + 1
     }
   }

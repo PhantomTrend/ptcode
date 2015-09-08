@@ -33,8 +33,12 @@ reciprocalLogPrior = function(pars,model){
   # about 1.7.
   for(pollster in setdiff(pollsters, 'Election')){
     logprior <- logprior + log(dgamma(paramList[[pollster]][['NoiseVariance']], shape=4, scale=3/4))
+    observedPartyNames <- setdiff(names(paramList[[pollster]]), c('NoiseVariance'))
     for(party in observedPartyNames){
-      logprior <- logprior + log(dnorm(paramList[[pollster]][[party]], sd=1))
+      observedElectorateNames <- names(paramList[[pollster]][[party]])
+      for(electorate in observedElectorateNames){
+        logprior <- logprior + log(dnorm(paramList[[pollster]][[party]][[electorate]], sd=1))
+      }
     }
   }
   
