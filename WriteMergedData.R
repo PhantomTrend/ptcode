@@ -5,8 +5,8 @@ library(assertive)
 library(assertthat)
 
 if(interactive()){
-  args <- c('PollingData/MergedData.csv', 'PollingData/NationalDataLong.csv',
-            'PollingData/StateDataLong.csv', 'ElectionData/FirstPrefs.csv')
+  args <- c('Working/MergedData.csv', 'Working/NationalDataLong.csv',
+            'Working/StateDataLong.csv', 'Working/FirstPrefs.csv')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
