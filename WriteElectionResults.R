@@ -62,8 +62,8 @@ outcomeSummary <- individualResults %>% group_by(Electorate) %>%
             GRNPrimary = mean(na.omit(GRNPrimary)),
             PUPPrimary = mean(na.omit(PUPPrimary)),
             OTHPrimary = mean(na.omit(OTHPrimary)),
-            ALP2PP = mean(na.omit(ALP2PP)),
-            LNP2PP = mean(na.omit(LNP2PP))) %>%
+            ALP2PP = mean(na.omit(as.numeric(ALP2PP))),
+            LNP2PP = mean(na.omit(as.numeric(LNP2PP)))) %>%
   mutate(Electorate = as.character(Electorate))
             
 incumbentData <- read_csv(incumbentFile)
