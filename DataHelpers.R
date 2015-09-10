@@ -67,8 +67,9 @@ makeDataMatrixRowAndH <- function(fullDataRow, paramList){
   rowOutput <- matrix(NA, nrow=1, ncol=nrow(observationTypes))
   diagH <- rep(NA, nrow(observationTypes))
   for(column in columns){
-    rowOutput[1,column] <- makeDataMatrixEntry(fullDataRow %>% filter(ObservationColumn == column), paramList)
-    diagH[column] <- makeH(fullDataRow %>% filter(ObservationColumn == column), paramList)
+    relevantData <- fullDataRow[which(fullDataRow$ObservationColumn==column),]
+    rowOutput[1,column] <- makeDataMatrixEntry(relevantData, paramList)
+    diagH[column] <- makeH(relevantData, paramList)
   }
   return(list(Row = rowOutput, H = diag(diagH, nrow=nrow(observationTypes))))
 }
@@ -86,7 +87,7 @@ makeDataMatrix <- function(fullData, paramList){
                c(nObservationTypes, nObservationTypes, nObservations) )
   for(rowI in seq_along(rowNumbers)){
     thisRow <- rowNumbers[rowI]
-    dataChunk <- fullData %>% filter(RowNumber == thisRow)
+    dataChunk <- fullData[which(fullData$RowNumber == thisRow),]
     yAndH <- makeDataMatrixRowAndH(dataChunk, paramList)
     Y[thisRow,] <- yAndH[['Row']]
     H[,,thisRow] <- yAndH[['H']]
