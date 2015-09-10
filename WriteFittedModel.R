@@ -6,7 +6,7 @@ library(FKF)
 
 if(interactive()){
   args <- c('FittedModel.RData',
-            'PollingData/MergedData.csv', 'EstimatedMode.R', '4')
+            'Working/MergedData.csv', 'EstimatedMode.R', '4')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
