@@ -14,7 +14,7 @@ for(party in names(covarianceTerms)){
   invisible(assert_that(all(names(covarianceTerms[[party]]) %in% partyNames)))
 }
 
-getDefaultParamList <- function(){
+getDefaultParamList <- function(v){
   out <- list()
   for(party in partyNames){
     out[[party]][['AUS']] <- 0.5
@@ -33,15 +33,8 @@ getDefaultParamList <- function(){
   
   for(pollster in setdiff(pollsters, 'Election')){
     out[[pollster]][['NoiseVariance']] <- 6
-    relevantCombos <- pollsterPartyStateCombos %>% filter(Pollster==pollster)
-    parties <- unique(relevantCombos$Party)
-    for(party in parties){
-      electorates <- relevantCombos %>% filter(Party==party) %>% .[["Electorate"]]
-      out[[pollster]][[party]] <- vector("list",1)
-      for(electorate in electorates){
-        out[[pollster]][[party]][[electorate]] <- 0
-      }
-      out[[pollster]][[party]][[1]] <- NULL
+    for(party in observedPartyNames){
+      out[[pollster]][[party]] <- 0
     }
   }
   return(out)
@@ -77,16 +70,9 @@ paramVectorToList <- function(v){
   for(pollster in setdiff(pollsters, 'Election')){
     out[[pollster]][['NoiseVariance']] <- exp(v[vIndex])
     vIndex <- vIndex + 1
-    relevantCombos <- pollsterPartyStateCombos %>% filter(Pollster==pollster)
-    parties <- unique(relevantCombos$Party)
-    for(party in parties){
-      electorates <- relevantCombos %>% filter(Party==party) %>% .[["Electorate"]]
-      out[[pollster]][[party]] <- vector("list",1)
-      for(electorate in electorates){
-        out[[pollster]][[party]][[electorate]] <- v[vIndex]
-        vIndex <- vIndex + 1
-      }
-      out[[pollster]][[party]][[1]] <- NULL
+    for(party in observedPartyNames){
+      out[[pollster]][[party]] <- v[vIndex]
+      vIndex <- vIndex + 1
     }
   }
   return(out)
@@ -113,8 +99,7 @@ paramListToVector <- function(p){
   for(pollster in setdiff(pollsters, 'Election')){
     out[vIndex] <- log(out[vIndex])
     vIndex <- vIndex + 1
-    relevantCombos <- pollsterPartyStateCombos %>% filter(Pollster==pollster)
-    for(r in 1:nrow(relevantCombos)){
+    for(party in observedPartyNames){
       vIndex <- vIndex + 1
     }
   }

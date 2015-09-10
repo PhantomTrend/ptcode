@@ -6,7 +6,7 @@ library(FKF)
 
 if(interactive()){
   args <- c('FittedModel.RData',
-            'Working/MergedData.csv', 'EstimatedMode.R', '4')
+            'PollingData/MergedData.csv', 'EstimatedMode.R', '4')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
 }
@@ -207,15 +207,11 @@ for(party in partyNames){
 a1 <- rep(a1, (nLatentComponents/nLatentComponentsBase))
 P1 <- diag(rep(diagP1, (nLatentComponents/nLatentComponentsBase)))
 
-pollsterPartyStateCombos <- longData %>% filter(Pollster != "Election") %>% select(Pollster, Party, Electorate) %>%
-  unique() %>% arrange(Pollster,Party,Electorate)
-
 source('ParameterHelpers.R')
 source('KalmanHelpers.R')
 source('DataHelpers.R')
 source('PriorDistributions.R')
 source('KalmanSmoother.R')
-
 
 reciprocalLogLikelihood = function(paramVector,estimate=TRUE){
   paramList = paramVectorToList(paramVector)
@@ -247,8 +243,8 @@ reciprocalLogLikelihood = function(paramVector,estimate=TRUE){
     for(rowI in 1:nrow(pollResults)){
       thisParty <- as.character(pollResults$Party[rowI])
       thisPollster <- as.character(pollResults$Pollster[rowI])
+      thisNumber <- pollResults$Vote[rowI] - paramList[[thisPollster]][[thisParty]]
       thisElectorate <- pollResults$Electorate[rowI]
-      thisNumber <- pollResults$Vote[rowI] - paramList[[thisPollster]][[thisParty]][[thisElectorate]]
       if(thisElectorate == 'AUS' | !(thisParty %in% partyNames)){
         next
       }

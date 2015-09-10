@@ -5,11 +5,10 @@ weightedMeanOfPolls <- function(fullDataEntries, paramList){
   x <- fullDataEntries$Vote
   sigma2 <- rep(0, nrow(fullDataEntries))
   for(i in 1:nrow(fullDataEntries)){
-    pollsterName <- fullDataEntries$Pollster[i]
-    partyName <- fullDataEntries$Party[i]
-    electorateName <- fullDataEntries$Electorate[i]
-    x[i] <- x[i] - as.numeric(paramList[[pollsterName]][[partyName]][[electorateName]])
-    sigma2[i] <- pollsterVarianceInElectorate(paramList[[pollsterName]][['NoiseVariance']], electorateName)
+    pollsterName <- as.character(fullDataEntries$Pollster[i])
+    x[i] <- x[i] - as.numeric(paramList[[pollsterName]][[as.character(fullDataEntries$Party[i])]])
+    sigma2[i] <- pollsterVarianceInElectorate(paramList[[pollsterName]][['NoiseVariance']],
+                                              as.character(fullDataEntries$Electorate[i]))
   }
   return( sum(x/sigma2)/sum(1/sigma2) )
 }
@@ -17,8 +16,8 @@ weightedMeanOfPolls <- function(fullDataEntries, paramList){
 varianceOfWeightedMean <- function(fullDataEntries, paramList){
   sigma2 <- rep(0, nrow(fullDataEntries))
   for(i in 1:nrow(fullDataEntries)){
-    sigma2[i] <- pollsterVarianceInElectorate(paramList[[fullDataEntries$Pollster[i]]][['NoiseVariance']],
-                                              fullDataEntries$Electorate[i])
+    sigma2[i] <- pollsterVarianceInElectorate(paramList[[as.character(fullDataEntries$Pollster[i])]][['NoiseVariance']],
+                                              as.character(fullDataEntries$Electorate[i]))
   }
   return( prod(sigma2)/sum(sigma2) )
 }
@@ -40,10 +39,7 @@ makeDataMatrixEntry <- function(fullDataEntries, paramList){
     return(fullDataEntries$Vote[which(fullDataEntries$Pollster == 'Election')])
   }
   if(nrow(fullDataEntries)==1){
-    pollsterName <- fullDataEntries$Pollster[1]
-    partyName <- fullDataEntries$Party[1]
-    electorateName <- fullDataEntries$Electorate[1]
-    return(fullDataEntries$Vote - paramList[[pollsterName]][[partyName]][[electorateName]])
+    return(fullDataEntries$Vote - paramList[[as.character(fullDataEntries$Pollster[1])]][[fullDataEntries$Party[1]]])
   }else{
     return( weightedMeanOfPolls(fullDataEntries, paramList) )
   }
@@ -54,8 +50,8 @@ makeH <- function(fullDataEntries, paramList){
     return(0.045**2)    # Elections only have rounding error
   }
   if(nrow(fullDataEntries)==1){
-    return(pollsterVarianceInElectorate(paramList[[fullDataEntries$Pollster[1]]][['NoiseVariance']],
-                                        fullDataEntries$Electorate[1]))
+    return(pollsterVarianceInElectorate(paramList[[as.character(fullDataEntries$Pollster[1])]][['NoiseVariance']],
+                                        as.character(fullDataEntries$Electorate[1])))
   }else{
     return( varianceOfWeightedMean(fullDataEntries, paramList) )
   }
