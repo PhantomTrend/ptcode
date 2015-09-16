@@ -61,7 +61,7 @@ nationalDataRow <- nationalData[1,]
 for(i in names(nationalDataRow)){
   nationalDataRow[[i]] <- NA
 }
-nationalDataRow[["PollEndDate"]] <- format(pollEndDate, "%Y-%m-%d")
+nationalDataRow[["PollEndDate"]] <- format(pollEndDate, "%d/%m/%y")
 nationalDataRow$Pollster <- pollster
 for(party in names(nationalDataRow)[3:ncol(nationalDataRow)]){
   if(party %in% c("DEM","FFP","PHON")){
