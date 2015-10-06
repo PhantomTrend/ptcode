@@ -1,6 +1,7 @@
 
-library(dplyr)
-library(readr)
+# Use suppressMessages() to turn off garbage that clutters the console
+suppressMessages(library(dplyr))
+suppressMessages(library(readr))
 
 set.seed(31337)
 
@@ -12,7 +13,7 @@ if(interactive()){
             'ElectionData/HouseTcpFlowByStateByParty2013.csv',
             'ElectionData/HouseFirstPrefsByCandidateByVoteType2013.csv',
             'ElectionData/HouseFirstPrefsByStateByParty2013.csv',
-            'Grayndler',
+            'Melbourne',
             '25')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
@@ -160,7 +161,6 @@ summaryFlow <- tcpData %>%  filter(State == thisState) %>%
   group_by(ToPartyDisplayAb, FromPartyGroupAb) %>%
   summarise(TotalVotes = sum(TransferVotes)) %>% ungroup() %>%
   filter(ToPartyDisplayAb != FromPartyGroupAb)
-
 
 thisSeatOutput <- data.frame(Electorate = character(),
                              ALPWins = integer(), LNPWins = integer(), GRNWins = integer(), PUPWins = integer(),
