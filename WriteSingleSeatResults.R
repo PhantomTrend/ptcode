@@ -162,6 +162,16 @@ summaryFlow <- tcpData %>%  filter(State == thisState) %>%
   summarise(TotalVotes = sum(TransferVotes)) %>% ungroup() %>%
   filter(ToPartyDisplayAb != FromPartyGroupAb)
 
+# Temporary patch for GRN preference flows, based on:
+# Melbourne: http://results.aec.gov.au/17496/Website/HouseDivisionDop-17496-228.htm
+# Batman: http://results.aec.gov.au/17496/Website/HouseDivisionDop-17496-199.htm
+# Sydney: http://results.aec.gov.au/17496/Website/HouseDivisionDop-17496-149.htm
+# Grayndler: http://results.aec.gov.au/17496/Website/HouseDivisionDop-17496-121.htm
+summaryFlow[which(summaryFlow$ToPartyDisplayAb=="GRN" & summaryFlow$FromPartyGroupAb=="ALP"),'TotalVotes'] <- (
+  6 * summaryFlow[which(summaryFlow$ToPartyDisplayAb=="LNP" & summaryFlow$FromPartyGroupAb=="ALP"),'TotalVotes']
+)
+
+
 thisSeatOutput <- data.frame(Electorate = character(),
                              ALPWins = integer(), LNPWins = integer(), GRNWins = integer(), PUPWins = integer(),
                              OTHWins = integer(), Repetition = integer())
