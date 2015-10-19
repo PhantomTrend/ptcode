@@ -179,7 +179,7 @@ assert_is_numeric(completeData$Vote)
 invisible(assert_that(length(which(is.na(completeData$Vote))) == 1593))   
 assert_all_are_non_negative(na.omit(completeData$Vote))
 nonZeroVotes <- na.omit(completeData$Vote[completeData$Vote>0])
-assert_all_are_in_closed_range(nonZeroVotes, 0.8, 60)
+assert_all_are_in_closed_range(nonZeroVotes, 0.5, 60)
 invisible(assert_that(is_in_closed_range(mean(nonZeroVotes), 20, 30)))
 pollstersWeKnowAbout <- c('Election', "Essential", "Essential Online", "Galaxy", "Morgan", "Morgan Multi", 
                           "Morgan SMS", "Newspoll", "Newspoll Quarterly", "Nielsen", "ReachTEL", "Ipsos",
