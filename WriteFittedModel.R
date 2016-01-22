@@ -77,8 +77,8 @@ getDateFromYearAndWeek <- function(y,w){ return( firstMondayOfYear(as.character(
 
 
 firstDate <- firstMondayOfYear("2000")
-invisible(assert_that(max(longData$PollEndDate) < as.Date('2015-12-31')))
-fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2015-12-31'))[-1]
+invisible(assert_that(max(longData$PollEndDate) < as.Date('2016-3-31')))
+fullDateSequence <- seq(from=firstDate, by='1 week', to = as.Date('2016-3-31'))[-1]
 
 modelData <- longData %>% filter(PollEndDate >= as.Date("2000-01-01")) %>%
   arrange(PollEndDate) %>% mutate(Year = getYear(PollEndDate),
