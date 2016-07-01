@@ -19,6 +19,8 @@ var RepsResultText = React.createClass({
                 the Greens <span className="repsSummaryNumber">{nGrnSeats}</span>,
                 Palmer United with <span className="repsSummaryNumber">{nPupSeats}</span> and
                 Independents winning <span className="repsSummaryNumber">{nOthSeats}</span>.
+                <br/><b>Caveats:</b> The model is likely to get about 10-12 individual seats wrong, hopefully in a way that stays close to the overall total.
+                  And it's based on state-level polls, so individual seats could behave very differently if they have unsusually high third-party or independent votes.
             </div>
         );
     }
@@ -94,8 +96,8 @@ var RepsSeatExtraInfoRow = React.createClass({
     render: function() {
         var wikiLink = "http://en.wikipedia.org/wiki/Division_of_" + this.props.data.name;
         var aecLink = "http://www.aec.gov.au/" + this.props.data.name.toLowerCase();
-        var tallyRoomLink = "http://www.tallyroom.com.au/archive/aus2013/" + this.props.data.name.toLowerCase() + "2013";
-        var abcLink = "http://www.abc.net.au/news/federal-election-2013/guide/" + this.props.data.name.toLowerCase().substring(0,4);
+        var tallyRoomLink = "http://www.tallyroom.com.au/archive/aus2016/" + this.props.data.name.toLowerCase() + "2016";
+        var abcLink = "http://www.abc.net.au/news/federal-election-2016/guide/" + this.props.data.name.toLowerCase().substring(0,4);
         return(
             <div className="seatExtraInfo">
                 <div className="seatWikiLink">
@@ -189,7 +191,7 @@ var RepsStatesFilter = React.createClass({
 var RepsSection = React.createClass({
     getInitialState: function() {
         return({
-            seatTypes: "changingHands",
+            seatTypes: "all",
             statesToShow: "allStates"
         });
     },
