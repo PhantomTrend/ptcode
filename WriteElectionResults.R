@@ -31,8 +31,12 @@ incumbentFile <- args[4]
 tppTrendFile <- args[5]
 primaryTrendFile <- args[6]
 
+waElectorates <- c("Brand", "Burt", "Canning", "Cowan", "Curtin", "Durack", "Forrest", "Fremantle", "Hasluck", "Moore", "O_Connor", "Pearce", "Perth", "Stirling", "Swan", "Tangney")
+nswElectorates <- c("Banks", "Barton", "Bennelong", "Berowra", "Blaxland", "Bradfield", "Calare", "Chifley", "Cook", "Cowper", "Cunningham", "Dobell", "Eden-Monaro", "Farrer", "Fowler", "Gilmore", "Grayndler", "Greenway", "Hughes", "Hume", "Hunter", "Kingsford_Smith", "Lindsay", "Lyne", "Macarthur", "Mackellar", "Macquarie", "McMahon", "Mitchell", "New_England", "Newcastle", "North_Sydney", "Page", "Parkes", "Parramatta", "Paterson", "Reid", "Richmond", "Riverina", "Robertson", "Shortland", "Sydney", "Warringah", "Watson", "Wentworth", "Werriwa", "Whitlam")
+
 firstPrefs <- tbl_df(read.csv(firstPrefsFile, skip=1, stringsAsFactors=FALSE))
-electorateNames <- unique(firstPrefs$DivisionNm)
+electorateNames <- unique(firstPrefs %>% filter(StateAb != "NSW", StateAb != "WA") %>% .$DivisionNm) %>%
+  c(., waElectorates) %>% c(., nswElectorates)
 electorateFileNames <- gsub("$",".csv",gsub("'","_",gsub(" ","_",electorateNames)))
 
 individualResultsSchema <- data.frame(Electorate = character(),
@@ -40,7 +44,7 @@ individualResultsSchema <- data.frame(Electorate = character(),
                      OTHWins = integer(),
                      ALPPrimary = numeric(), LNPPrimary = numeric(), GRNPrimary = numeric(),
                      PUPPrimary = numeric(), OTHPrimary = numeric(),
-                     ALP2PP = numeric(), LNP2PP = numeric(),
+                     ALP2PP = numeric(), LNP2PP = numeric(), GRN2PP = numeric(),
                      Repetition = integer())
 
 individualResults <- Reduce(rbind,
@@ -63,10 +67,13 @@ outcomeSummary <- individualResults %>% group_by(Electorate) %>%
             PUPPrimary = mean(na.omit(PUPPrimary)),
             OTHPrimary = mean(na.omit(OTHPrimary)),
             ALP2PP = mean(na.omit(as.numeric(ALP2PP))),
-            LNP2PP = mean(na.omit(as.numeric(LNP2PP)))) %>%
+            LNP2PP = mean(na.omit(as.numeric(LNP2PP))),
+            GRN2PP = mean(na.omit(as.numeric(GRN2PP)))) %>%
   mutate(Electorate = as.character(Electorate))
             
 incumbentData <- read_csv(incumbentFile)
+
+
 incumbentData$Party[incumbentData$Party=="Liberal"] <- "LNP"
 incumbentData$Party[incumbentData$Party=="National"] <- "LNP"
 incumbentData$Party[incumbentData$Party=="Independent"] <- "OTH"
@@ -76,6 +83,17 @@ incumbentData$Party[incumbentData$Party=="Greens"] <- "GRN"
 incumbentData$Party[incumbentData$Party=="CLP"] <- "LNP"
 incumbentData$Party[incumbentData$Party=="Labor"] <- "ALP"
 incumbentData <- incumbentData %>% rename(IncumbentParty = Party)
+
+# NSW and WA Redistributions
+incumbentData <- incumbentData[-which(incumbentData$Electorate=="Hunter"),]
+incumbentData[which(incumbentData$Electorate == "Charlton"), "Electorate"] <- "Hunter"
+incumbentData[which(incumbentData$Electorate == "Throsby"), "Electorate"] <- "Whitlam"
+incumbentData <- rbind(incumbentData,
+                       data.frame(Member="New Electorate",
+                                  IncumbentParty="None",
+                                  Electorate="Burt",
+                                  State="WA"))
+
 summariseResult <- function(summaryRow){
   if(summaryRow$IncumbentParty == "OTH"){
     return (data.frame(Electorate = summaryRow$Electorate,

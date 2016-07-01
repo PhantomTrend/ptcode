@@ -46,6 +46,7 @@ CREATE TABLE seatresults (
     othprimary real,
     alp2pp real,
     lnp2pp real,
+    grn2pp real,
     member text,
     incumbentparty text,
     state text,

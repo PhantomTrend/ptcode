@@ -6,14 +6,16 @@ suppressMessages(library(readr))
 set.seed(31337)
 
 if(interactive()){
-  args <- c('ElectionResults/Seats/Grayndler.csv',
+  args <- c('ElectionResults/Seats/Whitlam.csv',
             'ElectionResults/StateSwings.csv',
             'ElectionResults/TwoPartyPreferred.csv',
             'ElectionResults/PrimaryVotes.csv',
             'ElectionData/HouseTcpFlowByStateByParty2013.csv',
             'ElectionData/HouseFirstPrefsByCandidateByVoteType2013.csv',
             'ElectionData/HouseFirstPrefsByStateByParty2013.csv',
-            'Melbourne',
+            'ElectionData/WA_Redistributed.csv',
+            'ElectionData/NSW_Redistributed.csv',
+            'Whitlam',
             '25')
 }else{
   args <- commandArgs(trailingOnly = TRUE)
@@ -31,32 +33,18 @@ primaryTrendFile <- args[4]
 tcpFlowFile <- args[5]
 firstPrefsFile <- args[6]
 stateSwingsLastTimeFile <- args[7]
-electorateNameEscaped <- args[8]
-nSeatSimulations <- as.numeric(args[9])
+waRedistributionFile <- args[8]
+nswRedistributionFile <- args[9]
+electorateNameEscaped <- args[10]
+nSeatSimulations <- as.numeric(args[11])
 
 
-lnpPartyNames <- c('LP','NP','LNQ','LNP','CLP')
-
-tcpData <- (tbl_df(read.csv(tcpFlowFile, skip=1, stringsAsFactors=FALSE)) %>%
-              filter(FromPartyGroupAb != ""))   # Remove first preferences
-
-# Summarise all Liberal-National parties under the 'LNP' label
-toLNProws <- which(tcpData$ToPartyDisplayAb %in% lnpPartyNames)
-tcpData$ToPartyDisplayAb[toLNProws] <- 'LNP'
-fromLNProws <- which(tcpData$FromPartyGroupAb %in% lnpPartyNames)
-tcpData$FromPartyGroupAb[fromLNProws] <- 'LNP'
-
-tcpData$ToPartyDisplayAb[which(!(tcpData$ToPartyDisplayAb %in% c('ALP', 'LNP', 'GRN', 'PUP')))] <- 'OTH'
-tcpData$FromPartyGroupAb[which(!(tcpData$FromPartyGroupAb %in% c('ALP', 'LNP', 'GRN', 'PUP')))] <- 'OTH'
-
+waElectorates <- c("Brand", "Burt", "Canning", "Cowan", "Curtin", "Durack", "Forrest", "Fremantle", "Hasluck", "Moore", "O_Connor", "Pearce", "Perth", "Stirling", "Swan", "Tangney")
+nswElectorates <- c("Banks", "Barton", "Bennelong", "Berowra", "Blaxland", "Bradfield", "Calare", "Chifley", "Cook", "Cowper", "Cunningham", "Dobell", "Eden-Monaro", "Farrer", "Fowler", "Gilmore", "Grayndler", "Greenway", "Hughes", "Hume", "Hunter", "Kingsford_Smith", "Lindsay", "Lyne", "Macarthur", "Mackellar", "Macquarie", "McMahon", "Mitchell", "New_England", "Newcastle", "North_Sydney", "Page", "Parkes", "Parramatta", "Paterson", "Reid", "Richmond", "Riverina", "Robertson", "Shortland", "Sydney", "Warringah", "Watson", "Wentworth", "Werriwa", "Whitlam")
 
 firstPrefs <- tbl_df(read.csv(firstPrefsFile, skip=1, stringsAsFactors=FALSE))
 
-electorateNames <- unique(firstPrefs$DivisionNm)
-electorateNamesEscaped <- gsub("'","_",gsub(" ","_",electorateNames))
-electorateName <- electorateNames[which(electorateNamesEscaped == electorateNameEscaped)]
-
-stateSwings <- tbl_df(read.csv(inputSwingsFile, stringsAsFactors=FALSE))
+lnpPartyNames <- c('LP','NP','LNQ','LNP','CLP')
 
 stateSwingsLastTime <- tbl_df(read.csv(stateSwingsLastTimeFile, skip=1, stringsAsFactors=FALSE))
 stateSwingsLastTime$PartyAb[stateSwingsLastTime$PartyAb %in% lnpPartyNames] <- 'LNP'
@@ -74,6 +62,74 @@ seatSwingsLastTime <- seatSwingsLastTime %>% mutate(WeightedSwing = TotalVotes*S
   group_by(StateAb, DivisionNm, PartyAb) %>% summarise(TotalSwing = sum(WeightedSwing)/sum(TotalVotes))  %>%
   ungroup() %>% left_join(summaryStateSwingsLastTime, by=c('StateAb', 'PartyAb')) %>%
   mutate(RelativeSwing = TotalSwing - Swing)
+
+tcpData <- (tbl_df(read.csv(tcpFlowFile, skip=1, stringsAsFactors=FALSE)) %>%
+              filter(FromPartyGroupAb != ""))   # Remove first preferences
+
+# Summarise all Liberal-National parties under the 'LNP' label
+toLNProws <- which(tcpData$ToPartyDisplayAb %in% lnpPartyNames)
+tcpData$ToPartyDisplayAb[toLNProws] <- 'LNP'
+fromLNProws <- which(tcpData$FromPartyGroupAb %in% lnpPartyNames)
+tcpData$FromPartyGroupAb[fromLNProws] <- 'LNP'
+
+tcpData$ToPartyDisplayAb[which(!(tcpData$ToPartyDisplayAb %in% c('ALP', 'LNP', 'GRN', 'PUP')))] <- 'OTH'
+tcpData$FromPartyGroupAb[which(!(tcpData$FromPartyGroupAb %in% c('ALP', 'LNP', 'GRN', 'PUP')))] <- 'OTH'
+
+
+electorateNames <- unique(firstPrefs$DivisionNm)
+electorateNamesEscaped <- gsub("'","_",gsub(" ","_",electorateNames))
+electorateName <- electorateNames[which(electorateNamesEscaped == electorateNameEscaped)]
+if(length(electorateName)==0){
+  # Renamed electorate
+  electorateName <- electorateNameEscaped
+}
+
+stateSwings <- tbl_df(read.csv(inputSwingsFile, stringsAsFactors=FALSE))
+
+if(electorateNameEscaped %in% nswElectorates){
+  nswData <- read_csv(nswRedistributionFile, skip=1)
+  alpVotes <- nswData %>% filter(Electorate == electorateNameEscaped) %>% .[["ALP"]]
+  lnpVotes <- nswData %>% filter(Electorate == electorateNameEscaped) %>% .[["LNP"]]
+  grnVotes <- nswData %>% filter(Electorate == electorateNameEscaped) %>% .[["GRN"]]
+  
+  # A quick approximation to PUP first preferences from 2013, using a statewide
+  # average
+  nswPupShareOfPupPlusOther <- 4.26/10.17
+  pupOthVotes <- nswData %>% filter(Electorate == electorateNameEscaped) %>% .[["PUPOTH"]]
+  pupVotes <- pupOthVotes * nswPupShareOfPupPlusOther
+  othVotes <- pupOthVotes * (1-nswPupShareOfPupPlusOther)
+  thisState <- "NSW"
+}else if(electorateNameEscaped %in% waElectorates){
+  waData <- read_csv(waRedistributionFile, skip=1)
+  alpVotes <- waData %>% filter(Electorate==electorateNameEscaped) %>% .[["ALP"]]
+  lnpVotes <- waData %>% filter(Electorate==electorateNameEscaped) %>% .[["LNP"]]
+  grnVotes <- waData %>% filter(Electorate==electorateNameEscaped) %>% .[["GRN"]]
+  pupVotes <- waData %>% filter(Electorate==electorateNameEscaped) %>% .[["PUP"]]
+  othVotes <- waData %>% filter(Electorate==electorateNameEscaped) %>% .[["OTH"]]
+  thisState <- "WA"
+}else{
+  # Informals are recorded with BallotPosition 999.
+  theseFirstPrefs <- filter(firstPrefs, DivisionNm == electorateName, BallotPosition != 999)
+  thisState <- theseFirstPrefs$StateAb[1]
+  if(thisState == "NSW" || thisState == "WA"){
+    stop("Must use redistributed boundaries for seat " + electorateNameEscaped)
+  }
+  
+  getVotes <- function(partycode){
+    partyRows <- which(theseFirstPrefs$PartyAb %in% partycode)
+    if(length(partyRows) > 0){
+      votes <- sum(theseFirstPrefs$TotalVotes[partyRows])
+    }else{
+      votes <- 0
+    }
+    return(votes)
+  }
+  alpVotes <- getVotes('ALP')
+  lnpVotes <- getVotes(lnpPartyNames)
+  grnVotes <- getVotes('GRN')
+  pupVotes <- getVotes('PUP')
+  othVotes <- sum(theseFirstPrefs$TotalVotes) - (alpVotes + lnpVotes + grnVotes + pupVotes)
+}
 
 # We can't track Independent/Other polls very well, so we can reduce variance in the resampled
 # residuals by dropping seats where independents/others were a big factor.
@@ -119,37 +175,36 @@ simulateOneElection <- function(swing, votesLastTime, preferenceFlow){
   othPrimary <- getPrimaryVote("OTH")
   alp2ppRow <- which(votes$Party == "ALP")
   lnp2ppRow <- which(votes$Party == "LNP")
-  if(length(alp2ppRow) == 0 || length(lnp2ppRow) == 0){
-    alp2pp <- NA
-    lnp2pp <- NA
+  grn2ppRow <- which(votes$Party == "GRN")
+  if(length(alp2ppRow) == 0){
+    if(length(lnp2ppRow) == 0 || length(grn2ppRow)==0){
+      alp2pp <- NA
+      lnp2pp <- NA
+      grn2pp <- NA
+    }else{
+      grn2pp <- votes[grn2ppRow,]$Pct / sum(votes$Pct) * 100
+      lnp2pp <- votes[lnp2ppRow,]$Pct / sum(votes$Pct) * 100
+      alp2pp <- NA
+    }
+  }else if(length(lnp2ppRow) == 0) {
+    if(length(grn2ppRow)==0){
+      alp2pp <- NA
+      lnp2pp <- NA
+      grn2pp <- NA
+    }else{
+      grn2pp <- votes[grn2ppRow,]$Pct / sum(votes$Pct) * 100
+      alp2pp <- votes[alp2ppRow,]$Pct / sum(votes$Pct) * 100
+      lnp2pp <- NA
+    }
   }else{
     alp2pp <- votes[alp2ppRow,]$Pct / sum(votes$Pct) *100
     lnp2pp <- votes[lnp2ppRow,]$Pct / sum(votes$Pct) *100
+    grn2pp <- NA
   }
   return(data.frame(Winner = winner, ALP = alpPrimary, LNP = lnpPrimary, GRN = grnPrimary,
-                    PUP = pupPrimary, OTH = othPrimary, ALP2PP = alp2pp, LNP2PP = lnp2pp))
+                    PUP = pupPrimary, OTH = othPrimary, ALP2PP = alp2pp, LNP2PP = lnp2pp, GRN2PP = grn2pp))
 }
 
-
-
-# Informals are recorded with BallotPosition 999.
-theseFirstPrefs <- filter(firstPrefs, DivisionNm == electorateName, BallotPosition != 999)
-thisState <- theseFirstPrefs$StateAb[1]
-
-getVotes <- function(partycode){
-  partyRows <- which(theseFirstPrefs$PartyAb %in% partycode)
-  if(length(partyRows) > 0){
-    votes <- sum(theseFirstPrefs$TotalVotes[partyRows])
-  }else{
-    votes <- 0
-  }
-  return(votes)
-}
-alpVotes <- getVotes('ALP')
-lnpVotes <- getVotes(lnpPartyNames)
-grnVotes <- getVotes('GRN')
-pupVotes <- getVotes('PUP')
-othVotes <- sum(theseFirstPrefs$TotalVotes) - (alpVotes + lnpVotes + grnVotes + pupVotes)
 
 theseVotes <- tbl_df(data.frame(Party = c('ALP', 'LNP', 'GRN', 'PUP', 'OTH'),
                                 Vote = c(alpVotes, lnpVotes, grnVotes, pupVotes, othVotes)))
@@ -167,10 +222,24 @@ summaryFlow <- tcpData %>%  filter(State == thisState) %>%
 # Batman: http://results.aec.gov.au/17496/Website/HouseDivisionDop-17496-199.htm
 # Sydney: http://results.aec.gov.au/17496/Website/HouseDivisionDop-17496-149.htm
 # Grayndler: http://results.aec.gov.au/17496/Website/HouseDivisionDop-17496-121.htm
-summaryFlow[which(summaryFlow$ToPartyDisplayAb=="GRN" & summaryFlow$FromPartyGroupAb=="ALP"),'TotalVotes'] <- (
-  6 * summaryFlow[which(summaryFlow$ToPartyDisplayAb=="LNP" & summaryFlow$FromPartyGroupAb=="ALP"),'TotalVotes']
-)
-
+if(!any(summaryFlow$ToPartyDisplayAb=="GRN" & summaryFlow$FromPartyGroupAb=="ALP")){
+  alpToLnpFlow <-  summaryFlow[which(summaryFlow$ToPartyDisplayAb=="LNP" & summaryFlow$FromPartyGroupAb=="ALP"),'TotalVotes']
+  if(nrow(alpToLnpFlow)> 0){
+    summaryFlow <- rbind(summaryFlow, data.frame(ToPartyDisplayAb="GRN",FromPartyGroupAb="ALP",
+                                               TotalVotes=6 *alpToLnpFlow))
+  }
+}
+if(!any(summaryFlow$ToPartyDisplayAb=="GRN" & summaryFlow$FromPartyGroupAb=="LNP")){
+  lnpToAlpFlow <- summaryFlow[which(summaryFlow$ToPartyDisplayAb=="ALP" & summaryFlow$FromPartyGroupAb=="LNP"),'TotalVotes']
+  if(nrow(lnpToAlpFlow)>0){
+    summaryFlow <- rbind(summaryFlow, data.frame(ToPartyDisplayAb="GRN",FromPartyGroupAb="LNP",
+      TotalVotes=1/2 * lnpToAlpFlow))
+  }
+}
+if(!any(summaryFlow$ToPartyDisplayAb=="GRN" & summaryFlow$FromPartyGroupAb=="OTH")){
+  summaryFlow <- rbind(summaryFlow, data.frame(ToPartyDisplayAb="GRN",FromPartyGroupAb="OTH",
+   TotalVotes= summaryFlow[which(summaryFlow$ToPartyDisplayAb=="ALP" & summaryFlow$FromPartyGroupAb=="OTH"),'TotalVotes']))
+}
 
 thisSeatOutput <- data.frame(Electorate = character(),
                              ALPWins = integer(), LNPWins = integer(), GRNWins = integer(), PUPWins = integer(),
@@ -180,7 +249,7 @@ for(stateRep in unique(theseSwings$Repetition)){
   
   seatSims <- data.frame(ALPPrimary = numeric(), LNPPrimary = numeric(), GRNPrimary = numeric(),
                          PUPPrimary = numeric(), OTHPrimary = numeric(),
-                         ALP2PP = numeric(), LNP2PP = numeric(), ResampledSeat = character())
+                         ALP2PP = numeric(), LNP2PP = numeric(), GRN2PP = numeric(), ResampledSeat = character())
   luckyWinners <- c()
   for(seatRep in 1:nSeatSimulations){
     resampledSeat <- sample(unique(seatSwingsLastTime$DivisionNm),size=1)
@@ -204,8 +273,9 @@ for(stateRep in unique(theseSwings$Repetition)){
                                      GRNPrimary = mean(seatSims$GRN),
                                      PUPPrimary = mean(seatSims$PUP),
                                      OTHPrimary = mean(seatSims$OTH),
-                                     ALP2PP = mean(seatSims$ALP2PP),
-                                     LNP2PP = mean(seatSims$LNP2PP),
+                                     ALP2PP = mean(seatSims$ALP2PP, na.rm = TRUE),
+                                     LNP2PP = mean(seatSims$LNP2PP, na.rm = TRUE),
+                                     GRN2PP = mean(seatSims$GRN2PP, na.rm = TRUE),
                                      Repetition = stateRep))
 }
 

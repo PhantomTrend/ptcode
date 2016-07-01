@@ -73,13 +73,16 @@ TCP_FLOWS := $(ELECTION_DATA_DIR)/HouseTcpFlowByStateByParty2013.csv
 FIRST_PREFS_BY_SEAT := $(ELECTION_DATA_DIR)/HouseFirstPrefsByCandidateByVoteType2013.csv
 FIRST_PREFS_BY_STATE := $(ELECTION_DATA_DIR)/HouseFirstPrefsByStateByParty2013.csv
 INCUMBENT_SEAT_DATA := $(ELECTION_DATA_DIR)/Incumbents.csv
+WA_REDISTRIBUTION := $(ELECTION_DATA_DIR)/WA_Redistributed.csv
+NSW_REDISTRIBUTION := $(ELECTION_DATA_DIR)/NSW_Redistributed.csv
+
 
 ELECTION_RESULTS_SENTINEL := $(ELECTION_RESULTS_DIR)/.sentinel
 SEAT_RESULTS_CSV := $(ELECTION_RESULTS_DIR)/SeatResults.csv
 ELECTION_SUMMARY_JSON := $(ELECTION_RESULTS_DIR)/ElectionSummary.json
 RSS_FILE := $(ELECTION_RESULTS_DIR)/rss.xml
 WRITE_ELECTION_OUTCOMES := Rscript WriteElectionResults.R
-N_SEAT_REPS := 25
+N_SEAT_REPS := 100
 
 $(STATE_SWINGS): $(MODEL_FILE) $(FIRST_PREFS_SUMMARY)
 	$(WRITE_STATE_SWINGS) $@ $^ $(N_STATE_SWING_REPS) $(LAST_ELECTION_DATE)
@@ -91,12 +94,12 @@ $(PRIMARY_TRENDS): $(MODEL_FILE)
 	$(WRITE_PRIMARY_TRENDS) $@ $^
 
 
-ELECTORATE_NAMES := Canberra Fraser Banks Barton Bennelong Berowra Blaxland Bradfield Calare Charlton Chifley Cook Cowper Cunningham Dobell Eden-Monaro Farrer Fowler Gilmore Grayndler Greenway Hughes Hume Hunter Kingsford_Smith Lindsay Lyne Macarthur Mackellar Macquarie McMahon Mitchell New_England Newcastle North_Sydney Page Parkes Parramatta Paterson Reid Richmond Riverina Robertson Shortland Sydney Throsby Warringah Watson Wentworth Werriwa Lingiari Solomon Blair Bonner Bowman Brisbane Capricornia Dawson Dickson Fadden Fairfax Fisher Flynn Forde Griffith Groom Herbert Hinkler Kennedy Leichhardt Lilley Longman Maranoa McPherson Moncrieff Moreton Oxley Petrie Rankin Ryan Wide_Bay Wright Adelaide Barker Boothby Grey Hindmarsh Kingston Makin Mayo Port_Adelaide Sturt Wakefield Bass Braddon Denison Franklin Lyons Aston Ballarat Batman Bendigo Bruce Calwell Casey Chisholm Corangamite Corio Deakin Dunkley Flinders Gellibrand Gippsland Goldstein Gorton Higgins Holt Hotham Indi Isaacs Jagajaga Kooyong La_Trobe Lalor Mallee Maribyrnong McEwen McMillan Melbourne Melbourne_Ports Menzies Murray Scullin Wannon Wills Brand Canning Cowan Curtin Durack Forrest Fremantle Hasluck Moore O_Connor Pearce Perth Stirling Swan Tangney
+ELECTORATE_NAMES := Canberra Fraser Banks Barton Bennelong Berowra Blaxland Bradfield Calare Chifley Cook Cowper Cunningham Dobell Eden-Monaro Farrer Fowler Gilmore Grayndler Greenway Hughes Hume Hunter Kingsford_Smith Lindsay Lyne Macarthur Mackellar Macquarie McMahon Mitchell New_England Newcastle North_Sydney Page Parkes Parramatta Paterson Reid Richmond Riverina Robertson Shortland Sydney Warringah Watson Wentworth Werriwa Whitlam Lingiari Solomon Blair Bonner Bowman Brisbane Capricornia Dawson Dickson Fadden Fairfax Fisher Flynn Forde Griffith Groom Herbert Hinkler Kennedy Leichhardt Lilley Longman Maranoa McPherson Moncrieff Moreton Oxley Petrie Rankin Ryan Wide_Bay Wright Adelaide Barker Boothby Grey Hindmarsh Kingston Makin Mayo Port_Adelaide Sturt Wakefield Bass Braddon Denison Franklin Lyons Aston Ballarat Batman Bendigo Bruce Calwell Casey Chisholm Corangamite Corio Deakin Dunkley Flinders Gellibrand Gippsland Goldstein Gorton Higgins Holt Hotham Indi Isaacs Jagajaga Kooyong La_Trobe Lalor Mallee Maribyrnong McEwen McMillan Melbourne Melbourne_Ports Menzies Murray Scullin Wannon Wills Brand Burt Canning Cowan Curtin Durack Forrest Fremantle Hasluck Moore O_Connor Pearce Perth Stirling Swan Tangney
 
 
 define SEAT_RULES
 
-$(SEAT_RESULTS_DIR)/$(SEAT).csv: $(STATE_SWINGS) $(TWOPP_CSV) $(PRIMARY_TRENDS) $(TCP_FLOWS) $(FIRST_PREFS_BY_SEAT) $(FIRST_PREFS_BY_STATE)
+$(SEAT_RESULTS_DIR)/$(SEAT).csv: $(STATE_SWINGS) $(TWOPP_CSV) $(PRIMARY_TRENDS) $(TCP_FLOWS) $(FIRST_PREFS_BY_SEAT) $(FIRST_PREFS_BY_STATE) $(WA_REDISTRIBUTION) $(NSW_REDISTRIBUTION)
 	Rscript WriteSingleSeatResults.R $$@ $$^ $(SEAT) $(N_SEAT_REPS)
 
 SEAT_RESULTS += $(SEAT_RESULTS_DIR)/$(SEAT).csv 
