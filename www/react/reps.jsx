@@ -19,8 +19,10 @@ var RepsResultText = React.createClass({
                 the Greens <span className="repsSummaryNumber">{nGrnSeats}</span>,
                 Palmer United with <span className="repsSummaryNumber">{nPupSeats}</span> and
                 Independents winning <span className="repsSummaryNumber">{nOthSeats}</span>.
-                <br/><b>Caveats:</b> The model is likely to get about 10-12 individual seats wrong, hopefully in a way that stays close to the overall total.
+                <br/><b>Caveats:</b> The model is likely to get about 10 individual seats wrong, hopefully in a way that makes the errors cancel each other out a little so the overall total is ok.
                   And it's based on state-level polls, so individual seats could behave very differently if they have unsusually high third-party or independent votes.
+                  <br/>Also, the seat winners aren't a linear function of the 2PP numbers.
+                    In very marginal seats, sometimes the most likely winner has an average 2PP of just below 50, because the model sees many scenarios in which they win narrowly and a few scenarios where they lose decisively.
             </div>
         );
     }
