@@ -18,7 +18,9 @@ var RepsResultText = React.createClass({displayName: "RepsResultText",
                 "the ALP ", React.createElement("span", {className: "repsSummaryNumber"}, nAlpSeats), "," + ' ' +
                 "the Greens ", React.createElement("span", {className: "repsSummaryNumber"}, nGrnSeats), "," + ' ' +
                 "Palmer United with ", React.createElement("span", {className: "repsSummaryNumber"}, nPupSeats), " and" + ' ' +
-                "Independents winning ", React.createElement("span", {className: "repsSummaryNumber"}, nOthSeats), "."
+                "Independents winning ", React.createElement("span", {className: "repsSummaryNumber"}, nOthSeats), ".", 
+                React.createElement("br", null), React.createElement("b", null, "Caveats:"), " The model is likely to get about 10-12 individual seats wrong, hopefully in a way that stays close to the overall total." + ' ' +
+                  "And it's based on state-level polls, so individual seats could behave very differently if they have unsusually high third-party or independent votes."
             )
         );
     }
@@ -94,8 +96,8 @@ var RepsSeatExtraInfoRow = React.createClass({displayName: "RepsSeatExtraInfoRow
     render: function() {
         var wikiLink = "http://en.wikipedia.org/wiki/Division_of_" + this.props.data.name;
         var aecLink = "http://www.aec.gov.au/" + this.props.data.name.toLowerCase();
-        var tallyRoomLink = "http://www.tallyroom.com.au/archive/aus2013/" + this.props.data.name.toLowerCase() + "2013";
-        var abcLink = "http://www.abc.net.au/news/federal-election-2013/guide/" + this.props.data.name.toLowerCase().substring(0,4);
+        var tallyRoomLink = "http://www.tallyroom.com.au/archive/aus2016/" + this.props.data.name.toLowerCase() + "2016";
+        var abcLink = "http://www.abc.net.au/news/federal-election-2016/guide/" + this.props.data.name.toLowerCase().substring(0,4);
         return(
             React.createElement("div", {className: "seatExtraInfo"}, 
                 React.createElement("div", {className: "seatWikiLink"}, 
@@ -189,7 +191,7 @@ var RepsStatesFilter = React.createClass({displayName: "RepsStatesFilter",
 var RepsSection = React.createClass({displayName: "RepsSection",
     getInitialState: function() {
         return({
-            seatTypes: "changingHands",
+            seatTypes: "all",
             statesToShow: "allStates"
         });
     },
