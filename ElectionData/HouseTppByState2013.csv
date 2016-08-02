@@ -1,0 +1,20 @@
+2013 Federal Election House of Representatives Two Party Preferred By State [Event:17496 Phase:FinalResults Generated:2014-10-28T11:23:05 Cycle:570ee0da-3d7a-4f7e-8aa1-3c32a4f287ed Created:2014-05-16T14:24:09 Environment:PROD Site:PARKES Server:ACT01 Version:9.1.17.21449]
+
+StateAb,StateNm,Australian Labor Party Votes,Australian Labor Party Percentage,Liberal/National Coalition Votes,Liberal/National Coalition Percentage,TotalVotes,Swing
+
+NSW,New South Wales,1896175,45.65,2257654,54.35,4153829,-3.19
+
+VIC,Victoria,1653977,50.2,1640682,49.8,3294659,-5.11
+
+QLD,Queensland,1085449,43.02,1437803,56.98,2523252,-1.84
+
+WA,Western Australia,528394,41.72,738110,58.28,1266504,-1.87
+
+SA,South Australia,478952,47.64,526493,52.36,1005445,-5.54
+
+TAS,Tasmania,169208,51.23,161086,48.77,330294,-9.39
+
+ACT,Australian Capital Territory,144688,59.91,96815,40.09,241503,-1.76
+
+NT,Northern Territory,49374,49.65,50067,50.35,99441,-1.09
+

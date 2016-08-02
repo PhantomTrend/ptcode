@@ -1,0 +1,106 @@
+2016 Federal Election House of Representatives First Preferences By Party [Please Note: These results are not final. Event:20499 Phase:PostElection Generated:2016-07-11T13:49:20 Cycle:aea4fe1b-bd09-4e11-959e-1da89be8c677 Created:2016-07-11T13:46:40 Environment:PROD Site:CDC Server:DB01 Version:10.4.37.36662]
+
+PartyAb,PartyNm,OrderOfAppearance,Contested,Nominations,Elected,OrdinaryVotes,OrdinaryPercentage,AbsentVotes,AbsentPercentage,ProvisionalVotes,ProvisionalPercentage,PrePollVotes,PrePollPercentage,PostalVotes,PostalPercentage,TotalVotes,TotalPercentage,TotalSwing
+
+LP,Liberal,1,107,107,0,3175076,28.39,16411,23.86,0,0,4985,36.58,207369,31.98,3403841,28.57,-3.45
+
+LNP,Liberal National Party,2,30,30,0,923598,8.26,7084,10.3,0,0,1264,9.28,73399,11.32,1005345,8.44,-0.48
+
+NP,The Nationals,3,22,22,1,552928,4.94,611,0.89,0,0,0,0,27198,4.19,580737,4.87,0.58
+
+CLP,Country Liberals (NT),4,2,2,0,28202,0.25,298,0.43,0,0,0,0,1714,0.26,30214,0.25,-0.07
+
+ALP,Australian Labor Party,5,150,150,0,3956012,35.38,24201,35.19,0,0,4228,31.03,201203,31.03,4185644,35.13,1.75
+
+GRN,The Greens,6,150,150,0,1107508,9.9,8959,13.03,0,0,1322,9.7,48037,7.41,1165826,9.79,1.14
+
+PUP,Palmer United Party,7,1,1,0,259,0,7,0.01,0,0,0,0,14,0,280,0,-5.49
+
+KAP,Katter's Australian Party,8,12,12,0,59703,0.53,201,0.29,0,0,26,0.19,4023,0.62,63953,0.54,-0.5
+
+FFP,Family First,9,65,65,0,161523,1.44,1939,2.82,0,0,314,2.3,10496,1.62,174272,1.46,0.05
+
+CDP,Christian Democratic Party,10,55,55,0,152577,1.36,764,1.11,0,0,55,0.4,6613,1.02,160009,1.34,0.65
+
+ASXP,Australian Sex Party,11,6,6,0,9592,0.09,31,0.05,0,0,0,0,412,0.06,10035,0.08,-0.53
+
+RUA,Rise Up Australia Party,12,31,31,0,55199,0.49,304,0.44,0,0,65,0.48,3556,0.55,59124,0.5,0.12
+
+AUC,Australian Christians,13,18,18,0,34960,0.31,471,0.68,0,0,95,0.7,1812,0.28,37338,0.31,-0.02
+
+DLP,DLP - Democratic Labour Party,14,3,3,0,2473,0.02,61,0.09,0,0,0,0,119,0.02,2653,0.02,-0.26
+
+ON,One Nation,15,15,15,0,141713,1.27,902,1.31,0,0,123,0.9,9645,1.49,152383,1.28,1.11
+
+BTA,Bullet Train For Australia,16,4,4,0,11399,0.1,0,0,0,0,0,0,459,0.07,11858,0.1,-0.05
+
+CEC,Citizens Electoral Council,17,7,7,0,4413,0.04,15,0.02,0,0,0,0,255,0.04,4683,0.04,-0.04
+
+AFN,Australia First Party (NSW) Incorporated,18,4,4,0,5522,0.05,35,0.05,0,0,0,0,287,0.04,5844,0.05,-0.01
+
+SAL,Socialist Alliance,19,4,4,0,2997,0.03,0,0,0,0,0,0,106,0.02,3103,0.03,-0.01
+
+LDP,Liberal Democrats (LDP),20,33,33,0,50365,0.45,352,0.51,0,0,11,0.08,3424,0.53,54152,0.45,0.41
+
+CYA,Australian Country Party,21,3,3,0,5788,0.05,34,0.05,0,0,0,0,419,0.06,6241,0.05,0.01
+
+SPP,Sustainable Australia,22,1,1,0,410,0,0,0,0,0,0,0,12,0,422,0,-0.03
+
+AJP,Animal Justice Party,23,41,41,0,71888,0.64,680,0.99,0,0,198,1.45,6918,1.07,79684,0.67,0.66
+
+NCP,Non-Custodial Parents Party,24,2,2,0,3165,0.03,0,0,0,0,0,0,125,0.02,3290,0.03,0.02
+
+FUT,Science Party,25,10,10,0,12179,0.11,42,0.06,0,0,0,0,506,0.08,12727,0.11,0.1
+
+VEP,Voluntary Euthanasia Party,26,1,1,0,647,0.01,13,0.02,0,0,0,0,96,0.01,756,0.01,0.01
+
+SOL,Online Direct Democracy,27,10,10,0,6747,0.06,33,0.05,0,0,0,0,410,0.06,7190,0.06,0.06
+
+AAPP,Australian Antipaedophile Party,28,1,1,0,1212,0.01,0,0,0,0,0,0,102,0.02,1314,0.01,0.01
+
+CYC,Australian Cyclists Party,29,2,2,0,665,0.01,3,0,0,0,0,0,37,0.01,705,0.01,0.01
+
+ADVP,Australian Defence Veterans Party,30,4,4,0,3298,0.03,71,0.1,0,0,9,0.07,299,0.05,3677,0.03,0.03
+
+AEQ,Australian Equality Party (Marriage),31,3,3,0,2021,0.02,10,0.01,0,0,0,0,243,0.04,2274,0.02,0.02
+
+ALA,Australian Liberty Alliance,32,10,10,0,21744,0.19,212,0.31,0,0,23,0.17,1201,0.19,23180,0.19,0.19
+
+AUP,Australian Progressives,33,1,1,0,228,0,3,0,0,0,0,0,17,0,248,0,0
+
+ARF,Australian Recreational Fishers,34,3,3,0,9640,0.09,249,0.36,0,0,79,0.58,592,0.09,10560,0.09,0.09
+
+CRNT,Consumer Rights & No-Tolls,35,1,1,0,1579,0.01,0,0,0,0,0,0,170,0.03,1749,0.01,0.01
+
+CM,CountryMinded,36,2,2,0,2635,0.02,0,0,0,0,0,0,161,0.02,2796,0.02,0.02
+
+DHJP,Derryn Hinch's Justice Party,37,6,6,0,12138,0.11,35,0.05,0,0,0,0,1741,0.27,13914,0.12,0.12
+
+DRF,Drug Law Reform,38,11,11,0,15328,0.14,316,0.46,0,0,38,0.28,894,0.14,16576,0.14,0.14
+
+GLT,Glenn Lazarus Team,39,3,3,0,8505,0.08,20,0.03,0,0,0,0,372,0.06,8897,0.07,0.07
+
+HMP,HEMP,40,1,1,0,947,0.01,13,0.02,0,0,0,0,56,0.01,1016,0.01,0.01
+
+MAP,Mature Australia Party,41,4,4,0,4596,0.04,43,0.06,0,0,0,0,339,0.05,4978,0.04,0.04
+
+XEN,Nick Xenophon Team,42,18,18,0,208207,1.86,1865,2.71,0,0,394,2.89,12486,1.93,222952,1.87,1.87
+
+NAFD,Non Affiliated,43,2,2,0,2572,0.02,52,0.08,0,0,0,0,151,0.02,2775,0.02,-0.02
+
+ODR,Outdoor Recreation Party (Stop The Greens),44,1,1,0,1982,0.02,43,0.06,0,0,0,0,56,0.01,2081,0.02,0.02
+
+PIR,Pirate Party,45,1,1,0,966,0.01,22,0.03,0,0,5,0.04,65,0.01,1058,0.01,0.01
+
+REP,Renewable Energy Party,46,8,8,0,6758,0.06,168,0.24,0,0,53,0.39,671,0.1,7650,0.06,0.06
+
+ASP,"Shooters, Fishers and Farmers",47,6,6,0,12232,0.11,254,0.37,0,0,0,0,780,0.12,13266,0.11,0.11
+
+SMK,Smokers Rights Party,48,1,1,0,1072,0.01,0,0,0,0,0,0,50,0.01,1122,0.01,0.01
+
+SEP,Socialist Equality Party,49,3,3,0,1283,0.01,0,0,0,0,0,0,47,0.01,1330,0.01,0.01
+
+TAP,The Arts Party,50,7,7,0,5361,0.05,84,0.12,0,0,1,0.01,368,0.06,5814,0.05,0.05
+
+IND,Independent,51,72,108,0,320719,2.87,1870,2.72,0,0,338,2.48,18993,2.93,341920,2.87,1.5
+
